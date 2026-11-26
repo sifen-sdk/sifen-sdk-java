@@ -6,8 +6,9 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: en desarrollo (fase 2), sin versión publicada.** El núcleo ya valida, firma y genera el QR de facturas
-> y notas de crédito, sin red. Todavía no envía a SIFEN (fase 3) ni está probado contra el ambiente de test.
+> **Estado: en desarrollo (fase 3), sin versión publicada.** Valida, firma y genera el QR de facturas y notas de
+> crédito, y las envía a SIFEN (síncrono y por lote), con consultas y eventos. Probado contra un SIFEN simulado;
+> todavía no contra el ambiente de test real ([cómo correr esa prueba](docs/pruebas-contra-sifen.md)).
 > El avance se sigue en la [hoja de ruta](#hoja-de-ruta).
 
 > Proyecto comunitario e independiente. **No está afiliado a la DNIT ni cuenta con su aval.** "SIFEN" y
@@ -50,7 +51,23 @@ Csc csc = Csc.of("0001", secret);
 SignedDocument signed = documents.sign(invoice, certificate, csc);
 
 store(signed.cdc(), signed.xml());              // guardalo antes de enviarlo; se envían esos mismos bytes
+
+SifenClient client = SifenClient.builder()
+    .environment(Environment.TEST)
+    .keyMaterial(certificate)                   // TLS mutuo con el certificado de ESTE emisor
+    .build();                                   // uno por emisor; inmutable y seguro entre hilos
+
+BatchSubmission submission = client.sendBatch(List.of(signed));
+// Más tarde (BatchSchedule dice cuándo, para no provocar bloqueos):
+BatchResult result = client.queryBatch(submission.protocolNumber());
 ```
+
+- **Un rechazo de SIFEN es un resultado** (`Status.REJECTED` con sus códigos y mensajes), no una excepción.
+- **Nunca reenvía solo.** Si la conexión se corta después de enviar, `TransportException.outcomeUnknown()` lo
+  dice: consultá por CDC antes de reenviar (SIFEN bloquea al que reenvía un documento en proceso).
+- **Todo intercambio queda disponible** (`exchange()`: bytes enviados y recibidos) para auditoría.
+- **Para tus pruebas:** `sifen-sdk-testing` trae un SIFEN simulado con TLS mutuo y respuestas válidas según los
+  esquemas oficiales.
 
 - **No toca tus importes.** Si un total no cumple la fórmula de SIFEN, te lo informa con el campo, la regla, el
   código de rechazo y la fuente; no lo corrige.
@@ -84,8 +101,8 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 |---|---|---|
 | 0 | Fundaciones: repositorios, decisiones, integración continua | Hecha |
 | 1 | Especificación como datos (`spec`) | Hecha |
-| 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | En curso |
-| 3 | Cliente de web services → 0.2.0 | Pendiente |
+| 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | Hecha (sin publicar) |
+| 3 | Cliente de web services → 0.2.0 | En curso |
 | 4 | Resto de documentos y todos los eventos → 0.3.0 | Pendiente |
 | 5 | Certificados en token, HSM y firma remota → 0.4.0 | Pendiente |
 | 6 | Cálculo opcional, KuDE y sitio de documentación → 0.5.0 | Pendiente |

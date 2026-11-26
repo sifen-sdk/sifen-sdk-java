@@ -18,6 +18,7 @@ public final class TransportException extends SifenException {
 
   private static final long serialVersionUID = 1L;
 
+  /** Whether the request may have reached SIFEN. */
   private final boolean outcomeUnknown;
 
   /**

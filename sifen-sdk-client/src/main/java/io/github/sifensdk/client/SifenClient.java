@@ -151,7 +151,8 @@ public final class SifenClient {
   /**
    * Sends up to 15 signed events ({@code siRecepEvento}).
    *
-   * @param signedEvents each signed event ({@code rEve}) exactly as signed
+   * @param signedEvents each signed event exactly as signed: the {@code rGesEve} element, with its
+   *     {@code rEve} and its {@code Signature}
    * @return the outcome of each event
    * @throws IllegalArgumentException if more events than SIFEN admits are given
    * @throws TransportException if SIFEN could not be reached

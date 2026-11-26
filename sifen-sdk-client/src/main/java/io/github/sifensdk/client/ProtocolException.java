@@ -19,6 +19,7 @@ public final class ProtocolException extends SifenException {
 
   private static final long serialVersionUID = 1L;
 
+  /** The raw exchange; not serialized. */
   private final transient @Nullable Exchange exchange;
 
   /**
