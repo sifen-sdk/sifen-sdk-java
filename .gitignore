@@ -19,3 +19,4 @@ target/
 # Synthetic test key material only (see sifen-sdk-core/src/test/resources/signing/README.md)
 !sifen-sdk-core/src/test/resources/signing/*.p12
 !sifen-sdk-core/src/test/resources/signing/*.pem
+!sifen-sdk-testing/src/main/resources/io/github/sifensdk/testing/simulated-sifen-server.p12
