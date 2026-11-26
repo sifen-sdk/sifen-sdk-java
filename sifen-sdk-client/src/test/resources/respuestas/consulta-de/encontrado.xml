@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+ <env:Header/>
+ <env:Body>
+  <ns2:rEnviConsDeResponse xmlns:ns2="http://ekuatia.set.gov.py/sifen/xsd">
+   <ns2:dFecProc>2025-01-16T09:00:00-03:00</ns2:dFecProc>
+   <ns2:dCodRes>0422</ns2:dCodRes>
+   <ns2:dMsgRes>CDC encontrado</ns2:dMsgRes>
+   <ns2:xContenDE>&lt;rContDe xmlns="http://ekuatia.set.gov.py/sifen/xsd"&gt;&lt;rDE&gt;&lt;dVerFor&gt;150&lt;/dVerFor&gt;&lt;DE Id="01444444017001001001452822017012515873260988"&gt;&lt;dRazRec&gt;A &amp;amp; B S.A.&lt;/dRazRec&gt;&lt;/DE&gt;&lt;/rDE&gt;&lt;dProtAut&gt;1234567890&lt;/dProtAut&gt;&lt;/rContDe&gt;</ns2:xContenDE>
+  </ns2:rEnviConsDeResponse>
+ </env:Body>
+</env:Envelope>
