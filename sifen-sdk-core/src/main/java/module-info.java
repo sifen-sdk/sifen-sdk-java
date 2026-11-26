@@ -3,9 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/** Offline core of the SIFEN SDK: document model, XML, validation, CDC, signing and QR. */
+/**
+ * Offline core of the SIFEN SDK: document model, XML, validation, CDC, signing and QR.
+ *
+ * <p>Depends on the JDK only (ADR-0002). Packages under {@code internal} are not exported.
+ */
 module io.github.sifensdk.core {
-  requires static org.jspecify;
+  requires static transitive org.jspecify;
+  requires java.xml;
+  requires java.xml.crypto;
 
   exports io.github.sifensdk.core;
+  exports io.github.sifensdk.core.validation;
 }
