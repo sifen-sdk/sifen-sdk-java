@@ -30,6 +30,8 @@ public final class ValidationResult {
   }
 
   /**
+   * Whether there is no issue of severity {@link Severity#ERROR}.
+   *
    * @return whether there is no issue of severity {@link Severity#ERROR}
    */
   public boolean isValid() {
@@ -37,6 +39,8 @@ public final class ValidationResult {
   }
 
   /**
+   * All issues.
+   *
    * @return all issues
    */
   public List<ValidationIssue> issues() {
@@ -44,6 +48,8 @@ public final class ValidationResult {
   }
 
   /**
+   * Issues of severity {@link Severity#ERROR}.
+   *
    * @return issues of severity {@link Severity#ERROR}
    */
   public List<ValidationIssue> errors() {
@@ -51,6 +57,8 @@ public final class ValidationResult {
   }
 
   /**
+   * Ids of applicable rules that cannot be checked offline.
+   *
    * @return ids of applicable rules that cannot be checked offline
    */
   public List<String> uncheckedRules() {

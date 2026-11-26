@@ -24,6 +24,8 @@ public final class ValidationException extends SifenException {
   }
 
   /**
+   * The validation result.
+   *
    * @return the validation result
    */
   public ValidationResult result() {

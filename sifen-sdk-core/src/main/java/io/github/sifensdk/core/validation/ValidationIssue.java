@@ -62,6 +62,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Severity.
+   *
    * @return severity
    */
   public Severity severity() {
@@ -69,6 +71,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Rule id, or {@code XSD} for schema errors.
+   *
    * @return rule id, or {@code XSD} for schema errors
    */
   public String ruleId() {
@@ -76,6 +80,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Field id, or null.
+   *
    * @return field id, or null
    */
   public @Nullable String fieldId() {
@@ -83,6 +89,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * XML element name, or null.
+   *
    * @return XML element name, or null
    */
   public @Nullable String xmlName() {
@@ -90,6 +98,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Location in the document.
+   *
    * @return location in the document
    */
   public String path() {
@@ -97,6 +107,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * What is wrong.
+   *
    * @return what is wrong
    */
   public String message() {
@@ -104,6 +116,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * The code SIFEN would answer with, or null.
+   *
    * @return the code SIFEN would answer with, or null
    */
   public @Nullable String sifenCode() {
@@ -111,6 +125,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Official sources of the rule.
+   *
    * @return official sources of the rule
    */
   public List<String> sources() {
@@ -118,6 +134,8 @@ public final class ValidationIssue {
   }
 
   /**
+   * Open contradictions that affect the rule.
+   *
    * @return open contradictions that affect the rule
    */
   public List<String> contradictions() {
