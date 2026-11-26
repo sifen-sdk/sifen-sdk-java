@@ -13,11 +13,6 @@
   <name>SIFEN SDK for Java :: client</name>
   <description>SIFEN web service client: environments, mutual TLS, typed results.</description>
 
-  <properties>
-    <!-- No public type yet: Javadoc has nothing to document. Remove with the module's first public class. -->
-    <maven.javadoc.skip>true</maven.javadoc.skip>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.github.sifen-sdk</groupId>
