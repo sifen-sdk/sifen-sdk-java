@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+ <env:Header/>
+ <env:Body>
+  <ns2:rRetEnviDe xmlns:ns2="http://ekuatia.set.gov.py/sifen/xsd">
+   <ns2:rProtDe>
+    <ns2:Id>01444444017001001001452822017012515873260988</ns2:Id>
+    <ns2:dFecProc>2025-01-15T10:20:30-03:00</ns2:dFecProc>
+    <ns2:dDigVal>UHJ1ZWJhIHNpbnTDqXRpY2EgZGUgZGlnZXN0</ns2:dDigVal>
+    <ns2:dEstRes>Rechazado</ns2:dEstRes>
+    <ns2:gResProc>
+     <ns2:dCodRes>1101</ns2:dCodRes>
+     <ns2:dMsgRes>Número de timbrado inválido</ns2:dMsgRes>
+    </ns2:gResProc>
+    <ns2:gResProc>
+     <ns2:dCodRes>1306</ns2:dCodRes>
+     <ns2:dMsgRes>RUC del receptor inexistente en la base de datos de Marangatu</ns2:dMsgRes>
+    </ns2:gResProc>
+    <ns2:gResProc>
+     <ns2:dCodRes>1004</ns2:dCodRes>
+     <ns2:dMsgRes>La fecha y hora de la firma digital es adelantada</ns2:dMsgRes>
+    </ns2:gResProc>
+   </ns2:rProtDe>
+  </ns2:rRetEnviDe>
+ </env:Body>
+</env:Envelope>

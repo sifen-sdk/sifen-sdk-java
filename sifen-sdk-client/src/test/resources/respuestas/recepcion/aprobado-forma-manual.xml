@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+ <env:Header/>
+ <env:Body>
+  <ns2:rRetEnviDe xmlns:ns2="http://ekuatia.set.gov.py/sifen/xsd">
+   <ns2:rProtDe>
+    <ns2:id>01444444017001001001452822017012515873260988</ns2:id>
+    <ns2:dFecProc>2025-01-15T10:20:30</ns2:dFecProc>
+    <ns2:dDigVal>UHJ1ZWJhIHNpbnTDqXRpY2EgZGUgZGlnZXN0</ns2:dDigVal>
+    <ns2:gResProc>
+     <ns2:dEstRes>Aprobado</ns2:dEstRes>
+     <ns2:dProtAut>1234567890</ns2:dProtAut>
+     <ns2:dCodRes>0260</ns2:dCodRes>
+     <ns2:dMsgRes>Autorización del DE satisfactoria</ns2:dMsgRes>
+    </ns2:gResProc>
+   </ns2:rProtDe>
+  </ns2:rRetEnviDe>
+ </env:Body>
+</env:Envelope>
