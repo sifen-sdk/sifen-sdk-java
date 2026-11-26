@@ -39,6 +39,12 @@ public record BatchResult(
     /** SIFEN does not know the protocol number (code 0360). */
     NOT_FOUND,
     /** The query window expired (48 hours after sending, code 0364): query each document by CDC. */
-    EXPIRED
+    EXPIRED,
+    /**
+     * SIFEN rejected the query or the batch as a whole (for example code 0340, RUC without
+     * permission, or 0363, documents of different types): see the messages. No document of the
+     * batch was processed.
+     */
+    REJECTED
   }
 }
