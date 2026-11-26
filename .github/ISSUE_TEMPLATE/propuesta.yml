@@ -1,0 +1,19 @@
+name: Propuesta / Feature request
+description: Una función nueva o un cambio de SIFEN que el SDK todavía no cubre.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: necesidad
+    attributes:
+      label: Qué necesitás y para qué
+    validations:
+      required: true
+  - type: input
+    id: fuente
+    attributes:
+      label: Fuente oficial
+      description: Manual Técnico, Nota Técnica (número y fecha) o XSD, si la propuesta viene de un cambio de SIFEN.
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas que consideraste

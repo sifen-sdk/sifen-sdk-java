@@ -1,0 +1,40 @@
+name: Error / Bug
+description: Algo no funciona como SIFEN documenta o como el SDK promete.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **No pegues datos reales:** certificados, claves, contraseñas, CSC, RUC, nombres ni documentos de producción. Usá datos sintéticos.
+  - type: input
+    id: version
+    attributes:
+      label: Versión del SDK y de Java
+      placeholder: "sifen-sdk 0.1.0, Java 21"
+    validations:
+      required: true
+  - type: dropdown
+    id: ambiente
+    attributes:
+      label: Ambiente de SIFEN
+      options: [No aplica, Test, Producción]
+    validations:
+      required: true
+  - type: textarea
+    id: que-pasa
+    attributes:
+      label: Qué pasa y qué esperabas
+    validations:
+      required: true
+  - type: textarea
+    id: reproducir
+    attributes:
+      label: Cómo reproducirlo
+      description: Código mínimo con datos sintéticos. Si SIFEN rechazó, incluí el código y el mensaje de respuesta.
+    validations:
+      required: true
+  - type: input
+    id: fuente
+    attributes:
+      label: Fuente oficial (si aplica)
+      description: Campo o validación del Manual Técnico, Nota Técnica o XSD que respalda el comportamiento esperado.

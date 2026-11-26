@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Preguntas de uso / Usage questions
+    url: https://github.com/sifen-sdk/sifen-sdk-java/discussions
+    about: Para dudas e ideas, usá Discussions.
+  - name: Vulnerabilidad / Security vulnerability
+    url: https://github.com/sifen-sdk/sifen-sdk-java/security/advisories/new
+    about: Reportala de forma privada. No abras un issue público.

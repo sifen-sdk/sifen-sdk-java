@@ -1,0 +1,17 @@
+target/
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+*.log
+
+# Key material must never be committed
+*.p12
+*.pfx
+*.jks
+*.pem
+*.key
+.env

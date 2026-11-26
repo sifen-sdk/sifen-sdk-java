@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Standalone on purpose: a BOM must not leak the build's own dependency management to its users. -->
+  <groupId>io.github.sifen-sdk</groupId>
+  <artifactId>sifen-sdk-bom</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>SIFEN SDK for Java :: BOM</name>
+  <description>Bill of materials that aligns the versions of every SIFEN SDK module.</description>
+  <url>https://github.com/sifen-sdk/sifen-sdk-java</url>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>SIFEN SDK contributors</name>
+      <url>https://github.com/sifen-sdk/sifen-sdk-java/graphs/contributors</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/sifen-sdk/sifen-sdk-java.git</connection>
+    <developerConnection>scm:git:https://github.com/sifen-sdk/sifen-sdk-java.git</developerConnection>
+    <url>https://github.com/sifen-sdk/sifen-sdk-java</url>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.github.sifen-sdk</groupId>
+        <artifactId>sifen-sdk-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.sifen-sdk</groupId>
+        <artifactId>sifen-sdk-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.sifen-sdk</groupId>
+        <artifactId>sifen-sdk-calc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.sifen-sdk</groupId>
+        <artifactId>sifen-sdk-kude</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.sifen-sdk</groupId>
+        <artifactId>sifen-sdk-testing</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

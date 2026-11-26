@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, "[0-9]+.x"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Java ${{ matrix.java }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        java: ["17", "21", "25"]
+        include:
+          - os: windows-latest
+            java: "21"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Build and test
+        run: ./mvnw -B -ntp verify
+
+  packaging:
+    name: Release packaging (dry run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - name: Build sources and Javadoc jars without signing or publishing
+        run: ./mvnw -B -ntp -Prelease -Dgpg.skip verify
+
+  # Single required check for branch protection.
+  ci-ok:
+    name: CI OK
+    if: always()
+    needs: [build, packaging]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for r in $RESULTS; do
+            if [ "$r" != "success" ]; then echo "A job finished with: $r"; exit 1; fi
+          done
