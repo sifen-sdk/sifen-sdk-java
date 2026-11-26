@@ -15,5 +15,7 @@ estas son las propias del SDK de Java.
 | [0007](0007-sin-reenvio-automatico.md) | Nunca reenviar automáticamente una recepción | Aceptada |
 | [0008](0008-material-de-claves-por-interfaz.md) | Certificados y claves detrás de una interfaz | Aceptada |
 | [0009](0009-build-publicacion-y-licencia.md) | Maven, Maven Central, Apache-2.0 y DCO | Aceptada |
+| [0010](0010-semantica-de-la-verificacion-aritmetica.md) | Semántica de la verificación aritmética | Aceptada |
+| [0011](0011-lo-que-completa-el-sdk.md) | Lo que completa el SDK y lo que trae el emisor | Aceptada |
 
 Plantilla: [0000-plantilla.md](0000-plantilla.md).

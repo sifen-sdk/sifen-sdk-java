@@ -6,8 +6,8 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: en construcción (fase 0).** Todavía no hay ninguna versión publicada ni funcionalidad utilizable.
-> Este repositorio contiene la estructura del proyecto, sus decisiones de diseño y su integración continua.
+> **Estado: en desarrollo (fase 2), sin versión publicada.** El núcleo ya valida, firma y genera el QR de facturas
+> y notas de crédito, sin red. Todavía no envía a SIFEN (fase 3) ni está probado contra el ambiente de test.
 > El avance se sigue en la [hoja de ruta](#hoja-de-ruta).
 
 > Proyecto comunitario e independiente. **No está afiliado a la DNIT ni cuenta con su aval.** "SIFEN" y
@@ -29,6 +29,34 @@ Un SDK de **integración**, no un sistema de facturación:
 
 Las reglas, catálogos y casos de prueba viven como datos en
 [`sifen-sdk/spec`](https://github.com/sifen-sdk/spec), para que los SDK de otros lenguajes se comporten igual.
+
+## Uso
+
+```java
+SifenDocuments documents = SifenDocuments.builder()
+    .environment(Environment.TEST)
+    .build();                                   // inmutable: creá una por ambiente y reutilizala
+
+ElectronicDocument invoice = ElectronicDocument.builder()
+    // timbrado, emisor, receptor, ítems y TODOS los importes, tal como los calculó tu sistema
+    .build();
+
+ValidationResult result = documents.validate(invoice);
+result.errors().forEach(System.out::println);
+// ERROR rDE/DE/gTotSub/dTotGralOpe (dTotGralOpe, F014): ... [R-F014-A3, SIFEN 2365, MT150 2365]
+
+KeyMaterial certificate = KeyMaterials.pkcs12(Path.of("certificado.p12"), password);
+Csc csc = Csc.of("0001", secret);
+SignedDocument signed = documents.sign(invoice, certificate, csc);
+
+store(signed.cdc(), signed.xml());              // guardalo antes de enviarlo; se envían esos mismos bytes
+```
+
+- **No toca tus importes.** Si un total no cumple la fórmula de SIFEN, te lo informa con el campo, la regla, el
+  código de rechazo y la fuente; no lo corrige.
+- **Completa lo mecánico:** el CDC y su dígito verificador, las descripciones de catálogo, la fecha de firma, la
+  firma y el QR ([ADR 0011](docs/adr/0011-lo-que-completa-el-sdk.md)).
+- **Reglas por fecha y ambiente:** aplica las vigentes en la fecha de emisión del documento, según cada Nota Técnica.
 
 ## Módulos
 
@@ -54,9 +82,9 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 
 | Fase | Entrega | Estado |
 |---|---|---|
-| 0 | Fundaciones: repositorios, decisiones, integración continua | En curso |
-| 1 | Especificación como datos (`spec`) | Pendiente |
-| 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | Pendiente |
+| 0 | Fundaciones: repositorios, decisiones, integración continua | Hecha |
+| 1 | Especificación como datos (`spec`) | Hecha |
+| 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | En curso |
 | 3 | Cliente de web services → 0.2.0 | Pendiente |
 | 4 | Resto de documentos y todos los eventos → 0.3.0 | Pendiente |
 | 5 | Certificados en token, HSM y firma remota → 0.4.0 | Pendiente |
@@ -66,10 +94,12 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 ## Compilar
 
 ```bash
+git clone --recurse-submodules https://github.com/sifen-sdk/sifen-sdk-java.git
 ./mvnw verify
 ```
 
-Requiere JDK 17 o superior (el formato del código se verifica con JDK 21 o superior).
+Requiere JDK 17 o superior (el formato del código se verifica con JDK 21 o superior). La especificación se incluye
+como submódulo (`spec/`); después de actualizarlo, ejecutá `scripts/spec-index.sh`.
 
 ## Participar
 

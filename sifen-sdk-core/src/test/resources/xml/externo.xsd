@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test schema: includes a schema that is not bundled. Compiling it must fail without network. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ekuatia.set.gov.py/sifen/xsd"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="https://example.invalid/sifen/externo.xsd"/>
+</xs:schema>

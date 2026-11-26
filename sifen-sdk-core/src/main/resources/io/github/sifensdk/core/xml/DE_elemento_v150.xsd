@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2026 SIFEN SDK contributors
+ SPDX-License-Identifier: Apache-2.0
+
+ Wrapper schema of the SIFEN SDK (not an official SIFEN file). The official siRecepDE_v150.xsd only
+ declares the global element rDE, whose content requires ds:Signature and gCamFuFD, so an unsigned
+ document can never validate against it. This wrapper includes the official DE_v150.xsd unchanged
+ and declares a global element DE of the official type tDE, so the signed part of the document can
+ be validated before signing.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://ekuatia.set.gov.py/sifen/xsd"
+           targetNamespace="http://ekuatia.set.gov.py/sifen/xsd"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="https://ekuatia.set.gov.py/sifen/xsd/DE_v150.xsd"/>
+  <xs:element name="DE" type="tDE"/>
+</xs:schema>

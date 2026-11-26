@@ -5,7 +5,8 @@ Context for AI coding agents (and people) working on this repository.
 - **What this is:** a Java SDK for integrating with SIFEN (Paraguay's electronic invoicing). Rules and code
   tables live as data in `sifen-sdk/spec`; this repository implements them.
 - **Read first:** `README.md`, `CONTRIBUTING.md`, `docs/adr/`.
-- **Build and test:** `./mvnw verify`. Fix formatting with `./mvnw spotless:apply`.
+- **Build and test:** `./mvnw verify`. Fix formatting with `./mvnw spotless:apply`. The spec is a git submodule
+  (`spec/`); after updating it run `scripts/spec-index.sh`.
 - **Hard rules:**
   - Never round, recompute or overwrite an amount supplied by the caller. Verify and report only.
   - Never add a validation rule or a default value that SIFEN's documentation does not define. Cite the source

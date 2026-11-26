@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test schema: includes, by relative name, an official-looking schema that is not bundled. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ekuatia.set.gov.py/sifen/xsd"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="NoExiste_v150.xsd"/>
+</xs:schema>

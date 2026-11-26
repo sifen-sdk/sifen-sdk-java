@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rDE [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">]>
+<rDE xmlns="http://ekuatia.set.gov.py/sifen/xsd"><dVerFor>&b;</dVerFor></rDE>

@@ -29,4 +29,36 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!-- The SIFEN specification as data (git submodule, pinned). Bundled so the core works offline. -->
+      <resource>
+        <targetPath>io/github/sifensdk/core/spec</targetPath>
+        <directory>${project.basedir}/../spec</directory>
+        <includes>
+          <include>campos/*.json</include>
+          <include>reglas/*.json</include>
+          <include>catalogos/*.json</include>
+          <include>respuestas/*.json</include>
+          <include>servicios.json</include>
+          <include>xsd/indice.json</include>
+          <include>xsd/oficial/*.xsd</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <targetPath>conformidad</targetPath>
+        <directory>${project.basedir}/../spec/conformidad</directory>
+      </testResource>
+    </testResources>
+  </build>
 </project>
