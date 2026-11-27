@@ -9,5 +9,4 @@
   persona manteniendo, puede fusionar sus propios pull requests; cuando haya dos, cada cambio necesita una
   revisión de otra persona.
 - **Releases.** Según [RELEASING.md](RELEASING.md), desde un entorno protegido.
-- **Neutralidad.** El proyecto es de la comunidad. Web Studio lo creó y lo mantiene, sin trato preferente para
-  sus propios productos.
+- **Neutralidad.** El proyecto es de la comunidad, sin trato preferente para ningún producto ni empresa.

@@ -133,4 +133,4 @@ ni documentos reales.
 
 ## Licencia
 
-[Apache-2.0](LICENSE). Creado y mantenido por Web Studio junto con la comunidad.
+[Apache-2.0](LICENSE).
