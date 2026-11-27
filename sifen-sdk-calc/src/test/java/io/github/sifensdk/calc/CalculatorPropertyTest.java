@@ -117,6 +117,8 @@ class CalculatorPropertyTest {
         if ("2".equals(condition)) {
           price.exchangeRate(exchangeRate);
         }
+      } else {
+        price.selfInvoice();
       }
       ItemAmounts amounts = calculator.item(price.build());
       items.add(Documents.item(i, quantity, amounts));

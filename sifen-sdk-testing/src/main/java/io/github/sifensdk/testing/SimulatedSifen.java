@@ -65,7 +65,9 @@ import org.w3c.dom.Element;
  *       .trustStore(sifen.serverTrustStore())
  *       .build();
  *
- *   sifen.enqueue(SimulatedSifen.RECEPTION, SifenResponses.receptionRejected("1001", "CDC duplicado"));
+ *   sifen.enqueue(
+ *       SimulatedSifen.Service.RECEPTION,
+ *       SifenResponses.receptionRejected("1001", "CDC duplicado"));
  *   ReceptionResult result = client.send(signed);
  *
  *   RecordedRequest request = sifen.recordedRequests().get(0);
@@ -73,19 +75,20 @@ import org.w3c.dom.Element;
  * }</pre>
  *
  * <p>Each request is recorded ({@link #recordedRequests()}) and answered with the next response
- * {@linkplain #enqueue(String, SimulatedResponse) enqueued} for its path, or else with the default
- * response of the service ({@link #defaultResponse(String, SimulatedResponse)} changes it). The
- * defaults behave like a SIFEN that approves everything and remembers it:
+ * {@linkplain #enqueue(Service, SimulatedResponse) enqueued} for its service, or else with the
+ * default response of the service ({@link #defaultResponse(Service, SimulatedResponse)} changes
+ * it). The defaults behave like a SIFEN that approves everything and remembers it:
  *
  * <ul>
- *   <li>{@link #RECEPTION}: {@link SifenResponses#receptionApproved()}.
- *   <li>{@link #BATCH}: {@link SifenResponses#batchAccepted()}, remembering the CDCs of the batch.
- *   <li>{@link #BATCH_RESULT}: {@link SifenResponses#batchProcessed()} for a batch it accepted,
- *       {@link SifenResponses#batchNotFound()} otherwise.
- *   <li>{@link #DOCUMENT_QUERY}: {@link SifenResponses#documentFound()} for a document it approved,
- *       {@link SifenResponses#documentNotFound()} otherwise.
- *   <li>{@link #RUC_QUERY}: {@link SifenResponses#rucFound(String)} with a synthetic name.
- *   <li>{@link #EVENTS}: {@link SifenResponses#eventRegistered()}.
+ *   <li>{@link Service#RECEPTION}: {@link SifenResponses#receptionApproved()}.
+ *   <li>{@link Service#BATCH}: {@link SifenResponses#batchAccepted()}, remembering the CDCs of the
+ *       batch.
+ *   <li>{@link Service#BATCH_RESULT}: {@link SifenResponses#batchProcessed()} for a batch it
+ *       accepted, {@link SifenResponses#batchNotFound()} otherwise.
+ *   <li>{@link Service#DOCUMENT_QUERY}: {@link SifenResponses#documentFound()} for a document it
+ *       approved, {@link SifenResponses#documentNotFound()} otherwise.
+ *   <li>{@link Service#RUC_QUERY}: {@link SifenResponses#rucFound(String)} with a synthetic name.
+ *   <li>{@link Service#EVENTS}: {@link SifenResponses#eventRegistered()}.
  *   <li>Any other path: HTTP 404.
  * </ul>
  *
@@ -95,23 +98,40 @@ import org.w3c.dom.Element;
  */
 public final class SimulatedSifen implements AutoCloseable {
 
-  /** Path of the synchronous reception service ({@code siRecepDE}). */
-  public static final String RECEPTION = "/de/ws/sync/recibe.wsdl";
+  /**
+   * The SIFEN web services this simulated SIFEN answers, by path.
+   *
+   * <p>Constants may be added in minor versions: {@code switch} statements need a default branch.
+   */
+  public enum Service {
+    /** The synchronous reception service ({@code siRecepDE}). */
+    RECEPTION("/de/ws/sync/recibe.wsdl"),
+    /** The batch reception service ({@code siRecepLoteDE}). */
+    BATCH("/de/ws/async/recibe-lote.wsdl"),
+    /** The batch result service ({@code siResultLoteDE}). */
+    BATCH_RESULT("/de/ws/consultas/consulta-lote.wsdl"),
+    /** The document query service ({@code siConsDE}). */
+    DOCUMENT_QUERY("/de/ws/consultas/consulta.wsdl"),
+    /** The taxpayer query service ({@code siConsRUC}). */
+    RUC_QUERY("/de/ws/consultas/consulta-ruc.wsdl"),
+    /** The event reception service ({@code siRecepEvento}). */
+    EVENTS("/de/ws/eventos/evento.wsdl");
 
-  /** Path of the batch reception service ({@code siRecepLoteDE}). */
-  public static final String BATCH = "/de/ws/async/recibe-lote.wsdl";
+    private final String path;
 
-  /** Path of the batch result service ({@code siResultLoteDE}). */
-  public static final String BATCH_RESULT = "/de/ws/consultas/consulta-lote.wsdl";
+    Service(String path) {
+      this.path = path;
+    }
 
-  /** Path of the document query service ({@code siConsDE}). */
-  public static final String DOCUMENT_QUERY = "/de/ws/consultas/consulta.wsdl";
-
-  /** Path of the taxpayer query service ({@code siConsRUC}). */
-  public static final String RUC_QUERY = "/de/ws/consultas/consulta-ruc.wsdl";
-
-  /** Path of the event reception service ({@code siRecepEvento}). */
-  public static final String EVENTS = "/de/ws/eventos/evento.wsdl";
+    /**
+     * The path of the service, as {@link RecordedRequest#path()} shows it.
+     *
+     * @return the path, for example {@code /de/ws/sync/recibe.wsdl}
+     */
+    public String path() {
+      return path;
+    }
+  }
 
   private static final String SERVER_KEY_STORE = "simulated-sifen-server.p12";
   private static final String SERVER_ALIAS = "simulated-sifen";
@@ -138,12 +158,12 @@ public final class SimulatedSifen implements AutoCloseable {
   private SimulatedSifen(Builder b) {
     this.trustedClientCertificates = b.trustedClientCertificates;
     this.state = new State(b.clock);
-    defaults.put(RECEPTION, SifenResponses.receptionApproved());
-    defaults.put(BATCH, SifenResponses.batchAccepted());
-    defaults.put(BATCH_RESULT, SifenResponses.batchResultFromState());
-    defaults.put(DOCUMENT_QUERY, SifenResponses.documentFromState());
-    defaults.put(RUC_QUERY, SifenResponses.rucFound(SifenResponses.SYNTHETIC_NAME));
-    defaults.put(EVENTS, SifenResponses.eventRegistered());
+    defaults.put(Service.RECEPTION.path(), SifenResponses.receptionApproved());
+    defaults.put(Service.BATCH.path(), SifenResponses.batchAccepted());
+    defaults.put(Service.BATCH_RESULT.path(), SifenResponses.batchResultFromState());
+    defaults.put(Service.DOCUMENT_QUERY.path(), SifenResponses.documentFromState());
+    defaults.put(Service.RUC_QUERY.path(), SifenResponses.rucFound(SifenResponses.SYNTHETIC_NAME));
+    defaults.put(Service.EVENTS.path(), SifenResponses.eventRegistered());
   }
 
   /**
@@ -247,28 +267,30 @@ public final class SimulatedSifen implements AutoCloseable {
   }
 
   /**
-   * Enqueues a response for the next request to a path. Responses enqueued for the same path are
-   * used in order, once each; when none is left, the path's default response is used.
+   * Enqueues a response for the next request to a service. Responses enqueued for the same service
+   * are used in order, once each; when none is left, the service's default response is used.
    *
-   * @param path the service path, for example {@link #RECEPTION}
+   * @param service the service, for example {@link Service#RECEPTION}
    * @param response the response
    * @return this simulated SIFEN
    */
-  public SimulatedSifen enqueue(String path, SimulatedResponse response) {
+  public SimulatedSifen enqueue(Service service, SimulatedResponse response) {
+    Objects.requireNonNull(service, "service");
     Objects.requireNonNull(response, "response");
-    queues.computeIfAbsent(normalize(path), p -> new ConcurrentLinkedDeque<>()).addLast(response);
+    queues.computeIfAbsent(service.path(), p -> new ConcurrentLinkedDeque<>()).addLast(response);
     return this;
   }
 
   /**
-   * Replaces the response used for a path when nothing is enqueued for it.
+   * Replaces the response used for a service when nothing is enqueued for it.
    *
-   * @param path the service path, for example {@link #RUC_QUERY}
+   * @param service the service, for example {@link Service#RUC_QUERY}
    * @param response the response
    * @return this simulated SIFEN
    */
-  public SimulatedSifen defaultResponse(String path, SimulatedResponse response) {
-    defaults.put(normalize(path), Objects.requireNonNull(response, "response"));
+  public SimulatedSifen defaultResponse(Service service, SimulatedResponse response) {
+    Objects.requireNonNull(service, "service");
+    defaults.put(service.path(), Objects.requireNonNull(response, "response"));
     return this;
   }
 
@@ -282,13 +304,13 @@ public final class SimulatedSifen implements AutoCloseable {
   }
 
   /**
-   * The requests received so far for one path, in order of arrival.
+   * The requests received so far for one service, in order of arrival.
    *
-   * @param path the service path, for example {@link #BATCH}
+   * @param service the service, for example {@link Service#BATCH}
    * @return an immutable list
    */
-  public List<RecordedRequest> recordedRequests(String path) {
-    String p = normalize(path);
+  public List<RecordedRequest> recordedRequests(Service service) {
+    String p = Objects.requireNonNull(service, "service").path();
     List<RecordedRequest> out = new ArrayList<>();
     for (RecordedRequest r : recorded) {
       if (r.path().equals(p)) {

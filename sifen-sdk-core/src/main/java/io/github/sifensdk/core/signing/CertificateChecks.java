@@ -4,6 +4,7 @@
  */
 package io.github.sifensdk.core.signing;
 
+import io.github.sifensdk.core.validation.Severity;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public final class CertificateChecks {
     if (when.before(certificate.getNotBefore())) {
       issues.add(
           new Issue(
-              true,
+              Severity.ERROR,
               NOT_YET_VALID,
               "The signer's certificate is valid from "
                   + certificate.getNotBefore().toInstant()
@@ -75,7 +76,7 @@ public final class CertificateChecks {
     } else if (when.after(certificate.getNotAfter())) {
       issues.add(
           new Issue(
-              true,
+              Severity.ERROR,
               EXPIRED,
               "The signer's certificate expired on " + certificate.getNotAfter().toInstant()));
     }
@@ -83,7 +84,7 @@ public final class CertificateChecks {
     if (usage != null && !(bit(usage, 0) || bit(usage, 1))) {
       issues.add(
           new Issue(
-              true,
+              Severity.ERROR,
               NO_SIGNING_USAGE,
               "The signer's certificate does not allow digital signature (key usage)"));
     }
@@ -93,7 +94,7 @@ public final class CertificateChecks {
       if (inCertificate != null && !inCertificate.equals(expected)) {
         issues.add(
             new Issue(
-                false,
+                Severity.WARNING,
                 RUC_MISMATCH,
                 "The signer's certificate names another RUC than the issuer's; SIFEN accepts it"
                     + " only if its holder is authorized to sign for the issuer"));
@@ -133,22 +134,33 @@ public final class CertificateChecks {
   /**
    * An issue of the signer's certificate.
    *
-   * @param error whether it prevents signing ({@code false}: a warning)
+   * @param severity {@link Severity#ERROR} if it prevents signing, {@link Severity#WARNING}
+   *     otherwise
    * @param code a stable code, one of the constants of {@link CertificateChecks}
    * @param message a description in English, without the certificate's personal data
    */
-  public record Issue(boolean error, String code, String message) {
+  public record Issue(Severity severity, String code, String message) {
 
     /**
      * Creates the issue.
      *
-     * @param error whether it prevents signing
+     * @param severity the severity
      * @param code the code
      * @param message the description
      */
     public Issue {
+      Objects.requireNonNull(severity, "severity");
       Objects.requireNonNull(code, "code");
       Objects.requireNonNull(message, "message");
+    }
+
+    /**
+     * Returns whether the issue prevents signing.
+     *
+     * @return true if its severity is {@link Severity#ERROR}
+     */
+    public boolean isError() {
+      return severity == Severity.ERROR;
     }
   }
 }

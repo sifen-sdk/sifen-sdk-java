@@ -27,8 +27,8 @@ class SelfInvoiceMapperTest {
   private static SelfInvoice full() {
     return SelfInvoice.builder()
         .sellerNatureCode("2")
-        .sellerIdTypeCode("2")
-        .sellerIdNumber("X1234567")
+        .sellerIdDocumentTypeCode("2")
+        .sellerIdDocumentNumber("X1234567")
         .sellerName("Vendedor Extranjero de Ejemplo")
         .sellerAddress("Calle del Vendedor")
         .sellerHouseNumber("15")

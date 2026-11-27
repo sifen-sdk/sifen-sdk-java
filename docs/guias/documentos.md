@@ -91,8 +91,8 @@ van en `SelfInvoice`:
 DocumentTypeData.builder()
     .selfInvoice(SelfInvoice.builder()
         .sellerNatureCode("1")                       // E301: no contribuyente
-        .sellerIdTypeCode("1")                       // E304: cédula paraguaya
-        .sellerIdNumber("1234567")
+        .sellerIdDocumentTypeCode("1")               // E304: cédula paraguaya
+        .sellerIdDocumentNumber("1234567")
         .sellerName("Vendedor de Ejemplo")
         .sellerAddress("Calle del Vendedor")
         .sellerHouseNumber("0")
@@ -245,7 +245,7 @@ if (!result.isValid()) {
 - **`errors()`** son los que impiden firmar. **`issues()`** incluye además las advertencias (`Severity.WARNING`).
 - **`uncheckedRules()`** son reglas que aplican pero el SDK no puede verificar sin conexión (por ejemplo, un
   plazo que depende del reloj de SIFEN). Revisalas vos.
-- **Una regla como advertencia:** `SifenDocuments.builder().warnings(Set.of("R-…"))` la informa sin bloquear la
+- **Una regla como advertencia:** `SifenDocuments.builder().warningRules(Set.of("R-…"))` la informa sin bloquear la
   firma. Sirve mientras se confirma una contradicción de la especificación.
 - **Fórmulas:** un importe cumple si difiere del resultado exacto en 0,5 o menos en la unidad del campo
   ([ADR 0010](../adr/0010-semantica-de-la-verificacion-aritmetica.md)). Las sumas usan los valores de cada ítem tal

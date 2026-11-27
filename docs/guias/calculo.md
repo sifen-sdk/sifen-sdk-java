@@ -19,14 +19,14 @@ ItemAmounts a = calc.item(ItemPrice.builder()
     .quantity(new BigDecimal("3"))
     .unitPrice(new BigDecimal("12345"))
     .discountPerUnit(new BigDecimal("345"))        // opcional: descuento por unidad (EA002)
-    .taxed(BigDecimal.TEN)                         // o .taxed(5), .exempt(), .exonerated(), .partiallyTaxed(10, 30)
+    .taxed(BigDecimal.TEN)                         // obligatorio: o .exempt(), .exonerated(), .partiallyTaxed(10, 30), .selfInvoice()
     .build());
 
 Item item = Item.builder()
     .description("Producto")
     .unitOfMeasureCode("77")
     .quantity(new BigDecimal("3"))
-    .valuation(a.values())                         // E720: valores, descuentos y total del ítem
+    .values(a.values())                            // E720: valores, descuentos y total del ítem
     .vat(a.vat())                                  // E730: base gravada, IVA y base exenta
     .build();
 
@@ -38,7 +38,10 @@ ElectronicDocument complete = calc.withTotals(document);   // devuelve una copia
   `withTotals(document, tasa)`.
 - **Moneda extranjera:** con un tipo de cambio por ítem (D017 = 2), cargalo en cada ítem (`exchangeRate`); el
   total en guaraníes (F023) se calcula solo. Con un tipo de cambio global (D017 = 1), se toma del documento.
-- **Autofactura:** un ítem sin afectación de IVA es de autofactura (sin descuentos ni grupo de IVA).
+- **Afectación de IVA obligatoria:** siempre elegís una (`taxed`, `exempt`, `exonerated`, `partiallyTaxed` o
+  `selfInvoice`); si no llamás a ninguna, `build()` lanza `IllegalStateException`.
+- **Autofactura:** `selfInvoice()` marca un ítem de autofactura: sin afectación de IVA (E731), sin grupo de IVA y sin
+  descuentos ni anticipos.
 
 ## Cómo calcula
 

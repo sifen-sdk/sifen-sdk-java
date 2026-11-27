@@ -58,7 +58,7 @@ final class EventDetailMapper {
     n.addIfPresent("dDVRec", "GEN008", v.receiverCheckDigit());
     n.addIfPresent("dTipIDRec", "GEN009", v.receiverIdDocumentTypeCode());
     n.addIfPresent("dNumID", "GEN010", v.receiverIdDocumentNumber());
-    n.add(Node.leaf("dTotalGs", "GEN011", Format.amount(v.operationTotalPyg())));
+    n.add(Node.leaf("dTotalGs", "GEN011", Format.amount(v.guaraniTotal())));
     return n;
   }
 

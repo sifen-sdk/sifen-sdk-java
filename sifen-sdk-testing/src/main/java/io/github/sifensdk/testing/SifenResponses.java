@@ -15,8 +15,9 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Ready-made responses of every SIFEN web service, to {@linkplain SimulatedSifen#enqueue(String,
- * SimulatedResponse) enqueue} in a {@link SimulatedSifen}.
+ * Ready-made responses of every SIFEN web service, to {@linkplain
+ * SimulatedSifen#enqueue(SimulatedSifen.Service, SimulatedResponse) enqueue} in a {@link
+ * SimulatedSifen}.
  *
  * <p>Every SOAP response is valid according to the official XSD of its service ({@code
  * WS_SiRecepDE_v150.xsd}, {@code WS_SiRecepLoteDE_v141.xsd}, {@code WS_SiConsLote_v141.xsd}, {@code
@@ -63,7 +64,8 @@ public final class SifenResponses {
 
   /**
    * Synchronous reception: document approved (code 0260, with authorization number and the digest
-   * value of the signed document). The default response of {@link SimulatedSifen#RECEPTION}.
+   * value of the signed document). The default response of {@link
+   * SimulatedSifen.Service#RECEPTION}.
    *
    * @return the response
    */
@@ -146,7 +148,7 @@ public final class SifenResponses {
 
   /**
    * Batch reception: batch accepted for processing (code 0300) with a new 17-digit protocol number.
-   * The default response of {@link SimulatedSifen#BATCH}.
+   * The default response of {@link SimulatedSifen.Service#BATCH}.
    *
    * <p>{@code dTpoProces} is 0, as in the examples of the best practices guide (the Manual says it
    * is never below one second; contradiction C-710).
@@ -239,7 +241,7 @@ public final class SifenResponses {
 
   /**
    * Batch result: the batch number does not exist (code 0360). The default response of {@link
-   * SimulatedSifen#BATCH_RESULT} for batches this simulated SIFEN did not accept.
+   * SimulatedSifen.Service#BATCH_RESULT} for batches this simulated SIFEN did not accept.
    *
    * @return the response
    */
@@ -260,7 +262,7 @@ public final class SifenResponses {
   /**
    * Batch result: processing finished (code 0362) and every document of the batch approved. The
    * CDCs are those of the batch the query refers to, if this simulated SIFEN accepted it; the
-   * default response of {@link SimulatedSifen#BATCH_RESULT} for those batches.
+   * default response of {@link SimulatedSifen.Service#BATCH_RESULT} for those batches.
    *
    * @return the response
    */
@@ -413,7 +415,7 @@ public final class SifenResponses {
   /**
    * Document query: not found (code 0420), with the message SIFEN actually sends ("Documento No
    * Existe en SIFEN o ha sido Rechazado"); it also covers rejected documents. The default response
-   * of {@link SimulatedSifen#DOCUMENT_QUERY} for CDCs this simulated SIFEN did not approve.
+   * of {@link SimulatedSifen.Service#DOCUMENT_QUERY} for CDCs this simulated SIFEN did not approve.
    *
    * @return the response
    */
@@ -461,8 +463,8 @@ public final class SifenResponses {
 
   /**
    * Taxpayer query: found (code 0502), active ({@code ACT}, "ACTIVO") and electronic issuer. The
-   * RUC is the one queried. The default response of {@link SimulatedSifen#RUC_QUERY}, with a
-   * synthetic name.
+   * RUC is the one queried. The default response of {@link SimulatedSifen.Service#RUC_QUERY}, with
+   * a synthetic name.
    *
    * @param name the taxpayer's name ({@code dRazCons}), 1 to 250 characters
    * @return the response
@@ -552,7 +554,7 @@ public final class SifenResponses {
 
   /**
    * Event reception: every event sent registered (code 0600, with authorization number). The
-   * default response of {@link SimulatedSifen#EVENTS}.
+   * default response of {@link SimulatedSifen.Service#EVENTS}.
    *
    * @return the response
    */

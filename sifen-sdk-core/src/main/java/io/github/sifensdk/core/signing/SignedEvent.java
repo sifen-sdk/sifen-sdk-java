@@ -71,7 +71,8 @@ public final class SignedEvent {
   /**
    * Returns the signature date and time ({@code dFecFirma}, GDE004).
    *
-   * @return local date and time of Paraguay, without zone
+   * @return local date and time, without zone, in the zone configured with {@code
+   *     SifenEvents.Builder.zone} (Paraguay by default)
    */
   public LocalDateTime signatureDateTime() {
     return signatureDateTime;

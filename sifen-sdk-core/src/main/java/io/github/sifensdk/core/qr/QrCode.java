@@ -69,7 +69,7 @@ public final class QrCode {
     if (parameters.receiverRuc() != null) {
       data.append("&dRucRec=").append(parameters.receiverRuc());
     } else {
-      data.append("&dNumIDRec=").append(orZero(parameters.receiverIdNumber()));
+      data.append("&dNumIDRec=").append(orZero(parameters.receiverIdDocumentNumber()));
     }
     data.append("&dTotGralOpe=").append(orZero(parameters.generalOperationTotal()));
     data.append("&dTotIVA=").append(orZero(parameters.vatTotal()));

@@ -148,7 +148,10 @@ class CalculatorTest {
 
   @Test
   void refusesWhatItCannotCompute() {
-    assertThatThrownBy(() -> gs("1", "100").discountPerUnit(n("10")).build())
+    assertThatThrownBy(() -> gs("1", "100").build())
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("VAT treatment");
+    assertThatThrownBy(() -> gs("1", "100").discountPerUnit(n("10")).selfInvoice().build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("self-invoice");
     assertThatThrownBy(

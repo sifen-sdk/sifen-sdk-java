@@ -57,7 +57,8 @@ public final class RecordedRequest {
   }
 
   /**
-   * The path of the request, without query string, for example {@link SimulatedSifen#RECEPTION}.
+   * The path of the request, without query string, for example {@link
+   * SimulatedSifen.Service#RECEPTION}.
    *
    * @return the path
    */

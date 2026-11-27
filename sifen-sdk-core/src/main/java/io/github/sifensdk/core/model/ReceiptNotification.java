@@ -29,7 +29,7 @@ public final class ReceiptNotification implements EventDetail {
   private final @Nullable String receiverCheckDigit;
   private final @Nullable String receiverIdDocumentTypeCode;
   private final @Nullable String receiverIdDocumentNumber;
-  private final BigDecimal operationTotalPyg;
+  private final BigDecimal guaraniTotal;
 
   private ReceiptNotification(Builder b) {
     this.cdc = Checks.required(b.cdc, "cdc", "GEN002", "Id");
@@ -43,8 +43,7 @@ public final class ReceiptNotification implements EventDetail {
     this.receiverCheckDigit = b.receiverCheckDigit;
     this.receiverIdDocumentTypeCode = b.receiverIdDocumentTypeCode;
     this.receiverIdDocumentNumber = b.receiverIdDocumentNumber;
-    this.operationTotalPyg =
-        Checks.required(b.operationTotalPyg, "operationTotalPyg", "GEN011", "dTotalGs");
+    this.guaraniTotal = Checks.required(b.guaraniTotal, "guaraniTotal", "GEN011", "dTotalGs");
   }
 
   /**
@@ -181,8 +180,8 @@ public final class ReceiptNotification implements EventDetail {
    * @return the value
    */
   @SifenField(id = "GEN011", xml = "dTotalGs")
-  public BigDecimal operationTotalPyg() {
-    return operationTotalPyg;
+  public BigDecimal guaraniTotal() {
+    return guaraniTotal;
   }
 
   /**
@@ -209,7 +208,7 @@ public final class ReceiptNotification implements EventDetail {
         && Objects.equals(receiverCheckDigit, that.receiverCheckDigit)
         && Objects.equals(receiverIdDocumentTypeCode, that.receiverIdDocumentTypeCode)
         && Objects.equals(receiverIdDocumentNumber, that.receiverIdDocumentNumber)
-        && Objects.equals(operationTotalPyg, that.operationTotalPyg);
+        && Objects.equals(guaraniTotal, that.guaraniTotal);
   }
 
   /**
@@ -229,7 +228,7 @@ public final class ReceiptNotification implements EventDetail {
         receiverCheckDigit,
         receiverIdDocumentTypeCode,
         receiverIdDocumentNumber,
-        operationTotalPyg);
+        guaraniTotal);
   }
 
   /**
@@ -257,7 +256,7 @@ public final class ReceiptNotification implements EventDetail {
     private @Nullable String receiverCheckDigit;
     private @Nullable String receiverIdDocumentTypeCode;
     private @Nullable String receiverIdDocumentNumber;
-    private @Nullable BigDecimal operationTotalPyg;
+    private @Nullable BigDecimal guaraniTotal;
 
     private Builder() {}
 
@@ -271,7 +270,7 @@ public final class ReceiptNotification implements EventDetail {
       this.receiverCheckDigit = source.receiverCheckDigit;
       this.receiverIdDocumentTypeCode = source.receiverIdDocumentTypeCode;
       this.receiverIdDocumentNumber = source.receiverIdDocumentNumber;
-      this.operationTotalPyg = source.operationTotalPyg;
+      this.guaraniTotal = source.guaraniTotal;
     }
 
     /**
@@ -374,13 +373,13 @@ public final class ReceiptNotification implements EventDetail {
     }
 
     /**
-     * Sets {@code operationTotalPyg} (GEN011, {@code dTotalGs}).
+     * Sets {@code guaraniTotal} (GEN011, {@code dTotalGs}).
      *
-     * @param operationTotalPyg the value
+     * @param guaraniTotal the value
      * @return this builder
      */
-    public Builder operationTotalPyg(BigDecimal operationTotalPyg) {
-      this.operationTotalPyg = operationTotalPyg;
+    public Builder guaraniTotal(BigDecimal guaraniTotal) {
+      this.guaraniTotal = guaraniTotal;
       return this;
     }
 

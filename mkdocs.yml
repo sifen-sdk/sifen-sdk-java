@@ -79,6 +79,7 @@ nav:
       - Certificados en token, HSM y firma remota: claves-en-token-hsm-y-firma-remota.md
       - KuDE: guias/kude.md
       - Cálculo de referencia: guias/calculo.md
+      - Pasar a producción: guias/produccion.md
       - Pruebas contra SIFEN: pruebas-contra-sifen.md
   - Referencia de reglas: reglas/index.md
   - Decisiones:

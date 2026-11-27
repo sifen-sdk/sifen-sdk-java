@@ -12,6 +12,9 @@ package io.github.sifensdk.core.model;
  * TransportUpdate}. Receiver events: {@link ReceiptNotification}, {@link Conformity}, {@link
  * Disconformity} and {@link NonRecognition}. The events SIFEN adds by itself are only read, never
  * built.
+ *
+ * <p>Permitted types may be added in minor versions: {@code switch} statements need a default
+ * branch.
  */
 public sealed interface EventDetail
     permits Cancellation,

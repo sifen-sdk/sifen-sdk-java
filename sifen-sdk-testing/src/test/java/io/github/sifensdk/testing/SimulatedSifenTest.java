@@ -46,7 +46,7 @@ class SimulatedSifenTest {
                 OutputStream out = socket.getOutputStream();
                 out.write(
                     ("POST "
-                            + SimulatedSifen.RECEPTION
+                            + SimulatedSifen.Service.RECEPTION.path()
                             + " HTTP/1.1\r\nHost: 127.0.0.1\r\n"
                             + "Content-Length: 0\r\n\r\n")
                         .getBytes(StandardCharsets.US_ASCII));
@@ -66,7 +66,8 @@ class SimulatedSifenTest {
     sifen = new SimulatedSifen().start();
     byte[] body = Requests.reception("12345", Requests.CDC);
 
-    Response response = post(SimulatedSifen.RECEPTION, body, SyntheticClient.tls(sifen, true), 0);
+    Response response =
+        post(SimulatedSifen.Service.RECEPTION.path(), body, SyntheticClient.tls(sifen, true), 0);
 
     assertThat(response.status).isEqualTo(200);
     assertThat(response.contentType).startsWith("application/soap+xml");
@@ -75,28 +76,29 @@ class SimulatedSifenTest {
     assertThat(recorded).hasSize(1);
     RecordedRequest request = recorded.get(0);
     assertThat(request.method()).isEqualTo("POST");
-    assertThat(request.path()).isEqualTo(SimulatedSifen.RECEPTION);
+    assertThat(request.path()).isEqualTo(SimulatedSifen.Service.RECEPTION.path());
     assertThat(request.body()).isEqualTo(body);
     assertThat(request.requestId()).isEqualTo("12345");
     assertThat(request.clientCertificate()).isEqualTo(SyntheticClient.certificate());
     assertThat(request.receivedAt()).isBeforeOrEqualTo(Instant.now());
     assertThat(request.toString()).doesNotContain(Requests.CDC);
-    assertThat(sifen.recordedRequests(SimulatedSifen.RECEPTION)).hasSize(1);
-    assertThat(sifen.recordedRequests(SimulatedSifen.EVENTS)).isEmpty();
+    assertThat(sifen.recordedRequests(SimulatedSifen.Service.RECEPTION)).hasSize(1);
+    assertThat(sifen.recordedRequests(SimulatedSifen.Service.EVENTS)).isEmpty();
   }
 
   @Test
   void enqueuedResponsesAreUsedOnceInOrder() throws Exception {
     sifen = new SimulatedSifen().start();
-    sifen.enqueue(SimulatedSifen.RECEPTION, SifenResponses.balancerHtmlPage());
+    sifen.enqueue(SimulatedSifen.Service.RECEPTION, SifenResponses.balancerHtmlPage());
     sifen.enqueue(
-        SimulatedSifen.RECEPTION, SifenResponses.receptionRejected("1001", "CDC duplicado"));
+        SimulatedSifen.Service.RECEPTION,
+        SifenResponses.receptionRejected("1001", "CDC duplicado"));
     SSLContext tls = SyntheticClient.tls(sifen, true);
     byte[] body = Requests.reception("1", Requests.CDC);
 
-    Response html = post(SimulatedSifen.RECEPTION, body, tls, 0);
-    Response rejected = post(SimulatedSifen.RECEPTION, body, tls, 0);
-    Response fallback = post(SimulatedSifen.RECEPTION, body, tls, 0);
+    Response html = post(SimulatedSifen.Service.RECEPTION.path(), body, tls, 0);
+    Response rejected = post(SimulatedSifen.Service.RECEPTION.path(), body, tls, 0);
+    Response fallback = post(SimulatedSifen.Service.RECEPTION.path(), body, tls, 0);
 
     assertThat(html.contentType).startsWith("text/html");
     assertThat(rejected.body).contains("Rechazado").contains("1001");
@@ -106,10 +108,16 @@ class SimulatedSifenTest {
   @Test
   void defaultResponseCanBeReplacedAndUnknownPathsAre404() throws Exception {
     sifen = new SimulatedSifen().start();
-    sifen.defaultResponse(SimulatedSifen.RUC_QUERY, SifenResponses.rucNotFound());
+    sifen.defaultResponse(SimulatedSifen.Service.RUC_QUERY, SifenResponses.rucNotFound());
     SSLContext tls = SyntheticClient.tls(sifen, true);
 
-    assertThat(post(SimulatedSifen.RUC_QUERY, Requests.rucQuery("1", "44444401"), tls, 0).body)
+    assertThat(
+            post(
+                    SimulatedSifen.Service.RUC_QUERY.path(),
+                    Requests.rucQuery("1", "44444401"),
+                    tls,
+                    0)
+                .body)
         .contains("0500");
     assertThat(post("/de/ws/otro.wsdl", new byte[0], tls, 0).status).isEqualTo(404);
     assertThat(sifen.recordedRequests()).hasSize(2);
@@ -119,12 +127,16 @@ class SimulatedSifenTest {
   void delayedResponsesLetTheClientTimeOutAndCloseDoesNotWait() throws Exception {
     sifen = new SimulatedSifen().start();
     sifen.enqueue(
-        SimulatedSifen.RECEPTION,
+        SimulatedSifen.Service.RECEPTION,
         SifenResponses.receptionApproved().delayed(Duration.ofSeconds(30)));
     SSLContext tls = SyntheticClient.tls(sifen, true);
 
-    assertThatThrownBy(
-            () -> post(SimulatedSifen.RECEPTION, Requests.reception("1", Requests.CDC), tls, 300))
+    assertThatThrownBy(() ->
+            post(
+                SimulatedSifen.Service.RECEPTION.path(),
+                Requests.reception("1", Requests.CDC),
+                tls,
+                300))
         .isInstanceOf(SocketTimeoutException.class);
 
     long start = System.nanoTime();
@@ -140,7 +152,7 @@ class SimulatedSifenTest {
     sifen = SimulatedSifen.builder().trustedClientCertificates(onlySynthetic).build().start();
     assertThat(
             post(
-                    SimulatedSifen.RUC_QUERY,
+                    SimulatedSifen.Service.RUC_QUERY.path(),
                     Requests.rucQuery("1", "44444401"),
                     SyntheticClient.tls(sifen, true),
                     0)
@@ -151,8 +163,12 @@ class SimulatedSifenTest {
     KeyStore someoneElse = new SimulatedSifen().serverTrustStore();
     sifen = SimulatedSifen.builder().trustedClientCertificates(someoneElse).build().start();
     SSLContext tls = SyntheticClient.tls(sifen, true);
-    assertThatThrownBy(
-            () -> post(SimulatedSifen.RUC_QUERY, Requests.rucQuery("1", "44444401"), tls, 0))
+    assertThatThrownBy(() ->
+            post(
+                SimulatedSifen.Service.RUC_QUERY.path(),
+                Requests.rucQuery("1", "44444401"),
+                tls,
+                0))
         .isInstanceOf(IOException.class);
     assertThat(sifen.recordedRequests()).isEmpty();
   }

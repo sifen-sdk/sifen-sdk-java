@@ -4,7 +4,7 @@
 
   <groupId>io.github.sifen-sdk</groupId>
   <artifactId>sifen-sdk-parent</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>1.0.0-beta.1</version>
   <packaging>pom</packaging>
 
   <name>SIFEN SDK for Java (parent)</name>
@@ -60,6 +60,13 @@
     <junit.version>6.1.3</junit.version>
     <assertj.version>3.27.7</assertj.version>
     <google-java-format.version>2.0.0</google-java-format.version>
+
+    <!-- Release (RELEASING.md): false uploads to the Central Portal without publishing, for a dry run. -->
+    <central.autoPublish>false</central.autoPublish>
+    <!-- API compatibility against the last published version (japicmp). Off until 1.0.0-beta.1 is published. -->
+    <api.baseline>1.0.0-beta.1</api.baseline>
+    <japicmp.skip>true</japicmp.skip>
+    <api.breakBuild>true</api.breakBuild>
   </properties>
 
   <dependencyManagement>
@@ -182,6 +189,16 @@
           <version>0.12.0</version>
         </plugin>
         <plugin>
+          <groupId>org.cyclonedx</groupId>
+          <artifactId>cyclonedx-maven-plugin</artifactId>
+          <version>2.9.3</version>
+        </plugin>
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>0.27.0</version>
+        </plugin>
+        <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>3.12.0</version>
@@ -210,6 +227,42 @@
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <!-- A change that breaks binary or source compatibility of the public API fails the build (RELEASING.md). -->
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <configuration>
+          <skip>${japicmp.skip}</skip>
+          <oldVersion>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${api.baseline}</version>
+              <type>jar</type>
+            </dependency>
+          </oldVersion>
+          <parameter>
+            <onlyModified>true</onlyModified>
+            <skipPomModules>true</skipPomModules>
+            <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
+            <breakBuildOnBinaryIncompatibleModifications>${api.breakBuild}</breakBuildOnBinaryIncompatibleModifications>
+            <breakBuildOnSourceIncompatibleModifications>${api.breakBuild}</breakBuildOnSourceIncompatibleModifications>
+            <excludes>
+              <exclude>io.github.sifensdk.core.internal</exclude>
+              <exclude>io.github.sifensdk.client.internal</exclude>
+            </excludes>
+          </parameter>
+        </configuration>
+        <executions>
+          <execution>
+            <id>api-compatibility</id>
+            <goals>
+              <goal>cmp</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
@@ -316,8 +369,27 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
-              <autoPublish>false</autoPublish>
+              <autoPublish>${central.autoPublish}</autoPublish>
+              <waitUntil>validated</waitUntil>
             </configuration>
+          </plugin>
+          <plugin>
+            <!-- SBOM of the published modules (target/bom.json), attached to the GitHub release. -->
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sbom</id>
+                <goals>
+                  <goal>makeAggregateBom</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <outputFormat>json</outputFormat>
+                  <outputName>bom</outputName>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

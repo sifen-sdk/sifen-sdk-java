@@ -25,9 +25,9 @@ public final class Receiver {
   private final @Nullable String taxpayerTypeCode;
   private final @Nullable String ruc;
   private final @Nullable String checkDigit;
-  private final @Nullable String idTypeCode;
-  private final @Nullable String idTypeDescription;
-  private final @Nullable String idNumber;
+  private final @Nullable String idDocumentTypeCode;
+  private final @Nullable String idDocumentTypeDescription;
+  private final @Nullable String idDocumentNumber;
   private final String name;
   private final @Nullable String tradeName;
   private final @Nullable String address;
@@ -52,9 +52,9 @@ public final class Receiver {
     this.taxpayerTypeCode = b.taxpayerTypeCode;
     this.ruc = b.ruc;
     this.checkDigit = b.checkDigit;
-    this.idTypeCode = b.idTypeCode;
-    this.idTypeDescription = b.idTypeDescription;
-    this.idNumber = b.idNumber;
+    this.idDocumentTypeCode = b.idDocumentTypeCode;
+    this.idDocumentTypeDescription = b.idDocumentTypeDescription;
+    this.idDocumentNumber = b.idDocumentNumber;
     this.name = Checks.required(b.name, "name", "D211", "dNomRec");
     this.tradeName = b.tradeName;
     this.address = b.address;
@@ -185,8 +185,8 @@ public final class Receiver {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "D208", xml = "iTipIDRec")
-  public @Nullable String idTypeCode() {
-    return idTypeCode;
+  public @Nullable String idDocumentTypeCode() {
+    return idDocumentTypeCode;
   }
 
   /**
@@ -201,8 +201,8 @@ public final class Receiver {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "D209", xml = "dDTipIDRec")
-  public @Nullable String idTypeDescription() {
-    return idTypeDescription;
+  public @Nullable String idDocumentTypeDescription() {
+    return idDocumentTypeDescription;
   }
 
   /**
@@ -213,8 +213,8 @@ public final class Receiver {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "D210", xml = "dNumIDRec")
-  public @Nullable String idNumber() {
-    return idNumber;
+  public @Nullable String idDocumentNumber() {
+    return idDocumentNumber;
   }
 
   /**
@@ -419,9 +419,9 @@ public final class Receiver {
         && Objects.equals(taxpayerTypeCode, that.taxpayerTypeCode)
         && Objects.equals(ruc, that.ruc)
         && Objects.equals(checkDigit, that.checkDigit)
-        && Objects.equals(idTypeCode, that.idTypeCode)
-        && Objects.equals(idTypeDescription, that.idTypeDescription)
-        && Objects.equals(idNumber, that.idNumber)
+        && Objects.equals(idDocumentTypeCode, that.idDocumentTypeCode)
+        && Objects.equals(idDocumentTypeDescription, that.idDocumentTypeDescription)
+        && Objects.equals(idDocumentNumber, that.idDocumentNumber)
         && Objects.equals(name, that.name)
         && Objects.equals(tradeName, that.tradeName)
         && Objects.equals(address, that.address)
@@ -453,9 +453,9 @@ public final class Receiver {
         taxpayerTypeCode,
         ruc,
         checkDigit,
-        idTypeCode,
-        idTypeDescription,
-        idNumber,
+        idDocumentTypeCode,
+        idDocumentTypeDescription,
+        idDocumentNumber,
         name,
         tradeName,
         address,
@@ -492,9 +492,9 @@ public final class Receiver {
     private @Nullable String taxpayerTypeCode;
     private @Nullable String ruc;
     private @Nullable String checkDigit;
-    private @Nullable String idTypeCode;
-    private @Nullable String idTypeDescription;
-    private @Nullable String idNumber;
+    private @Nullable String idDocumentTypeCode;
+    private @Nullable String idDocumentTypeDescription;
+    private @Nullable String idDocumentNumber;
     private @Nullable String name;
     private @Nullable String tradeName;
     private @Nullable String address;
@@ -520,9 +520,9 @@ public final class Receiver {
       this.taxpayerTypeCode = source.taxpayerTypeCode;
       this.ruc = source.ruc;
       this.checkDigit = source.checkDigit;
-      this.idTypeCode = source.idTypeCode;
-      this.idTypeDescription = source.idTypeDescription;
-      this.idNumber = source.idNumber;
+      this.idDocumentTypeCode = source.idDocumentTypeCode;
+      this.idDocumentTypeDescription = source.idDocumentTypeDescription;
+      this.idDocumentNumber = source.idDocumentNumber;
       this.name = source.name;
       this.tradeName = source.tradeName;
       this.address = source.address;
@@ -617,35 +617,35 @@ public final class Receiver {
     }
 
     /**
-     * Sets {@code idTypeCode} (D208, {@code iTipIDRec}).
+     * Sets {@code idDocumentTypeCode} (D208, {@code iTipIDRec}).
      *
-     * @param idTypeCode the value, or {@code null} to leave it out
+     * @param idDocumentTypeCode the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder idTypeCode(@Nullable String idTypeCode) {
-      this.idTypeCode = idTypeCode;
+    public Builder idDocumentTypeCode(@Nullable String idDocumentTypeCode) {
+      this.idDocumentTypeCode = idDocumentTypeCode;
       return this;
     }
 
     /**
-     * Sets {@code idTypeDescription} (D209, {@code dDTipIDRec}).
+     * Sets {@code idDocumentTypeDescription} (D209, {@code dDTipIDRec}).
      *
-     * @param idTypeDescription the value, or {@code null} to leave it out
+     * @param idDocumentTypeDescription the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder idTypeDescription(@Nullable String idTypeDescription) {
-      this.idTypeDescription = idTypeDescription;
+    public Builder idDocumentTypeDescription(@Nullable String idDocumentTypeDescription) {
+      this.idDocumentTypeDescription = idDocumentTypeDescription;
       return this;
     }
 
     /**
-     * Sets {@code idNumber} (D210, {@code dNumIDRec}).
+     * Sets {@code idDocumentNumber} (D210, {@code dNumIDRec}).
      *
-     * @param idNumber the value, or {@code null} to leave it out
+     * @param idDocumentNumber the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder idNumber(@Nullable String idNumber) {
-      this.idNumber = idNumber;
+    public Builder idDocumentNumber(@Nullable String idDocumentNumber) {
+      this.idDocumentNumber = idDocumentNumber;
       return this;
     }
 

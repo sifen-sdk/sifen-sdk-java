@@ -157,7 +157,7 @@ class LiveCalcTest {
               .description("Producto de prueba " + i)
               .unitOfMeasureCode("77")
               .quantity(price.quantity())
-              .valuation(amounts.values())
+              .values(amounts.values())
               .vat(amounts.vat())
               .build());
     }

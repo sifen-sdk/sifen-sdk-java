@@ -39,8 +39,8 @@ public final class SignedDocument {
    * @param xml the UTF-8 bytes of the signed {@code rDE}; copied
    * @param cdc the CDC of the document (attribute {@code Id} of {@code DE}, A002)
    * @param qrUrl the QR address (the text of {@code dCarQR}, J002, without XML escaping)
-   * @param signatureDateTime the signature date and time ({@code dFecFirma}, A004), local time of
-   *     Paraguay
+   * @param signatureDateTime the signature date and time ({@code dFecFirma}, A004), local time in
+   *     the zone of {@code SifenDocuments.Builder.zone} (Paraguay by default)
    * @return the signed document
    * @throws IllegalArgumentException if the XML is empty or the CDC is not valid
    */
@@ -86,7 +86,8 @@ public final class SignedDocument {
   /**
    * Returns the signature date and time ({@code dFecFirma}, A004).
    *
-   * @return local date and time of Paraguay, without zone
+   * @return local date and time, without zone, in the zone configured with {@code
+   *     SifenDocuments.Builder.zone} (Paraguay by default)
    */
   public LocalDateTime signatureDateTime() {
     return signatureDateTime;

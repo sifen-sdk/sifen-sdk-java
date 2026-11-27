@@ -117,10 +117,10 @@ class SelfInvoiceAndDebitNoteTest {
               .items(
                   List.of(
                       item.toBuilder()
-                          .valuation(
-                              item.valuation().toBuilder()
+                          .values(
+                              item.values().toBuilder()
                                   .discountsAndAdvances(
-                                      item.valuation().discountsAndAdvances().toBuilder()
+                                      item.values().discountsAndAdvances().toBuilder()
                                           .total(new BigDecimal("99999"))
                                           .build())
                                   .build())
@@ -218,8 +218,8 @@ class SelfInvoiceAndDebitNoteTest {
                             .natureCode("2")
                             .operationTypeCode("2")
                             .countryCode("PRY")
-                            .idTypeCode("5")
-                            .idNumber("0")
+                            .idDocumentTypeCode("5")
+                            .idDocumentNumber("0")
                             .name("Sin Nombre")
                             .build())
                     .build())

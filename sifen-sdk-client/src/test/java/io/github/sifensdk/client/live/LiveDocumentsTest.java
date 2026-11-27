@@ -4,6 +4,7 @@
  */
 package io.github.sifensdk.client.live;
 
+import io.github.sifensdk.client.EventReceptionResult;
 import io.github.sifensdk.client.EventResult;
 import io.github.sifensdk.client.ReceptionResult;
 import io.github.sifensdk.client.ResultMessage;
@@ -113,7 +114,7 @@ class LiveDocumentsTest {
             .build());
     ElectronicDocument other = selfInvoice();
     Item item = other.documentTypeData().items().get(0);
-    ItemValues values = item.valuation();
+    ItemValues values = item.values();
     sendAnyway(
         client,
         key,
@@ -125,7 +126,7 @@ class LiveDocumentsTest {
                     .items(
                         List.of(
                             item.toBuilder()
-                                .valuation(
+                                .values(
                                     values.toBuilder()
                                         .discountsAndAdvances(
                                             values.discountsAndAdvances().toBuilder()
@@ -139,6 +140,39 @@ class LiveDocumentsTest {
                                 .build()))
                     .build())
             .build());
+    // C-305: a self-invoice item with a discount, its total computed each way.
+    for (boolean discounted : new boolean[] {false, true}) {
+      ElectronicDocument d = selfInvoice();
+      Item it = d.documentTypeData().items().get(0);
+      ItemValues v = it.values();
+      BigDecimal discount = new BigDecimal("1000");
+      BigDecimal total =
+          discounted ? v.unitPrice().subtract(discount).multiply(it.quantity()) : v.grossTotal();
+      sendAnyway(
+          client,
+          key,
+          csc,
+          "autofactura con descuento, EA008 " + (discounted ? "descontado" : "= E721 x E711"),
+          d.toBuilder()
+              .documentTypeData(
+                  d.documentTypeData().toBuilder()
+                      .items(
+                          List.of(
+                              it.toBuilder()
+                                  .values(
+                                      v.toBuilder()
+                                          .discountsAndAdvances(
+                                              v.discountsAndAdvances().toBuilder()
+                                                  .discountAmount(discount)
+                                                  .discountRate(new BigDecimal("2.00"))
+                                                  .total(total)
+                                                  .build())
+                                          .build())
+                                  .build()))
+                      .build())
+              .totals(d.totals().toBuilder().grossTotal(total).netTotal(total).build())
+              .build());
+    }
     String deliveryNote = send(client, documents, key, csc, "nota de remision", deliveryNote());
     send(client, documents, key, csc, "factura con transporte", withTransport());
     // C-407: the carrier may be left out when the transport is by road and the vehicle is
@@ -252,7 +286,7 @@ class LiveDocumentsTest {
     if (deliveryNote != null) {
       SifenEvents events = SifenEvents.builder().environment(Environment.TEST).build();
       try {
-        EventResult result =
+        EventReceptionResult result =
             client.sendEvents(
                 List.of(
                     events.sign(
@@ -268,7 +302,7 @@ class LiveDocumentsTest {
                                     .build())
                             .build(),
                         key)));
-        for (EventResult.Event e : result.events()) {
+        for (EventResult e : result.events()) {
           System.out.println(
               "VIVO evento de transporte: " + e.status() + " " + codes(e.messages()));
         }
@@ -344,8 +378,8 @@ class LiveDocumentsTest {
                             .sellerNatureCode("1")
                             // A made-up passport: a made-up identity card may belong to a
                             // registered taxpayer, and SIFEN rejects it with 2562.
-                            .sellerIdTypeCode("2")
-                            .sellerIdNumber("SDKPRUEBA1")
+                            .sellerIdDocumentTypeCode("2")
+                            .sellerIdDocumentNumber("SDKPRUEBA1")
                             .sellerName("Vendedor de prueba")
                             .sellerAddress("Calle del Vendedor")
                             .sellerHouseNumber("0")
@@ -371,7 +405,7 @@ class LiveDocumentsTest {
                             .description("Producto de prueba")
                             .unitOfMeasureCode("77")
                             .quantity(new BigDecimal("2"))
-                            .valuation(
+                            .values(
                                 ItemValues.builder()
                                     .unitPrice(new BigDecimal("50000"))
                                     .grossTotal(total)
@@ -580,7 +614,7 @@ class LiveDocumentsTest {
             .map(ValidationIssue::ruleId)
             .collect(Collectors.toSet());
     SifenDocuments lenient =
-        SifenDocuments.builder().environment(Environment.TEST).warnings(flagged).build();
+        SifenDocuments.builder().environment(Environment.TEST).warningRules(flagged).build();
     ReceptionResult r = client.send(lenient.sign(document, key, csc));
     System.out.println(
         "VIVO "

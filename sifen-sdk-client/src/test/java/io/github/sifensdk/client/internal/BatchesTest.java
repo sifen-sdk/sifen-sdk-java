@@ -275,7 +275,7 @@ class BatchesTest {
 
       assertThat(submission.accepted()).isTrue();
       assertThat(submission.protocolNumber()).isEqualTo("11158097383597290");
-      assertThat(submission.processingTime()).as("0 carries no information (C-710)").isNull();
+      assertThat(submission.processingTime()).as("as SIFEN sent it (C-710)").isEqualTo("0");
       assertThat(submission.messages())
           .containsExactly(new ResultMessage("0300", "Lote recibido con éxito"));
     }
@@ -288,7 +288,7 @@ class BatchesTest {
       BatchSubmission submission = Batches.parseSubmission(exchange(response));
 
       assertThat(submission.protocolNumber()).isEqualTo("9999999999999999999999999998");
-      assertThat(submission.processingTime()).isEqualTo(Duration.ofSeconds(2));
+      assertThat(submission.processingTime()).isEqualTo("2");
     }
 
     @Test
@@ -393,13 +393,13 @@ class BatchesTest {
       OffsetDateTime processedAt = OffsetDateTime.parse("2026-11-26T10:20:00-03:00");
       assertThat(result.documents())
           .containsExactly(
-              new DocumentResult(
+              DocumentResult.of(
                   "01444444017001001000000122026112611234567894",
                   Status.APPROVED,
                   "1234567890",
                   processedAt,
                   List.of(new ResultMessage("0260", "Autorización del DE satisfactoria"))),
-              new DocumentResult(
+              DocumentResult.of(
                   "01444444017001001000000222026112611234567894",
                   Status.APPROVED_WITH_OBSERVATION,
                   "1234567891",
@@ -407,7 +407,7 @@ class BatchesTest {
                   List.of(
                       new ResultMessage("0260", "Autorización del DE satisfactoria"),
                       new ResultMessage("1001", "Observación sintética de prueba"))),
-              new DocumentResult(
+              DocumentResult.of(
                   "01444444017001001000000322026112611234567894",
                   Status.REJECTED,
                   null,

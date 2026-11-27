@@ -7,7 +7,62 @@ what that means before 1.0).
 
 ## [Unreleased]
 
-Target: 0.5.0 (phase 6). Nothing has been published to Maven Central yet.
+Target: 1.0.0-beta.1, the first version published to Maven Central, for production use while 1.0 stabilizes
+(criteria in [docs/versiones-y-soporte.md](docs/versiones-y-soporte.md#beta)). Earlier 0.x versions were never
+published.
+
+### Added (phase 7)
+
+- `Exchange.anonymized()`: a copy of an exchange with SIFEN without the documents' data (values masked keeping
+  their shape; signatures and certificates removed; SIFEN's codes and messages kept), to attach to bug reports.
+- Guide "Pasar a producción": what changes from test, what to do with each result, how to report a beta bug.
+- Publishing workflow: tag-driven, with approval in a protected environment, GPG signatures, SBOM and build
+  provenance, and a dry run that uploads to the Central Portal without publishing. API compatibility check
+  (japicmp) against the last published version from 1.0.0-beta.1 on.
+- Conformance battery from the specification run by the SDK's tests.
+- The specification's evidence E-003: F036 behaves like F037, a per-item exchange rate with a global one is
+  rejected (1855), and SIFEN accepts TLS 1.2 only.
+
+### Changed (phase 7) — incompatible
+
+API settled for 1.0.0-beta.1. If you built an earlier version from source:
+
+- Client results renamed: `DocumentQuery` → `DocumentQueryResult`, `RucQuery` → `RucQueryResult`, `EventResult`
+  (the answer to `sendEvents`) → `EventReceptionResult`, and its nested `EventResult.Event` → `EventResult`.
+  `queryDocument`, `queryRuc` and `sendEvents` keep their names.
+- `DocumentResult`, `BatchResult`, `BatchSubmission`, `DocumentQueryResult`, `RucQueryResult`,
+  `EventReceptionResult`, `EventResult` and `QueriedEvent` are final classes instead of records, so fields can be
+  added in a minor version. Accessors, `equals` and `hashCode` are the same; they are created with `of(...)`,
+  which is for the SDK and tests only and not part of the API.
+- `toString()` of every client result shows only states, codes and counts (for example
+  `DocumentQueryResult[found=true, codes=[0422], events=2]`): never the CDC, RUC, names, XML or SIFEN's message
+  texts. `ResultMessage.toString()` shows the code only.
+- The key material's `toString()` shows the issuer's common name, the serial number and the end of validity,
+  no longer the subject (a natural person's certificate carries their name and identity document).
+- The authorization protocol of an event (`EventResult.authorizationProtocol()`,
+  `QueriedEvent.authorizationProtocol()`) is `null` when SIFEN gives none, instead of `""`.
+- `BatchSubmission.processingTime()` is the text of `dTpoProces` as SIFEN sent it (`String`, nullable) instead of
+  a `Duration` in seconds: its unit is not verified (C-710).
+- Identity documents are named `idDocumentTypeCode` / `idDocumentTypeDescription` / `idDocumentNumber`
+  everywhere: `Receiver` and `GenerationResponsible` (were `idTypeCode`, `idTypeDescription`, `idNumber`),
+  `SelfInvoice.sellerIdDocumentTypeCode` / `sellerIdDocumentTypeDescription` / `sellerIdDocumentNumber` (were
+  `sellerIdTypeCode`, `sellerIdTypeDescription`, `sellerIdNumber`), `QrParameters.receiverIdDocumentNumber`
+  (was `receiverIdNumber`).
+- `ReceiptNotification.operationTotalPyg()` → `guaraniTotal()` (`dTotalGs`, like `Totals.guaraniTotal()`).
+- `Cdc`: `expeditionPoint()` → `dispatchPoint()`, `documentType()` → `documentTypeCode()`, `taxpayerType()` →
+  `taxpayerTypeCode()`, `emissionType()` → `emissionTypeCode()` (and the parameters of `compose`);
+  `issueDate()` returns a `LocalDate`, and `parse` rejects a CDC whose date is not a valid `yyyyMMdd`.
+- `Item.valuation()` and `Item.Builder.valuation(ItemValues)` → `values()` and `values(ItemValues)`.
+- `CertificateChecks.Issue(boolean error, …)` → `Issue(Severity severity, …)`, with `isError()`.
+- `SifenDocuments.Builder.warnings(Set)` and `SifenEvents.Builder.warnings(Set)` → `warningRules(Set)`.
+- `ValidationException.result()` is `@Nullable`: the result is not serialized, so a deserialized exception has
+  none. Its message no longer says "document", since it is also thrown for events.
+- `sifen-sdk-calc`: `ItemPrice.Builder.selfInvoice()` marks an item of a self-invoice; `build()` throws
+  `IllegalStateException` if no VAT treatment was chosen (it used to mean a self-invoice item silently).
+- `sifen-sdk-testing`: the service paths are the enum `SimulatedSifen.Service` (`RECEPTION`, `BATCH`,
+  `BATCH_RESULT`, `DOCUMENT_QUERY`, `RUC_QUERY`, `EVENTS`, with `path()`); `enqueue`, `defaultResponse` and
+  `recordedRequests` take a `Service`. The `String` constants were removed.
+
 
 ### Added (phase 6)
 

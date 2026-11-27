@@ -21,9 +21,9 @@ public final class SelfInvoice {
 
   private final String sellerNatureCode;
   private final @Nullable String sellerNatureDescription;
-  private final String sellerIdTypeCode;
-  private final @Nullable String sellerIdTypeDescription;
-  private final String sellerIdNumber;
+  private final String sellerIdDocumentTypeCode;
+  private final @Nullable String sellerIdDocumentTypeDescription;
+  private final String sellerIdDocumentNumber;
   private final String sellerName;
   private final String sellerAddress;
   private final String sellerHouseNumber;
@@ -45,10 +45,12 @@ public final class SelfInvoice {
     this.sellerNatureCode =
         Checks.required(b.sellerNatureCode, "sellerNatureCode", "E301", "iNatVen");
     this.sellerNatureDescription = b.sellerNatureDescription;
-    this.sellerIdTypeCode =
-        Checks.required(b.sellerIdTypeCode, "sellerIdTypeCode", "E304", "iTipIDVen");
-    this.sellerIdTypeDescription = b.sellerIdTypeDescription;
-    this.sellerIdNumber = Checks.required(b.sellerIdNumber, "sellerIdNumber", "E306", "dNumIDVen");
+    this.sellerIdDocumentTypeCode =
+        Checks.required(
+            b.sellerIdDocumentTypeCode, "sellerIdDocumentTypeCode", "E304", "iTipIDVen");
+    this.sellerIdDocumentTypeDescription = b.sellerIdDocumentTypeDescription;
+    this.sellerIdDocumentNumber =
+        Checks.required(b.sellerIdDocumentNumber, "sellerIdDocumentNumber", "E306", "dNumIDVen");
     this.sellerName = Checks.required(b.sellerName, "sellerName", "E307", "dNomVen");
     this.sellerAddress = Checks.required(b.sellerAddress, "sellerAddress", "E308", "dDirVen");
     this.sellerHouseNumber =
@@ -127,8 +129,8 @@ public final class SelfInvoice {
    * @return the value
    */
   @SifenField(id = "E304", xml = "iTipIDVen")
-  public String sellerIdTypeCode() {
-    return sellerIdTypeCode;
+  public String sellerIdDocumentTypeCode() {
+    return sellerIdDocumentTypeCode;
   }
 
   /**
@@ -143,8 +145,8 @@ public final class SelfInvoice {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "E305", xml = "dDTipIDVen")
-  public @Nullable String sellerIdTypeDescription() {
-    return sellerIdTypeDescription;
+  public @Nullable String sellerIdDocumentTypeDescription() {
+    return sellerIdDocumentTypeDescription;
   }
 
   /**
@@ -155,8 +157,8 @@ public final class SelfInvoice {
    * @return the value
    */
   @SifenField(id = "E306", xml = "dNumIDVen")
-  public String sellerIdNumber() {
-    return sellerIdNumber;
+  public String sellerIdDocumentNumber() {
+    return sellerIdDocumentNumber;
   }
 
   /**
@@ -414,9 +416,9 @@ public final class SelfInvoice {
     SelfInvoice that = (SelfInvoice) other;
     return Objects.equals(sellerNatureCode, that.sellerNatureCode)
         && Objects.equals(sellerNatureDescription, that.sellerNatureDescription)
-        && Objects.equals(sellerIdTypeCode, that.sellerIdTypeCode)
-        && Objects.equals(sellerIdTypeDescription, that.sellerIdTypeDescription)
-        && Objects.equals(sellerIdNumber, that.sellerIdNumber)
+        && Objects.equals(sellerIdDocumentTypeCode, that.sellerIdDocumentTypeCode)
+        && Objects.equals(sellerIdDocumentTypeDescription, that.sellerIdDocumentTypeDescription)
+        && Objects.equals(sellerIdDocumentNumber, that.sellerIdDocumentNumber)
         && Objects.equals(sellerName, that.sellerName)
         && Objects.equals(sellerAddress, that.sellerAddress)
         && Objects.equals(sellerHouseNumber, that.sellerHouseNumber)
@@ -445,9 +447,9 @@ public final class SelfInvoice {
     return Objects.hash(
         sellerNatureCode,
         sellerNatureDescription,
-        sellerIdTypeCode,
-        sellerIdTypeDescription,
-        sellerIdNumber,
+        sellerIdDocumentTypeCode,
+        sellerIdDocumentTypeDescription,
+        sellerIdDocumentNumber,
         sellerName,
         sellerAddress,
         sellerHouseNumber,
@@ -483,9 +485,9 @@ public final class SelfInvoice {
 
     private @Nullable String sellerNatureCode;
     private @Nullable String sellerNatureDescription;
-    private @Nullable String sellerIdTypeCode;
-    private @Nullable String sellerIdTypeDescription;
-    private @Nullable String sellerIdNumber;
+    private @Nullable String sellerIdDocumentTypeCode;
+    private @Nullable String sellerIdDocumentTypeDescription;
+    private @Nullable String sellerIdDocumentNumber;
     private @Nullable String sellerName;
     private @Nullable String sellerAddress;
     private @Nullable String sellerHouseNumber;
@@ -508,9 +510,9 @@ public final class SelfInvoice {
     private Builder(SelfInvoice source) {
       this.sellerNatureCode = source.sellerNatureCode;
       this.sellerNatureDescription = source.sellerNatureDescription;
-      this.sellerIdTypeCode = source.sellerIdTypeCode;
-      this.sellerIdTypeDescription = source.sellerIdTypeDescription;
-      this.sellerIdNumber = source.sellerIdNumber;
+      this.sellerIdDocumentTypeCode = source.sellerIdDocumentTypeCode;
+      this.sellerIdDocumentTypeDescription = source.sellerIdDocumentTypeDescription;
+      this.sellerIdDocumentNumber = source.sellerIdDocumentNumber;
       this.sellerName = source.sellerName;
       this.sellerAddress = source.sellerAddress;
       this.sellerHouseNumber = source.sellerHouseNumber;
@@ -552,35 +554,36 @@ public final class SelfInvoice {
     }
 
     /**
-     * Sets {@code sellerIdTypeCode} (E304, {@code iTipIDVen}).
+     * Sets {@code sellerIdDocumentTypeCode} (E304, {@code iTipIDVen}).
      *
-     * @param sellerIdTypeCode the value
+     * @param sellerIdDocumentTypeCode the value
      * @return this builder
      */
-    public Builder sellerIdTypeCode(String sellerIdTypeCode) {
-      this.sellerIdTypeCode = sellerIdTypeCode;
+    public Builder sellerIdDocumentTypeCode(String sellerIdDocumentTypeCode) {
+      this.sellerIdDocumentTypeCode = sellerIdDocumentTypeCode;
       return this;
     }
 
     /**
-     * Sets {@code sellerIdTypeDescription} (E305, {@code dDTipIDVen}).
+     * Sets {@code sellerIdDocumentTypeDescription} (E305, {@code dDTipIDVen}).
      *
-     * @param sellerIdTypeDescription the value, or {@code null} to leave it out
+     * @param sellerIdDocumentTypeDescription the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder sellerIdTypeDescription(@Nullable String sellerIdTypeDescription) {
-      this.sellerIdTypeDescription = sellerIdTypeDescription;
+    public Builder sellerIdDocumentTypeDescription(
+        @Nullable String sellerIdDocumentTypeDescription) {
+      this.sellerIdDocumentTypeDescription = sellerIdDocumentTypeDescription;
       return this;
     }
 
     /**
-     * Sets {@code sellerIdNumber} (E306, {@code dNumIDVen}).
+     * Sets {@code sellerIdDocumentNumber} (E306, {@code dNumIDVen}).
      *
-     * @param sellerIdNumber the value
+     * @param sellerIdDocumentNumber the value
      * @return this builder
      */
-    public Builder sellerIdNumber(String sellerIdNumber) {
-      this.sellerIdNumber = sellerIdNumber;
+    public Builder sellerIdDocumentNumber(String sellerIdDocumentNumber) {
+      this.sellerIdDocumentNumber = sellerIdDocumentNumber;
       return this;
     }
 

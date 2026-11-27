@@ -110,16 +110,16 @@ final class QueryContent {
     }
     Element result = first(container, "gResProcEVe");
     Status status = null;
-    String protocol = "";
+    String protocol = null;
     List<ResultMessage> messages = List.of();
     if (result != null) {
       String state = Soap.text(result, "dEstRes");
       status = state == null ? null : Events.statusOrNull(state);
       String p = Soap.text(result, "dProtAut");
-      protocol = p == null ? "" : p.trim();
+      protocol = p == null || p.isBlank() ? null : p.trim();
       messages = Soap.messages(Soap.children(result, "gResProc"));
     }
-    return new QueriedEvent(
+    return QueriedEvent.of(
         rEve.getAttribute("Id"),
         EventType.ofElement(detail.getLocalName()),
         detail.getLocalName(),

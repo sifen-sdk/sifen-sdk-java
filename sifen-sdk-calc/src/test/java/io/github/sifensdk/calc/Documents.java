@@ -120,7 +120,7 @@ final class Documents {
         .description("Producto de ejemplo " + index)
         .unitOfMeasureCode("77")
         .quantity(quantity)
-        .valuation(amounts.values())
+        .values(amounts.values())
         .vat(amounts.vat())
         .build();
   }
@@ -128,8 +128,8 @@ final class Documents {
   private static SelfInvoice seller() {
     return SelfInvoice.builder()
         .sellerNatureCode("1")
-        .sellerIdTypeCode("1")
-        .sellerIdNumber("1234567")
+        .sellerIdDocumentTypeCode("1")
+        .sellerIdDocumentNumber("1234567")
         .sellerName("Vendedor de Ejemplo")
         .sellerAddress("Calle del Vendedor")
         .sellerHouseNumber("0")

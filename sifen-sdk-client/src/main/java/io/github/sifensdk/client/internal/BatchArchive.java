@@ -116,15 +116,15 @@ public final class BatchArchive {
       Cdc cdc = Cdc.parse(document.cdc());
       String documentIssuer = cdc.issuerRuc() + cdc.issuerRucCheckDigit();
       if (type == null) {
-        type = cdc.documentType();
+        type = cdc.documentTypeCode();
         issuer = documentIssuer;
       } else {
-        if (!type.equals(cdc.documentType())) {
+        if (!type.equals(cdc.documentTypeCode())) {
           throw new IllegalArgumentException(
               "All documents of a batch must be of the same type (C002, MT150 9.2.2): document "
                   + (i + 1)
                   + " is of type "
-                  + cdc.documentType()
+                  + cdc.documentTypeCode()
                   + " and document 1 of type "
                   + type);
         }

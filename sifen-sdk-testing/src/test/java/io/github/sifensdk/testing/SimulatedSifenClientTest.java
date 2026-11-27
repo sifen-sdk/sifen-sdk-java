@@ -9,11 +9,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.sifensdk.client.BatchResult;
 import io.github.sifensdk.client.BatchSubmission;
-import io.github.sifensdk.client.DocumentQuery;
-import io.github.sifensdk.client.EventResult;
+import io.github.sifensdk.client.DocumentQueryResult;
+import io.github.sifensdk.client.EventReceptionResult;
 import io.github.sifensdk.client.ProtocolException;
 import io.github.sifensdk.client.ReceptionResult;
-import io.github.sifensdk.client.RucQuery;
+import io.github.sifensdk.client.RucQueryResult;
 import io.github.sifensdk.client.SifenClient;
 import io.github.sifensdk.client.Status;
 import io.github.sifensdk.client.TransportException;
@@ -55,12 +55,12 @@ class SimulatedSifenClientTest {
     assertThat(result.document().status()).isEqualTo(Status.APPROVED);
     assertThat(result.document().authorizationProtocol()).matches("[0-9]{10}");
     assertThat(result.document().processedAt()).isNotNull();
-    RecordedRequest request = sifen.recordedRequests(SimulatedSifen.RECEPTION).get(0);
+    RecordedRequest request = sifen.recordedRequests(SimulatedSifen.Service.RECEPTION).get(0);
     assertThat(request.bodyUtf8()).contains(new String(document.xml(), StandardCharsets.UTF_8));
     assertThat(request.requestId()).isEqualTo(result.exchange().requestId());
     assertThat(request.clientCertificate()).isEqualTo(SyntheticClient.certificate());
 
-    DocumentQuery query = client.queryDocument(Requests.CDC);
+    DocumentQueryResult query = client.queryDocument(Requests.CDC);
     assertThat(query.found()).isTrue();
     assertThat(query.documentXml()).contains(Requests.CDC);
   }
@@ -68,7 +68,8 @@ class SimulatedSifenClientTest {
   @Test
   void rejectionIsAResult() {
     sifen.enqueue(
-        SimulatedSifen.RECEPTION, SifenResponses.receptionRejected("1001", "CDC duplicado"));
+        SimulatedSifen.Service.RECEPTION,
+        SifenResponses.receptionRejected("1001", "CDC duplicado"));
 
     ReceptionResult result = client.send(signed());
 
@@ -79,7 +80,7 @@ class SimulatedSifenClientTest {
 
   @Test
   void batchIsAcceptedAndProcessed() {
-    sifen.enqueue(SimulatedSifen.BATCH_RESULT, SifenResponses.batchInProcess());
+    sifen.enqueue(SimulatedSifen.Service.BATCH_RESULT, SifenResponses.batchInProcess());
 
     BatchSubmission submission = client.sendBatch(List.of(signed()));
     assertThat(submission.accepted()).isTrue();
@@ -99,12 +100,12 @@ class SimulatedSifenClientTest {
 
   @Test
   void queriesATaxpayer() {
-    RucQuery found = client.queryRuc("44444401");
+    RucQueryResult found = client.queryRuc("44444401");
     assertThat(found.found()).isTrue();
     assertThat(found.name()).isEqualTo(SifenResponses.SYNTHETIC_NAME);
     assertThat(found.electronicIssuer()).isTrue();
 
-    sifen.enqueue(SimulatedSifen.RUC_QUERY, SifenResponses.rucNotFound());
+    sifen.enqueue(SimulatedSifen.Service.RUC_QUERY, SifenResponses.rucNotFound());
     assertThat(client.queryRuc("44444401").found()).isFalse();
   }
 
@@ -119,32 +120,32 @@ class SimulatedSifenClientTest {
             "7",
             LocalDateTime.parse("2026-11-26T10:00:00"));
 
-    EventResult registered = client.sendEvents(List.of(event));
+    EventReceptionResult registered = client.sendEvents(List.of(event));
     assertThat(registered.events()).hasSize(1);
     assertThat(registered.events().get(0).id()).isEqualTo("7");
     assertThat(registered.events().get(0).status()).isEqualTo(Status.APPROVED);
 
     sifen.enqueue(
-        SimulatedSifen.EVENTS,
+        SimulatedSifen.Service.EVENTS,
         SifenResponses.eventRejected("4002", "CDC no existente en el SIFEN"));
-    EventResult rejected = client.sendEvents(List.of(event));
+    EventReceptionResult rejected = client.sendEvents(List.of(event));
     assertThat(rejected.events().get(0).status()).isEqualTo(Status.REJECTED);
   }
 
   @Test
   void failuresAreExceptions() {
-    sifen.enqueue(SimulatedSifen.RECEPTION, SifenResponses.balancerHtmlPage());
+    sifen.enqueue(SimulatedSifen.Service.RECEPTION, SifenResponses.balancerHtmlPage());
     assertThatThrownBy(() -> client.send(signed()))
         .isInstanceOf(ProtocolException.class)
         .hasMessageContaining("HTML");
 
     sifen.enqueue(
-        SimulatedSifen.DOCUMENT_QUERY, SifenResponses.soapFault("Servicio no disponible"));
+        SimulatedSifen.Service.DOCUMENT_QUERY, SifenResponses.soapFault("Servicio no disponible"));
     assertThatThrownBy(() -> client.queryDocument(Requests.CDC))
         .isInstanceOf(ProtocolException.class)
         .hasMessageContaining("Servicio no disponible");
 
-    sifen.enqueue(SimulatedSifen.RUC_QUERY, SifenResponses.httpError(500));
+    sifen.enqueue(SimulatedSifen.Service.RUC_QUERY, SifenResponses.httpError(500));
     assertThatThrownBy(() -> client.queryRuc("44444401")).isInstanceOf(ProtocolException.class);
   }
 
@@ -152,7 +153,7 @@ class SimulatedSifenClientTest {
   void slowAnswerIsATransportExceptionWithUnknownOutcome() {
     SifenClient impatient = client(Duration.ofMillis(300));
     sifen.enqueue(
-        SimulatedSifen.RECEPTION,
+        SimulatedSifen.Service.RECEPTION,
         SifenResponses.receptionApproved().delayed(Duration.ofSeconds(30)));
 
     assertThatThrownBy(() -> impatient.send(signed())).isInstanceOf(TransportException.class);

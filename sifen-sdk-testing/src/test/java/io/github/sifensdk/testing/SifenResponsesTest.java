@@ -33,7 +33,7 @@ class SifenResponsesTest {
         valid(
             RECEPTION_XSD,
             SifenResponses.receptionApproved(),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             Requests.reception("123", Requests.CDC));
 
     assertThat(body.getLocalName()).isEqualTo("rRetEnviDe");
@@ -54,7 +54,7 @@ class SifenResponsesTest {
             RECEPTION_XSD,
             SifenResponses.receptionApprovedWithObservation(
                 "1005", "Transmisión extemporánea del DE"),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             Requests.reception("123", Requests.CDC));
 
     assertThat(Xml.text(body, "dEstRes")).isEqualTo("Aprobado con observación");
@@ -68,7 +68,7 @@ class SifenResponsesTest {
         valid(
             RECEPTION_XSD,
             SifenResponses.receptionRejected("1001", "CDC duplicado"),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             Requests.reception("123", Requests.CDC));
 
     assertThat(Xml.text(body, "dEstRes")).isEqualTo("Rechazado");
@@ -83,7 +83,7 @@ class SifenResponsesTest {
         valid(
             RECEPTION_XSD,
             SifenResponses.receptionRejected("0160", "XML malformado"),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             "<not-xml".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
     assertThat(Xml.text(body, "Id")).isNull();
@@ -96,7 +96,7 @@ class SifenResponsesTest {
         valid(
             BATCH_XSD,
             SifenResponses.batchAccepted(),
-            SimulatedSifen.BATCH,
+            SimulatedSifen.Service.BATCH.path(),
             Requests.batch("1", Requests.CDC, Requests.OTHER_CDC));
     String protocol = Xml.text(accepted, "dProtConsLote");
     assertThat(protocol).matches("[1-9][0-9]{16}");
@@ -108,7 +108,7 @@ class SifenResponsesTest {
             BATCH_RESULT_XSD,
             SifenResponses.batchProcessed(
                 Outcome.approved(), Outcome.rejected("1001", "CDC duplicado")),
-            SimulatedSifen.BATCH_RESULT,
+            SimulatedSifen.Service.BATCH_RESULT.path(),
             Requests.batchResult("2", protocol));
 
     assertThat(Xml.text(processed, "dCodResLot")).isEqualTo("0362");
@@ -131,7 +131,7 @@ class SifenResponsesTest {
         valid(
             BATCH_XSD,
             SifenResponses.batchAccepted(protocol),
-            SimulatedSifen.BATCH,
+            SimulatedSifen.Service.BATCH.path(),
             Requests.batch("1", Requests.CDC));
 
     assertThat(Xml.text(accepted, "dProtConsLote")).isEqualTo(protocol);
@@ -145,7 +145,7 @@ class SifenResponsesTest {
         valid(
             BATCH_XSD,
             SifenResponses.batchRejected(),
-            SimulatedSifen.BATCH,
+            SimulatedSifen.Service.BATCH.path(),
             Requests.batch("1", Requests.CDC));
 
     assertThat(Xml.text(body, "dCodRes")).isEqualTo("0301");
@@ -158,18 +158,29 @@ class SifenResponsesTest {
 
     Element inProcess =
         valid(
-            BATCH_RESULT_XSD, SifenResponses.batchInProcess(), SimulatedSifen.BATCH_RESULT, query);
+            BATCH_RESULT_XSD,
+            SifenResponses.batchInProcess(),
+            SimulatedSifen.Service.BATCH_RESULT.path(),
+            query);
     assertThat(Xml.text(inProcess, "dCodResLot")).isEqualTo("0361");
     assertThat(Xml.text(inProcess, "dMsgResLot"))
         .isEqualTo("Lote {11158097383597290} en procesamiento");
     assertThat(Xml.descendants(inProcess, "gResProcLote")).isEmpty();
 
     Element notFound =
-        valid(BATCH_RESULT_XSD, SifenResponses.batchNotFound(), SimulatedSifen.BATCH_RESULT, query);
+        valid(
+            BATCH_RESULT_XSD,
+            SifenResponses.batchNotFound(),
+            SimulatedSifen.Service.BATCH_RESULT.path(),
+            query);
     assertThat(Xml.text(notFound, "dCodResLot")).isEqualTo("0360");
 
     Element expired =
-        valid(BATCH_RESULT_XSD, SifenResponses.batchExpired(), SimulatedSifen.BATCH_RESULT, query);
+        valid(
+            BATCH_RESULT_XSD,
+            SifenResponses.batchExpired(),
+            SimulatedSifen.Service.BATCH_RESULT.path(),
+            query);
     assertThat(Xml.text(expired, "dCodResLot")).isEqualTo("0364");
   }
 
@@ -179,7 +190,7 @@ class SifenResponsesTest {
         valid(
             BATCH_XSD,
             SifenResponses.batchAccepted(),
-            SimulatedSifen.BATCH,
+            SimulatedSifen.Service.BATCH.path(),
             Requests.batch("1", Requests.CDC));
     String protocol = Xml.text(accepted, "dProtConsLote");
 
@@ -187,7 +198,7 @@ class SifenResponsesTest {
         valid(
             BATCH_RESULT_XSD,
             SifenResponses.batchResultFromState(),
-            SimulatedSifen.BATCH_RESULT,
+            SimulatedSifen.Service.BATCH_RESULT.path(),
             Requests.batchResult("2", protocol));
     assertThat(Xml.text(known, "dCodResLot")).isEqualTo("0362");
     assertThat(Xml.text(known, "id")).isEqualTo(Requests.CDC);
@@ -196,7 +207,7 @@ class SifenResponsesTest {
         valid(
             BATCH_RESULT_XSD,
             SifenResponses.batchResultFromState(),
-            SimulatedSifen.BATCH_RESULT,
+            SimulatedSifen.Service.BATCH_RESULT.path(),
             Requests.batchResult("3", "999"));
     assertThat(Xml.text(unknown, "dCodResLot")).isEqualTo("0360");
   }
@@ -207,14 +218,14 @@ class SifenResponsesTest {
         valid(
             BATCH_RESULT_XSD,
             SifenResponses.batchProcessed(Outcome.approved().forId(Requests.CDC)),
-            SimulatedSifen.BATCH_RESULT,
+            SimulatedSifen.Service.BATCH_RESULT.path(),
             Requests.batchResult("2", "42"));
     assertThat(Xml.text(pinned, "id")).isEqualTo(Requests.CDC);
 
     SimulatedResponse.Rendered unpinned =
         render(
             SifenResponses.batchProcessed(Outcome.approved()),
-            SimulatedSifen.BATCH_RESULT,
+            SimulatedSifen.Service.BATCH_RESULT.path(),
             Requests.batchResult("2", "42"),
             true);
     assertThat(unpinned).isNull();
@@ -225,14 +236,14 @@ class SifenResponsesTest {
     valid(
         RECEPTION_XSD,
         SifenResponses.receptionApproved(),
-        SimulatedSifen.RECEPTION,
+        SimulatedSifen.Service.RECEPTION.path(),
         Requests.reception("1", Requests.CDC));
 
     Element found =
         valid(
             DOCUMENT_XSD,
             SifenResponses.documentFromState(),
-            SimulatedSifen.DOCUMENT_QUERY,
+            SimulatedSifen.Service.DOCUMENT_QUERY.path(),
             Requests.documentQuery("2", Requests.CDC));
 
     assertThat(Xml.text(found, "dCodRes")).isEqualTo("0422");
@@ -252,12 +263,19 @@ class SifenResponsesTest {
 
     Element notFound =
         valid(
-            DOCUMENT_XSD, SifenResponses.documentFromState(), SimulatedSifen.DOCUMENT_QUERY, query);
+            DOCUMENT_XSD,
+            SifenResponses.documentFromState(),
+            SimulatedSifen.Service.DOCUMENT_QUERY.path(),
+            query);
     assertThat(Xml.text(notFound, "dCodRes")).isEqualTo("0420");
     assertThat(Xml.text(notFound, "xContenDE")).isNull();
 
     Element explicit =
-        valid(DOCUMENT_XSD, SifenResponses.documentFound(), SimulatedSifen.DOCUMENT_QUERY, query);
+        valid(
+            DOCUMENT_XSD,
+            SifenResponses.documentFound(),
+            SimulatedSifen.Service.DOCUMENT_QUERY.path(),
+            query);
     assertThat(Xml.text(explicit, "dCodRes")).isEqualTo("0422");
     assertThat(Xml.text(explicit, "xContenDE")).contains(Requests.CDC);
 
@@ -265,7 +283,7 @@ class SifenResponsesTest {
         valid(
             DOCUMENT_XSD,
             SifenResponses.documentFound(Requests.rde(Requests.CDC)),
-            SimulatedSifen.DOCUMENT_QUERY,
+            SimulatedSifen.Service.DOCUMENT_QUERY.path(),
             query);
     assertThat(Xml.text(given, "xContenDE")).contains(Requests.DIGEST);
 
@@ -273,7 +291,7 @@ class SifenResponsesTest {
         valid(
             DOCUMENT_XSD,
             SifenResponses.documentNotPermitted(),
-            SimulatedSifen.DOCUMENT_QUERY,
+            SimulatedSifen.Service.DOCUMENT_QUERY.path(),
             query);
     assertThat(Xml.text(notPermitted, "dCodRes")).isEqualTo("0421");
   }
@@ -286,7 +304,7 @@ class SifenResponsesTest {
         valid(
             RUC_XSD,
             SifenResponses.rucFound("EMPRESA SINTETICA S.A."),
-            SimulatedSifen.RUC_QUERY,
+            SimulatedSifen.Service.RUC_QUERY.path(),
             query);
     assertThat(Xml.text(found, "dCodRes")).isEqualTo("0502");
     assertThat(Xml.text(found, "dRUCCons")).isEqualTo("44444401");
@@ -300,17 +318,22 @@ class SifenResponsesTest {
         valid(
             RUC_XSD,
             SifenResponses.rucFound("OTRA SINTETICA", "SUS", "SUSPENSION TEMPORAL", false),
-            SimulatedSifen.RUC_QUERY,
+            SimulatedSifen.Service.RUC_QUERY.path(),
             query);
     assertThat(Xml.text(inactive, "dRUCFactElec")).isEqualTo("N");
 
     Element notFound =
-        valid(RUC_XSD, SifenResponses.rucNotFound(), SimulatedSifen.RUC_QUERY, query);
+        valid(
+            RUC_XSD, SifenResponses.rucNotFound(), SimulatedSifen.Service.RUC_QUERY.path(), query);
     assertThat(Xml.text(notFound, "dCodRes")).isEqualTo("0500");
     assertThat(Xml.text(notFound, "xContRUC")).isNull();
 
     Element notPermitted =
-        valid(RUC_XSD, SifenResponses.rucNotPermitted(), SimulatedSifen.RUC_QUERY, query);
+        valid(
+            RUC_XSD,
+            SifenResponses.rucNotPermitted(),
+            SimulatedSifen.Service.RUC_QUERY.path(),
+            query);
     assertThat(Xml.text(notPermitted, "dCodRes")).isEqualTo("0501");
 
     assertThatThrownBy(() -> SifenResponses.rucFound("X", "ACTIVO", "ACTIVO", true))
@@ -322,7 +345,11 @@ class SifenResponsesTest {
     byte[] request = Requests.events("4", "15", "16");
 
     Element registered =
-        valid(EVENTS_XSD, SifenResponses.eventRegistered(), SimulatedSifen.EVENTS, request);
+        valid(
+            EVENTS_XSD,
+            SifenResponses.eventRegistered(),
+            SimulatedSifen.Service.EVENTS.path(),
+            request);
     List<Element> results = Xml.descendants(registered, "gResProcEVe");
     assertThat(results).hasSize(2);
     assertThat(Xml.text(results.get(0), "id")).isEqualTo("15");
@@ -335,7 +362,7 @@ class SifenResponsesTest {
         valid(
             EVENTS_XSD,
             SifenResponses.eventRejected("4002", "CDC no existente en el SIFEN"),
-            SimulatedSifen.EVENTS,
+            SimulatedSifen.Service.EVENTS.path(),
             request);
     assertThat(Xml.text(rejected, "dEstRes")).isEqualTo("Rechazado");
     assertThat(Xml.text(rejected, "dProtAut")).isNull();
@@ -349,7 +376,7 @@ class SifenResponsesTest {
                     "4103",
                     "Fecha de emisión del DE/DTE ha superado el plazo para registro del evento"),
                 Outcome.rejected("4003", "CDC ya se encuentra con el mismo evento solicitado")),
-            SimulatedSifen.EVENTS,
+            SimulatedSifen.Service.EVENTS.path(),
             request);
     List<Element> mixedResults = Xml.descendants(mixed, "gResProcEVe");
     assertThat(Xml.text(mixedResults.get(0), "dEstRes")).isEqualTo("Aprobado con observación");
@@ -361,7 +388,7 @@ class SifenResponsesTest {
     SimulatedResponse.Rendered rendered =
         render(
             SifenResponses.soapFault("Servicio no disponible"),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             Requests.reception("1", Requests.CDC),
             false);
     assertThat(rendered.httpStatus).isEqualTo(500);
@@ -379,7 +406,7 @@ class SifenResponsesTest {
     SimulatedResponse.Rendered html =
         render(
             SifenResponses.balancerHtmlPage(),
-            SimulatedSifen.RECEPTION,
+            SimulatedSifen.Service.RECEPTION.path(),
             Requests.reception("1", Requests.CDC),
             false);
     assertThat(html.httpStatus).isEqualTo(200);
@@ -387,7 +414,11 @@ class SifenResponsesTest {
     assertThat(html.bodyUtf8()).startsWith("<!DOCTYPE html>");
 
     SimulatedResponse.Rendered error =
-        render(SifenResponses.httpError(503), SimulatedSifen.RECEPTION, new byte[0], false);
+        render(
+            SifenResponses.httpError(503),
+            SimulatedSifen.Service.RECEPTION.path(),
+            new byte[0],
+            false);
     assertThat(error.httpStatus).isEqualTo(503);
   }
 

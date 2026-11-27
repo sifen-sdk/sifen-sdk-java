@@ -21,8 +21,8 @@ Event cancel = Event.builder()
 ValidationResult result = events.validate(cancel);   // opcional: sign también valida
 SignedEvent signedEvent = events.sign(cancel, certificate);
 
-EventResult registered = client.sendEvents(List.of(signedEvent));
-for (EventResult.Event e : registered.events()) {
+EventReceptionResult registered = client.sendEvents(List.of(signedEvent));
+for (EventResult e : registered.events()) {
   e.id();                       // el id del evento
   e.status();                   // APPROVED, APPROVED_WITH_OBSERVATION, REJECTED o IN_PROCESS
   e.authorizationProtocol();    // el número de transacción, si se registró
@@ -118,7 +118,7 @@ ReceiptNotification.builder()
     .receiverRuc("44444402")
     .receiverCheckDigit("5")
     .receiverName("Cliente de Ejemplo S.A.")
-    .operationTotalPyg(new BigDecimal("131000"))
+    .guaraniTotal(new BigDecimal("131000"))
     .build()
 ```
 

@@ -10,13 +10,13 @@ import static io.github.sifensdk.client.internal.ReceptionTest.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.sifensdk.client.DocumentQuery;
+import io.github.sifensdk.client.DocumentQueryResult;
 import io.github.sifensdk.client.EventType;
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.ProtocolException;
 import io.github.sifensdk.client.QueriedEvent;
 import io.github.sifensdk.client.ResultMessage;
-import io.github.sifensdk.client.RucQuery;
+import io.github.sifensdk.client.RucQueryResult;
 import io.github.sifensdk.client.Status;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,11 +43,11 @@ class QueriesTest {
     rucSchema = ReceptionSchemas.schema("WS_SiConsRUC_v141.xsd");
   }
 
-  private static DocumentQuery document(String file) throws IOException {
+  private static DocumentQueryResult document(String file) throws IOException {
     return Queries.parseDocument(exchange(resource("consulta-de/" + file)));
   }
 
-  private static RucQuery ruc(String file) throws IOException {
+  private static RucQueryResult ruc(String file) throws IOException {
     return Queries.parseRuc(exchange(resource("consulta-ruc/" + file)), RUC);
   }
 
@@ -135,7 +135,7 @@ class QueriesTest {
 
   @Test
   void documentFoundReturnsTheContainerTextAsReceived() throws IOException {
-    DocumentQuery q = document("encontrado.xml");
+    DocumentQueryResult q = document("encontrado.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.messages()).containsExactly(new ResultMessage("0422", "CDC encontrado"));
@@ -150,7 +150,7 @@ class QueriesTest {
 
   @Test
   void documentFoundAsElementsReturnsTheExactCharacters() throws IOException {
-    DocumentQuery q = document("encontrado-contenedor-xml.xml");
+    DocumentQueryResult q = document("encontrado-contenedor-xml.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.documentXml())
@@ -165,7 +165,7 @@ class QueriesTest {
   void documentFoundWithEventsAsSifenReturnsIt() throws IOException {
     // Shape returned by SIFEN's test environment (evidence E-002): rDE, dProtAut and xContEv
     // without the rContDe root, as escaped text; one xContEv with one rContEv per event.
-    DocumentQuery q = document("encontrado-con-eventos.xml");
+    DocumentQueryResult q = document("encontrado-con-eventos.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.authorizationProtocol()).isEqualTo("1234567890");
@@ -194,14 +194,14 @@ class QueriesTest {
 
   @Test
   void documentFoundInTheXsdFormHasItsTransactionNumberAndNoEvents() throws IOException {
-    DocumentQuery q = document("encontrado.xml");
+    DocumentQueryResult q = document("encontrado.xml");
     assertThat(q.authorizationProtocol()).isEqualTo("1234567890");
     assertThat(q.events()).isEmpty();
   }
 
   @Test
   void documentNotFound() throws IOException {
-    DocumentQuery q = document("no-encontrado-0420.xml");
+    DocumentQueryResult q = document("no-encontrado-0420.xml");
 
     assertThat(q.found()).isFalse();
     assertThat(q.documentXml()).isNull();
@@ -212,7 +212,7 @@ class QueriesTest {
 
   @Test
   void documentWithoutPermissionIsNotFound() throws IOException {
-    DocumentQuery q = document("sin-permiso-0421.xml");
+    DocumentQueryResult q = document("sin-permiso-0421.xml");
 
     assertThat(q.found()).isFalse();
     assertThat(q.messages()).extracting(ResultMessage::code).containsExactly("0421");
@@ -226,7 +226,7 @@ class QueriesTest {
             + "<dFecProc>2025-01-16T09:00:00-03:00</dFecProc><dCodRes>0160</dCodRes>"
             + "<dMsgRes>XML malformado</dMsgRes></rEnviConsDeResponse></env:Body></env:Envelope>";
 
-    DocumentQuery q = Queries.parseDocument(exchange(xml.getBytes(StandardCharsets.UTF_8)));
+    DocumentQueryResult q = Queries.parseDocument(exchange(xml.getBytes(StandardCharsets.UTF_8)));
 
     assertThat(q.found()).isFalse();
     assertThat(q.messages()).extracting(ResultMessage::code).containsExactly("0160");
@@ -311,7 +311,7 @@ class QueriesTest {
 
   @Test
   void rucFoundAndElectronicIssuer() throws IOException {
-    RucQuery q = ruc("habilitado.xml");
+    RucQueryResult q = ruc("habilitado.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.ruc()).isEqualTo(RUC);
@@ -324,7 +324,7 @@ class QueriesTest {
 
   @Test
   void rucFoundNotElectronicIssuer() throws IOException {
-    RucQuery q = ruc("no-facturador.xml");
+    RucQueryResult q = ruc("no-facturador.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.statusCode()).isEqualTo("SUS");
@@ -333,7 +333,7 @@ class QueriesTest {
 
   @Test
   void rucContainerInTheManualFormIsAlsoRead() throws IOException {
-    RucQuery q = ruc("habilitado-forma-manual.xml");
+    RucQueryResult q = ruc("habilitado-forma-manual.xml");
 
     assertThat(q.found()).isTrue();
     assertThat(q.name()).isEqualTo("CONTRIBUYENTE DE PRUEBA S.A.");
@@ -342,7 +342,7 @@ class QueriesTest {
 
   @Test
   void rucNotFound() throws IOException {
-    RucQuery q = ruc("inexistente-0500.xml");
+    RucQueryResult q = ruc("inexistente-0500.xml");
 
     assertThat(q.found()).isFalse();
     assertThat(q.ruc()).isEqualTo(RUC);
@@ -355,7 +355,7 @@ class QueriesTest {
 
   @Test
   void rucWithoutPermissionIsNotFound() throws IOException {
-    RucQuery q = ruc("sin-permiso-0501.xml");
+    RucQueryResult q = ruc("sin-permiso-0501.xml");
 
     assertThat(q.found()).isFalse();
     assertThat(q.messages()).extracting(ResultMessage::code).containsExactly("0501");

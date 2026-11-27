@@ -57,13 +57,31 @@ class ModelCoverageTest {
     EXCLUDED.put("X-H-dImpCuoDocAso", "only in the XSD, undocumented: not generated (C-507)");
   }
 
-  /** Accessors whose name differs from {@code nombre} in the specification, with the reason. */
+  /**
+   * Accessors whose name differs from {@code nombre} in the specification, with the reason. The
+   * identity documents and E720 were renamed for 1.0.0-beta.1 (CHANGELOG); the specification keeps
+   * its earlier names until it is updated.
+   */
   private static final Map<String, String> RENAMED =
-      Map.of(
-          "G001", "complementaryData", // the spec repeats "generalData" (D001) under A001
-          "H001", "associatedDocuments", // a list of up to 99
-          "E824", "paymentDueDates", // a list of up to 3
-          "E940", "deliveryLocations"); // a list of up to 99
+      Map.ofEntries(
+          // the spec repeats "generalData" (D001) under A001
+          Map.entry("G001", "complementaryData"),
+          // lists
+          Map.entry("H001", "associatedDocuments"),
+          Map.entry("E824", "paymentDueDates"),
+          Map.entry("E940", "deliveryLocations"),
+          // named like its type ItemValues and ItemAmounts.values() (spec: valuation)
+          Map.entry("E720", "values"),
+          // identity documents: idDocument… everywhere, like Carrier (spec: idTypeCode, idNumber…)
+          Map.entry("D141", "idDocumentTypeCode"),
+          Map.entry("D142", "idDocumentTypeDescription"),
+          Map.entry("D143", "idDocumentNumber"),
+          Map.entry("D208", "idDocumentTypeCode"),
+          Map.entry("D209", "idDocumentTypeDescription"),
+          Map.entry("D210", "idDocumentNumber"),
+          Map.entry("E304", "sellerIdDocumentTypeCode"),
+          Map.entry("E305", "sellerIdDocumentTypeDescription"),
+          Map.entry("E306", "sellerIdDocumentNumber"));
 
   private final Spec spec = Spec.bundled();
 

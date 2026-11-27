@@ -4,6 +4,7 @@
  */
 package io.github.sifensdk.client.live;
 
+import io.github.sifensdk.client.EventReceptionResult;
 import io.github.sifensdk.client.EventResult;
 import io.github.sifensdk.client.ReceptionResult;
 import io.github.sifensdk.client.ResultMessage;
@@ -97,7 +98,7 @@ class LiveEventsTest {
             .receiverName(TEST_NAME)
             .receiverRuc(p.getProperty("ruc"))
             .receiverCheckDigit(p.getProperty("dv"))
-            .operationTotalPyg(new BigDecimal("11000"))
+            .guaraniTotal(new BigDecimal("11000"))
             .build());
     send(
         client,
@@ -155,7 +156,7 @@ class LiveEventsTest {
             .build());
     // The document query lists the events registered on the document.
     Thread.sleep(5000);
-    io.github.sifensdk.client.DocumentQuery q = client.queryDocument(forReceipt);
+    io.github.sifensdk.client.DocumentQueryResult q = client.queryDocument(forReceipt);
     System.out.println(
         "EVENTO consulta: encontrado="
             + q.found()
@@ -182,6 +183,27 @@ class LiveEventsTest {
             .documentTypeCode("1")
             .reason("Prueba del SIFEN SDK")
             .build());
+    // C-612: a range of 1001 numbers (end − start = 1000) and a single number (start = end).
+    long far = 1_000_000L + random.nextInt(7_000_000);
+    long other = 1_000_000L + random.nextInt(7_000_000);
+    for (long[] range :
+        new long[][] {{far, far + 999}, {other, other + 1000}, {far + 5000, far + 5000}}) {
+      send(
+          client,
+          events,
+          key,
+          eventId++,
+          "inutilizacion " + (range[1] - range[0] + 1) + " numeros",
+          NumberInvalidation.builder()
+              .stampNumber(p.getProperty("timbrado"))
+              .establishment(p.getProperty("establecimiento"))
+              .dispatchPoint(p.getProperty("puntoExpedicion"))
+              .rangeStartNumber(String.format("%07d", range[0]))
+              .rangeEndNumber(String.format("%07d", range[1]))
+              .documentTypeCode("1")
+              .reason("Prueba del SIFEN SDK")
+              .build());
+    }
   }
 
   private static String issue(
@@ -220,12 +242,12 @@ class LiveEventsTest {
       throws java.io.IOException {
     try {
       Event event = Event.builder().id(Long.toString(id)).detail(detail).build();
-      EventResult result = client.sendEvents(List.of(events.sign(event, key)));
+      EventReceptionResult result = client.sendEvents(List.of(events.sign(event, key)));
       String dump = System.getenv("SIFEN_TEST_DUMP_DIR");
       if (dump != null && !dump.isBlank()) {
         Files.write(Path.of(dump, label.replace(' ', '-') + ".xml"), result.exchange().request());
       }
-      for (EventResult.Event e : result.events()) {
+      for (EventResult e : result.events()) {
         System.out.println("EVENTO " + label + ": " + e.status() + " " + codes(e.messages()));
       }
     } catch (RuntimeException e) {
@@ -261,8 +283,8 @@ class LiveEventsTest {
                         .natureCode("2")
                         .operationTypeCode("2")
                         .countryCode("PRY")
-                        .idTypeCode("5")
-                        .idNumber("0")
+                        .idDocumentTypeCode("5")
+                        .idDocumentNumber("0")
                         .name("Sin Nombre")
                         .build())
                 .build())

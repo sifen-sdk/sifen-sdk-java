@@ -7,6 +7,7 @@ package io.github.sifensdk.client.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.sifensdk.client.EventReceptionResult;
 import io.github.sifensdk.client.EventResult;
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.ProtocolException;
@@ -135,19 +136,19 @@ class EventsTest {
     Exchange exchange = exchange("evento/mixto.xml");
     BatchSchemas.validateBody(exchange.response(), "WS_SiRecepEvento_v150.xsd");
 
-    EventResult result = Events.parse(exchange);
+    EventReceptionResult result = Events.parse(exchange);
 
     assertThat(result.events())
         .containsExactly(
-            new EventResult.Event(
+            EventResult.of(
                 "1",
                 Status.APPROVED,
                 "1234567892",
                 List.of(new ResultMessage("0600", "Evento registrado correctamente"))),
-            new EventResult.Event(
+            EventResult.of(
                 "2",
                 Status.REJECTED,
-                "",
+                null,
                 List.of(
                     new ResultMessage(
                         "4003", "CDC ya se encuentra con el mismo evento solicitado"))));
@@ -163,14 +164,14 @@ class EventsTest {
             () -> BatchSchemas.validateBody(exchange.response(), "WS_SiRecepEvento_v150.xsd"))
         .isInstanceOf(AssertionError.class);
 
-    EventResult result = Events.parse(exchange);
+    EventReceptionResult result = Events.parse(exchange);
 
     assertThat(result.events())
-        .extracting(EventResult.Event::status)
+        .extracting(EventResult::status)
         .containsExactly(Status.APPROVED, Status.APPROVED_WITH_OBSERVATION, Status.REJECTED);
     assertThat(result.events())
-        .extracting(EventResult.Event::authorizationProtocol)
-        .containsExactly("1234567893", "1234567894", "");
+        .extracting(EventResult::authorizationProtocol)
+        .containsExactly("1234567893", "1234567894", null);
   }
 
   @Test

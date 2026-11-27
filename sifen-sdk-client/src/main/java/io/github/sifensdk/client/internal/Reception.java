@@ -141,7 +141,7 @@ public final class Reception {
         state != null
             ? status(state, exchange)
             : statusFromCodes(messages, exchange, "rProtDe has no dEstRes (PP050)");
-    return new DocumentResult(
+    return DocumentResult.of(
         cdc,
         status,
         childOrGroupText(protocol, groups, "dProtAut"),
@@ -172,7 +172,7 @@ public final class Reception {
                   + " is not a known rejection of the service",
           exchange);
     }
-    return new DocumentResult(
+    return DocumentResult.of(
         cdc, Status.REJECTED, null, processedAt(childText(root, "dFecProc"), exchange), messages);
   }
 

@@ -49,10 +49,12 @@ final class HeaderMapper {
     n.addIfPresent("iTiContRec", "D205", v.taxpayerTypeCode());
     n.addIfPresent("dRucRec", "D206", v.ruc());
     n.addIfPresent("dDVRec", "D207", v.checkDigit());
-    n.addIfPresent("iTipIDRec", "D208", v.idTypeCode());
+    n.addIfPresent("iTipIDRec", "D208", v.idDocumentTypeCode());
     n.addIfPresent(
-        "dDTipIDRec", "D209", descriptions.of("D208", v.idTypeCode(), v.idTypeDescription()));
-    n.addIfPresent("dNumIDRec", "D210", v.idNumber());
+        "dDTipIDRec",
+        "D209",
+        descriptions.of("D208", v.idDocumentTypeCode(), v.idDocumentTypeDescription()));
+    n.addIfPresent("dNumIDRec", "D210", v.idDocumentNumber());
     n.add(Node.leaf("dNomRec", "D211", v.name()));
     n.addIfPresent("dNomFanRec", "D212", v.tradeName());
     n.addIfPresent("dDirRec", "D213", v.address());
@@ -113,10 +115,12 @@ final class HeaderMapper {
 
   Node generationResponsible(GenerationResponsible v) {
     Node n = Node.group("gRespDE", "D140");
-    n.add(Node.leaf("iTipIDRespDE", "D141", v.idTypeCode()));
+    n.add(Node.leaf("iTipIDRespDE", "D141", v.idDocumentTypeCode()));
     n.addIfPresent(
-        "dDTipIDRespDE", "D142", descriptions.of("D141", v.idTypeCode(), v.idTypeDescription()));
-    n.add(Node.leaf("dNumIDRespDE", "D143", v.idNumber()));
+        "dDTipIDRespDE",
+        "D142",
+        descriptions.of("D141", v.idDocumentTypeCode(), v.idDocumentTypeDescription()));
+    n.add(Node.leaf("dNumIDRespDE", "D143", v.idDocumentNumber()));
     n.add(Node.leaf("dNomRespDE", "D144", v.name()));
     n.add(Node.leaf("dCarRespDE", "D145", v.position()));
     return n;
