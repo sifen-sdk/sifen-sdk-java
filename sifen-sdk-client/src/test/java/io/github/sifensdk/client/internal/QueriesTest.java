@@ -11,12 +11,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.sifensdk.client.DocumentQuery;
+import io.github.sifensdk.client.EventType;
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.ProtocolException;
+import io.github.sifensdk.client.QueriedEvent;
 import io.github.sifensdk.client.ResultMessage;
 import io.github.sifensdk.client.RucQuery;
+import io.github.sifensdk.client.Status;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import org.junit.jupiter.api.BeforeAll;
@@ -155,6 +159,44 @@ class QueriesTest {
                 + CDC
                 + "\"><dRazRec>A &amp; B S.A.</dRazRec></DE></rDE><dProtAut>1234567890"
                 + "</dProtAut></rContDe>");
+  }
+
+  @Test
+  void documentFoundWithEventsAsSifenReturnsIt() throws IOException {
+    // Shape returned by SIFEN's test environment (evidence E-002): rDE, dProtAut and xContEv
+    // without the rContDe root, as escaped text; one xContEv with one rContEv per event.
+    DocumentQuery q = document("encontrado-con-eventos.xml");
+
+    assertThat(q.found()).isTrue();
+    assertThat(q.authorizationProtocol()).isEqualTo("1234567890");
+    assertThat(q.events()).hasSize(3);
+    QueriedEvent conformity = q.events().get(0);
+    assertThat(conformity.id()).isEqualTo("1");
+    assertThat(conformity.type()).isEqualTo(EventType.CONFORMITY);
+    assertThat(conformity.signatureDateTime())
+        .isEqualTo(LocalDateTime.parse("2026-11-27T10:00:01"));
+    assertThat(conformity.values()).containsEntry("Id", CDC).containsEntry("iTipConf", "1");
+    assertThat(conformity.status()).isEqualTo(Status.APPROVED);
+    assertThat(conformity.authorizationProtocol()).isEqualTo("1111111111");
+    assertThat(conformity.messages())
+        .containsExactly(new ResultMessage("0600", "Evento registrado correctamente"));
+    assertThat(conformity.xml())
+        .startsWith("<rGesEve")
+        .endsWith("</rGesEve>")
+        .contains("rGeVeConf");
+    assertThat(q.events().get(1).type()).isEqualTo(EventType.CANCELLATION);
+    assertThat(q.events().get(1).values()).containsEntry("mOtEve", "Prueba");
+    assertThat(q.events().get(1).xml()).contains("rGeVeCan").doesNotContain("rGeVeConf");
+    // An event of the SET is read too.
+    assertThat(q.events().get(2).type()).isEqualTo(EventType.ANALYSIS_OBJECT);
+    assertThat(q.events().get(2).toString()).doesNotContain(CDC);
+  }
+
+  @Test
+  void documentFoundInTheXsdFormHasItsTransactionNumberAndNoEvents() throws IOException {
+    DocumentQuery q = document("encontrado.xml");
+    assertThat(q.authorizationProtocol()).isEqualTo("1234567890");
+    assertThat(q.events()).isEmpty();
   }
 
   @Test

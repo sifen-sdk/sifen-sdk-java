@@ -19,6 +19,10 @@ what that means before 1.0).
 - `LiveDocumentsTest`: sends one document of each new type and group, and a transport update event, to SIFEN's
   test environment. Local only. All were approved.
 
+- `DocumentQuery` reads the document's transaction number (`authorizationProtocol`) and the events registered on
+  it (`events`, as `QueriedEvent` with an `EventType`), including the ones the SET registers. Verified against
+  SIFEN's test environment, which returns the content without the `rContDe` root the XSD describes.
+
 ### Changed (phase 4)
 
 - `SifenClient.sendEvents` takes `SignedEvent`s instead of raw bytes.
