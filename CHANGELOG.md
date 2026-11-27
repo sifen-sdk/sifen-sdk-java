@@ -13,7 +13,8 @@ what that means before 1.0).
   event reception, with mutual TLS per issuer, typed results and the raw exchange. Never resends on its own.
 - `BatchSchedule`: when to query a batch without triggering SIFEN's temporary blocks.
 - `sifen-sdk-testing`: a simulated SIFEN with mutual TLS and XSD-valid responses for integration tests.
-- A test against the real SIFEN test environment, run only in a protected CI environment.
+- A test against the real SIFEN test environment, run locally with
+  `scripts/prueba-sifen-local.sh`; it is not part of CI.
 - `SifenDocuments`: validates and signs electronic documents offline, and adds their QR code.
 - Document model for the electronic invoice and the credit note (256 fields), immutable, with builders.
 - Rule engine over the bundled specification (Manual Técnico v150, Notas Técnicas 1–27): mandatory,
