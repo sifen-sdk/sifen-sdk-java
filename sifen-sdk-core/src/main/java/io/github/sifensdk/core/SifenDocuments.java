@@ -130,7 +130,7 @@ public final class SifenDocuments {
   private void requireUsableCertificate(KeyMaterial keyMaterial) {
     for (CertificateChecks.Issue issue :
         CertificateChecks.check(keyMaterial, clock.instant(), null)) {
-      if (issue.error()) {
+      if (issue.isError()) {
         throw new SigningException(issue.message());
       }
     }
@@ -174,7 +174,9 @@ public final class SifenDocuments {
     }
 
     /**
-     * The clock used for the signature date and time (defaults to the system clock).
+     * The clock used for the signature date and time ({@code dFecFirma}) and for checking that the
+     * signer's certificate is within its validity period (defaults to the system clock). The rules
+     * in force are selected by the document's issue date, not by this clock.
      *
      * @param clock the clock
      * @return this builder
@@ -202,7 +204,7 @@ public final class SifenDocuments {
      * @param ruleIds specification rule ids
      * @return this builder
      */
-    public Builder warnings(Set<String> ruleIds) {
+    public Builder warningRules(Set<String> ruleIds) {
       this.warningRuleIds = Set.copyOf(ruleIds);
       return this;
     }

@@ -198,10 +198,7 @@ class DocumentMapperTest {
     List<Item> items = new ArrayList<>(invoice.documentTypeData().items());
     Item first = items.get(0);
     items.set(
-        0,
-        first.toBuilder()
-            .valuation(first.valuation().toBuilder().unitPrice(price).build())
-            .build());
+        0, first.toBuilder().values(first.values().toBuilder().unitPrice(price).build()).build());
     return invoice.toBuilder()
         .documentTypeData(invoice.documentTypeData().toBuilder().items(items).build())
         .build();

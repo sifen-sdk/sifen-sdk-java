@@ -12,7 +12,6 @@ import io.github.sifensdk.client.ProtocolException;
 import io.github.sifensdk.client.ResultMessage;
 import io.github.sifensdk.core.signing.SignedDocument;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -39,8 +38,6 @@ public final class Batches {
    * 17 digits and must never pass through a 64-bit integer or a floating point number.
    */
   private static final Pattern PROTOCOL_NUMBER = Pattern.compile("[0-9]{1,28}");
-
-  private static final Pattern NON_NEGATIVE_INTEGER = Pattern.compile("[0-9]{1,18}");
 
   private Batches() {}
 
@@ -109,10 +106,9 @@ public final class Batches {
    * read when accepted (BRSch05: "Generado solamente si dCodRes=0300"); a rejected batch may carry
    * {@code 0}, which is not a protocol number.
    *
-   * <p>{@code dTpoProces} (BRSch06) is read as seconds, as BRSch06 and MT150 8.2.1 say (8.2.2 says
-   * milliseconds; contradiction C-710). The Manual never informs less than one second, so {@code 0}
-   * (seen in the Guía's example) carries no information and is returned as {@code null}, as is a
-   * missing or non-numeric value. It is informative only and must not be used as a waiting time.
+   * <p>{@code dTpoProces} (BRSch06) is returned as SIFEN sent it: BRSch06 and MT150 8.2.1 say
+   * seconds, 8.2.2 says milliseconds (contradiction C-710, unverified). It is informative only and
+   * must not be used as a waiting time.
    *
    * @param exchange the exchange
    * @return the submission
@@ -142,12 +138,8 @@ public final class Batches {
             exchange);
       }
     }
-    return new BatchSubmission(
-        accepted,
-        protocolNumber,
-        processingTime(childText(root, "dTpoProces")),
-        messages,
-        exchange);
+    return BatchSubmission.of(
+        accepted, protocolNumber, childText(root, "dTpoProces"), messages, exchange);
   }
 
   /**
@@ -259,14 +251,14 @@ public final class Batches {
             exchange);
       }
       documents.add(
-          new DocumentResult(
+          DocumentResult.of(
               cdc,
               BatchStatus.ofDocument(status, exchange),
               childText(group, "dProtAut"),
               processedAt,
               Soap.messages(Soap.children(group, "gResProc"))));
     }
-    return new BatchResult(
+    return BatchResult.of(
         state,
         documents,
         List.of(new ResultMessage(code, message == null ? "" : message)),
@@ -290,14 +282,6 @@ public final class Batches {
       }
     }
     return true;
-  }
-
-  private static @Nullable Duration processingTime(@Nullable String seconds) {
-    if (seconds == null || !NON_NEGATIVE_INTEGER.matcher(seconds).matches()) {
-      return null;
-    }
-    long value = Long.parseLong(seconds);
-    return value == 0 ? null : Duration.ofSeconds(value);
   }
 
   private static @Nullable OffsetDateTime dateTime(@Nullable String value) {

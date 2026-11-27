@@ -4,6 +4,7 @@
  */
 package io.github.sifensdk.client;
 
+import io.github.sifensdk.client.internal.Anonymizer;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -114,6 +115,28 @@ public final class Exchange {
    */
   public Duration duration() {
     return duration;
+  }
+
+  /**
+   * Returns a copy without the data of the documents, for attaching to a bug report.
+   *
+   * <p>Keeps the structure of both messages, SIFEN's answer (codes and messages) and the coded
+   * fields; masks every other value keeping its shape (digits as {@code 9}, letters as {@code x}):
+   * RUCs, names, addresses, CDCs, amounts, dates, the QR and escaped contents. Signature values,
+   * digests and certificates are removed. Review it before sharing: it is meant to leave no
+   * personal data, but only you know what your documents carry.
+   *
+   * @return the anonymized exchange
+   */
+  public Exchange anonymized() {
+    return new Exchange(
+        requestId,
+        endpoint,
+        Anonymizer.anonymize(request),
+        httpStatus,
+        Anonymizer.anonymize(response),
+        sentAt,
+        duration);
   }
 
   @Override

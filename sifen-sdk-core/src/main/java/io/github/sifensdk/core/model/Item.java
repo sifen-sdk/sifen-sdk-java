@@ -38,7 +38,7 @@ public final class Item {
   private final @Nullable BigDecimal breakageOrShrinkageQuantity;
   private final @Nullable BigDecimal breakageOrShrinkageRate;
   private final @Nullable String advanceCdc;
-  private final @Nullable ItemValues valuation;
+  private final @Nullable ItemValues values;
   private final @Nullable ItemVat vat;
   private final @Nullable GoodsTracking goodsTracking;
   private final @Nullable NewVehicle newVehicle;
@@ -64,7 +64,7 @@ public final class Item {
     this.breakageOrShrinkageQuantity = b.breakageOrShrinkageQuantity;
     this.breakageOrShrinkageRate = b.breakageOrShrinkageRate;
     this.advanceCdc = b.advanceCdc;
-    this.valuation = b.valuation;
+    this.values = b.values;
     this.vat = b.vat;
     this.goodsTracking = b.goodsTracking;
     this.newVehicle = b.newVehicle;
@@ -336,8 +336,8 @@ public final class Item {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "E720", xml = "gValorItem")
-  public @Nullable ItemValues valuation() {
-    return valuation;
+  public @Nullable ItemValues values() {
+    return values;
   }
 
   /**
@@ -410,7 +410,7 @@ public final class Item {
         && Objects.equals(breakageOrShrinkageQuantity, that.breakageOrShrinkageQuantity)
         && Objects.equals(breakageOrShrinkageRate, that.breakageOrShrinkageRate)
         && Objects.equals(advanceCdc, that.advanceCdc)
-        && Objects.equals(valuation, that.valuation)
+        && Objects.equals(values, that.values)
         && Objects.equals(vat, that.vat)
         && Objects.equals(goodsTracking, that.goodsTracking)
         && Objects.equals(newVehicle, that.newVehicle);
@@ -443,7 +443,7 @@ public final class Item {
         breakageOrShrinkageQuantity,
         breakageOrShrinkageRate,
         advanceCdc,
-        valuation,
+        values,
         vat,
         goodsTracking,
         newVehicle);
@@ -481,7 +481,7 @@ public final class Item {
     private @Nullable BigDecimal breakageOrShrinkageQuantity;
     private @Nullable BigDecimal breakageOrShrinkageRate;
     private @Nullable String advanceCdc;
-    private @Nullable ItemValues valuation;
+    private @Nullable ItemValues values;
     private @Nullable ItemVat vat;
     private @Nullable GoodsTracking goodsTracking;
     private @Nullable NewVehicle newVehicle;
@@ -508,7 +508,7 @@ public final class Item {
       this.breakageOrShrinkageQuantity = source.breakageOrShrinkageQuantity;
       this.breakageOrShrinkageRate = source.breakageOrShrinkageRate;
       this.advanceCdc = source.advanceCdc;
-      this.valuation = source.valuation;
+      this.values = source.values;
       this.vat = source.vat;
       this.goodsTracking = source.goodsTracking;
       this.newVehicle = source.newVehicle;
@@ -724,13 +724,13 @@ public final class Item {
     }
 
     /**
-     * Sets {@code valuation} (E720, {@code gValorItem}).
+     * Sets {@code values} (E720, {@code gValorItem}).
      *
-     * @param valuation the value, or {@code null} to leave it out
+     * @param values the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder valuation(@Nullable ItemValues valuation) {
-      this.valuation = valuation;
+    public Builder values(@Nullable ItemValues values) {
+      this.values = values;
       return this;
     }
 

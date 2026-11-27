@@ -14,6 +14,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
@@ -60,10 +63,27 @@ class KeyMaterialsTest {
   }
 
   @Test
-  void toStringShowsOnlyTheSubject() {
-    KeyMaterial key = testKey();
+  void toStringShowsTheIssuerSerialNumberAndExpiryButNotTheSubject() throws Exception {
+    X509Certificate person;
+    try (InputStream in =
+        Objects.requireNonNull(
+            KeyMaterialsTest.class.getResourceAsStream("/signing/persona-fisica.pem"))) {
+      person = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
+    }
+    KeyMaterial key = KeyMaterials.of(testKey().privateKey(), List.of(person));
+
     assertThat(key.toString())
-        .contains(SUBJECT_RUC)
+        .isEqualTo(
+            "KeyMaterial[issuer=PRESTADOR SINTETICO DE PRUEBA, serialNumber="
+                + person.getSerialNumber().toString(16)
+                + ", notAfter="
+                + person.getNotAfter().toInstant()
+                + "]")
+        .doesNotContain("PERSONA SINTETICA")
+        .doesNotContain("CI1234567")
+        .doesNotContain("SIFEN SDK PRUEBAS");
+    assertThat(testKey().toString())
+        .doesNotContain("RUC44444401")
         .doesNotContain("prueba-sintetica")
         .doesNotContain("MII");
   }

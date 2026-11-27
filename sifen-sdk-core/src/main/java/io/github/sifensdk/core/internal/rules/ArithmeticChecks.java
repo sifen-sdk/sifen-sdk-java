@@ -7,10 +7,12 @@ package io.github.sifensdk.core.internal.rules;
 import io.github.sifensdk.core.internal.spec.Rule;
 import io.github.sifensdk.core.internal.tree.Node;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -38,12 +40,14 @@ import org.jspecify.annotations.Nullable;
  *       VAT) counts as 0. When a required operand is absent or not a number, the rule is not
  *       checked: the presence rules or the XSD report it.
  *   <li>Self-invoices (C002 = 4): the item total is {@code R-EA008-A2} and the gross total {@code
- *       R-F008-A3}; {@code R-EA008-A1} (C-305) does not apply to them, and the specification's
- *       condition of {@code R-F008-A1} excludes them (C-517, evidence E-002).
+ *       R-F008-A3}; the specification's conditions of {@code R-EA008-A1} (C-305, evidence E-003)
+ *       and {@code R-F008-A1} (C-517, evidence E-002) exclude them.
  *   <li>Rules the specification records as {@code descartada} are never evaluated: SIFEN does not
  *       apply them ({@code R-F017-A2}: SIFEN verifies the field table's formula, {@code R-F017-A1},
- *       with code 2371, C-502). {@code R-F014-A1} is covered by {@code R-F014-A3} (2365, same
- *       formula) for C002 = 1, 5 and 6.
+ *       with code 2371, C-502).
+ *   <li>Events: the size of an invalidated range ({@code R-GEI006-A3}: up to 1000 numbers, C-612,
+ *       E-003) and the reception date of the receiver's events, never before the issue date ({@code
+ *       R-GEN004-A1}, {@code R-GED004-A1}).
  * </ul>
  *
  * <p>Not implemented, so reported as unchecked when they apply: {@code R-F013-A1} (rounding to
@@ -61,9 +65,7 @@ final class ArithmeticChecks {
   private static final Rational TEN_THOUSAND = Rational.of(10000);
   private static final BigDecimal FIVE = BigDecimal.valueOf(5);
   private static final BigDecimal HALF = new BigDecimal("0.5");
-
-  /** Document types where {@code R-F014-A3} (validation 2365) applies. */
-  private static final Set<String> TYPES_WITH_2365 = Set.of("1", "5", "6");
+  private static final BigDecimal THOUSAND = BigDecimal.valueOf(1000);
 
   private ArithmeticChecks() {}
 
@@ -93,9 +95,7 @@ final class ArithmeticChecks {
     m.put(
         "R-EA008-A1",
         (e, r, t) -> {
-          if ("4".equals(e.text(t, "C002"))) {
-            return null; // C-305: for C002 = 4, R-EA008-A2 applies
-          }
+          // Not for self-invoices: the specification's condition excludes C002 = 4 (C-305, E-003).
           Rational net =
               difference(
                   num(e, t, "E721"),
@@ -246,12 +246,9 @@ final class ArithmeticChecks {
         (e, r, t) -> verify(r, t, sum(num(e, t, "F034"), num(e, t, "F035")), "F034 + F035"));
     m.put(
         "R-F014-A1",
-        (e, r, t) -> {
-          if (TYPES_WITH_2365.contains(e.text(t, "C002"))) {
-            return null; // covered by R-F014-A3 (validation 2365, same formula)
-          }
-          return verify(r, t, totalNet(e, t), "F008 − F013 + F025");
-        });
+        // Only where R-F014-A3 does not apply: the specification's condition excludes C002 = 1, 5,
+        // 6.
+        (e, r, t) -> verify(r, t, totalNet(e, t), "F008 − F013 + F025"));
     m.put("R-F014-A3", (e, r, t) -> verify(r, t, totalNet(e, t), "F008 − F013 + F025"));
     m.put(
         "R-F015-A1",
@@ -293,7 +290,44 @@ final class ArithmeticChecks {
         "R-F023-A2",
         (e, r, t) -> verify(r, t, sumItems(e, item -> itemNum(e, item, "EA009")), "sum of EA009"));
 
+    // --- Events --------------------------------------------------------------------------------
+    m.put(
+        "R-GEI006-A3",
+        (e, r, t) -> {
+          BigDecimal end = Evaluation.decimal(t.text());
+          BigDecimal start = Evaluation.decimal(e.text(t, "GEI005"));
+          if (end == null || start == null) {
+            return null;
+          }
+          return end.subtract(start).add(BigDecimal.ONE).compareTo(THOUSAND) <= 0
+              ? null
+              : "The range has more than 1000 numbers (GEI006 − GEI005 + 1)";
+        });
+    m.put("R-GEN004-A1", (e, r, t) -> notBefore(t.text(), e.text(t, "GEN003")));
+    m.put("R-GED004-A1", (e, r, t) -> notBefore(t.text(), e.text(t, "GED003")));
+
     return Map.copyOf(m);
+  }
+
+  /** A reception date and time never before the issue date and time of the document. */
+  private static @Nullable String notBefore(@Nullable String reception, @Nullable String issue) {
+    LocalDateTime received = dateTime(reception);
+    LocalDateTime issued = dateTime(issue);
+    if (received == null || issued == null || !received.isBefore(issued)) {
+      return null;
+    }
+    return "The reception date is before the issue date of the document";
+  }
+
+  private static @Nullable LocalDateTime dateTime(@Nullable String text) {
+    if (text == null) {
+      return null;
+    }
+    try {
+      return text.length() == 10 ? LocalDate.parse(text).atStartOfDay() : LocalDateTime.parse(text);
+    } catch (DateTimeParseException ex) {
+      return null;
+    }
   }
 
   // --- comparison -------------------------------------------------------------------------------

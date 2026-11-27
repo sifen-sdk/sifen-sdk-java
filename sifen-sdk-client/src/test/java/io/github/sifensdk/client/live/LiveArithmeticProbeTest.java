@@ -154,7 +154,7 @@ class LiveArithmeticProbeTest {
         SignedDocument signed =
             SifenDocuments.builder()
                 .environment(Environment.TEST)
-                .warnings(flagged)
+                .warningRules(flagged)
                 .build()
                 .sign(doc, key, csc);
         ReceptionResult r = client.send(signed);
@@ -241,7 +241,7 @@ class LiveArithmeticProbeTest {
       SignedDocument signed =
           SifenDocuments.builder()
               .environment(Environment.TEST)
-              .warnings(flagged)
+              .warningRules(flagged)
               .build()
               .sign(doc, key, csc);
       ReceptionResult r = client.send(signed);
@@ -593,6 +593,36 @@ class LiveArithmeticProbeTest {
               a.totals.put("vat10RoundingAmount", new BigDecimal("24"));
               bump(a, "vatTotal", new BigDecimal("-24"));
             })));
+    // VAT of the rounding at 5 % (F036, C-504): 10049 rounds to 10000, 49 / 21 = 2.33.
+    java.util.function.Supplier<List<Line>> roundable5 =
+        () -> List.of(new Line("1", 5, "100", "1", "10049"));
+    for (String f036 : List.of("2", "3", "22")) {
+      out.add(
+          new Case(
+              "redondeo-F036=" + f036 + "-coherente",
+              "R-F036-A1",
+              roundable5.get(),
+              null,
+              round49.andThen(a -> {
+                a.totals.put("vat5RoundingAmount", new BigDecimal(f036));
+                bump(a, "vatTotal", new BigDecimal(f036).negate());
+              })));
+    }
+    out.add(
+        new Case(
+            "redondeo-F036-y-F017-sin-restar (2371)",
+            "R-F017-A1,R-F036-A1",
+            roundable5.get(),
+            null,
+            round49.andThen(a -> a.totals.put("vat5RoundingAmount", new BigDecimal("2")))));
+    // C-303: dTiCamIt (E725) with a global exchange rate (D017 = 1); validation 1855 expected.
+    out.add(
+        new Case(
+            "E725-con-tipo-de-cambio-global (1855)",
+            "R-E725-P1",
+            usd.get(),
+            usdGlobal,
+            a -> a.items.get(0).put("exchangeRate", a.exchangeRate)));
     // Commission (F025) and its VAT (F026).
     Consumer<Amounts> commission =
         a -> {
@@ -925,7 +955,7 @@ class LiveArithmeticProbeTest {
               .description("Ítem de prueba del SIFEN SDK " + i)
               .unitOfMeasureCode("77")
               .quantity(l.qty)
-              .valuation(
+              .values(
                   ItemValues.builder()
                       .exchangeRate(m.get("exchangeRate"))
                       .unitPrice(m.get("unitPrice"))

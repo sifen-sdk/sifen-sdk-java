@@ -11,6 +11,7 @@ fuera de las pruebas ni agregues acá material de claves real.
 | `prueba-certificado.pem` | El certificado de `prueba.p12` en PEM. |
 | `prueba-clave.pem` | La clave privada de `prueba.p12` en PEM, PKCS#8 sin cifrar. |
 | `sin-uso-de-firma.pem` | Un certificado autofirmado (sin su clave) cuyo uso de clave es solo cifrado, para probar que no se firma con él. |
+| `persona-fisica.pem` | Un certificado (sin su clave) de una persona física inventada, emitido por una autoridad inventada, para probar que `toString()` no muestra el sujeto. |
 
 - **Contraseña de prueba** (del almacén y de las claves): `prueba-sintetica`
 - **Sujeto:** `CN=CONTRIBUYENTE SINTETICO DE PRUEBA, SERIALNUMBER=RUC44444401-7, O=SIFEN SDK PRUEBAS, C=PY`
@@ -31,6 +32,11 @@ openssl pkcs12 -in prueba.p12 -passin pass:prueba-sintetica -nocerts -nodes | op
 # sin-uso-de-firma.pem: -genkeypair en un almacén temporal con -alias cifrado,
 #   -dname "CN=CERTIFICADO SINTETICO SIN FIRMA, SERIALNUMBER=RUC44444401-7, O=SIFEN SDK PRUEBAS, C=PY",
 #   -ext KeyUsage:critical=keyEncipherment, y luego keytool -exportcert -rfc (la clave se descarta)
+# persona-fisica.pem: -genkeypair -alias ca con -dname "CN=PRESTADOR SINTETICO DE PRUEBA, O=SIFEN SDK PRUEBAS, C=PY"
+#   y -ext BasicConstraints:critical=ca:true; -genkeypair -alias pf con
+#   -dname "CN=PERSONA SINTETICA DE PRUEBA, SERIALNUMBER=CI1234567, O=SIFEN SDK PRUEBAS, C=PY"; keytool -certreq
+#   del segundo y keytool -gencert -alias ca -rfc -ext KeyUsage:critical=digitalSignature,nonRepudiation
+#   -validity 7300 -startdate 2026/01/01 (las claves se descartan)
 ```
 
 `rde-sin-firmar.xml` es un `rDE` sintético mínimo (no completo según el XSD) con los datos del ejemplo del Manual,

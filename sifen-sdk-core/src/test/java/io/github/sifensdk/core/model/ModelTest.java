@@ -20,7 +20,7 @@ class ModelTest {
         .description("Secreto comercial")
         .unitOfMeasureCode("77")
         .quantity(BigDecimal.ONE)
-        .valuation(
+        .values(
             ItemValues.builder()
                 .unitPrice(new BigDecimal(price))
                 .grossTotal(new BigDecimal(price))
@@ -33,8 +33,8 @@ class ModelTest {
   @Test
   void keepsAmountsExactlyAsGiven() {
     Item item = item("A", "110000.50");
-    assertThat(item.valuation().unitPrice().toPlainString()).isEqualTo("110000.50");
-    assertThat(item.valuation().unitPrice().scale()).isEqualTo(2);
+    assertThat(item.values().unitPrice().toPlainString()).isEqualTo("110000.50");
+    assertThat(item.values().unitPrice().scale()).isEqualTo(2);
   }
 
   @Test

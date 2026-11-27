@@ -134,7 +134,7 @@ public final class SifenClient {
    * @throws TransportException if SIFEN could not be reached
    * @throws ProtocolException if SIFEN's answer is not a valid response
    */
-  public DocumentQuery queryDocument(String cdc) {
+  public DocumentQueryResult queryDocument(String cdc) {
     return Queries.document(transport, Objects.requireNonNull(cdc, "cdc"));
   }
 
@@ -146,7 +146,7 @@ public final class SifenClient {
    * @throws TransportException if SIFEN could not be reached
    * @throws ProtocolException if SIFEN's answer is not a valid response
    */
-  public RucQuery queryRuc(String ruc) {
+  public RucQueryResult queryRuc(String ruc) {
     return Queries.ruc(transport, Objects.requireNonNull(ruc, "ruc"));
   }
 
@@ -162,7 +162,7 @@ public final class SifenClient {
    * @throws TransportException if SIFEN could not be reached
    * @throws ProtocolException if SIFEN's answer is not a valid response
    */
-  public EventResult sendEvents(List<SignedEvent> signedEvents) {
+  public EventReceptionResult sendEvents(List<SignedEvent> signedEvents) {
     List<byte[]> xml = new ArrayList<>(signedEvents.size());
     for (SignedEvent e : signedEvents) {
       xml.add(Objects.requireNonNull(e, "signedEvents element").xml());

@@ -13,9 +13,11 @@ import org.jspecify.annotations.Nullable;
  * rest: quantity, unit price, discounts and advances per unit, VAT treatment and rate, and the
  * item's exchange rate.
  *
- * <p>Amounts are per unit and in the currency of the document. Without a VAT treatment the item is
- * one of a self-invoice (C002 = 4), which has no VAT group nor discounts (R-E730-P1, R-EA008-A2).
- * Immutable and thread-safe; create it with {@link #builder()}.
+ * <p>Amounts are per unit and in the currency of the document. The VAT treatment is always chosen
+ * explicitly: {@link Builder#taxed}, {@link Builder#exonerated}, {@link Builder#exempt}, {@link
+ * Builder#partiallyTaxed} or, for an item of a self-invoice (C002 = 4), which has no VAT group nor
+ * discounts (R-E730-P1, R-EA008-A2), {@link Builder#selfInvoice}. Immutable and thread-safe; create
+ * it with {@link #builder()}.
  */
 public final class ItemPrice {
 
@@ -40,6 +42,11 @@ public final class ItemPrice {
     this.advancePerUnit = notNegative(b.advancePerUnit, "advancePerUnit (EA006)");
     this.globalAdvancePerUnit = notNegative(b.globalAdvancePerUnit, "globalAdvancePerUnit (EA007)");
     this.exchangeRate = b.exchangeRate == null ? null : positive(b.exchangeRate, "exchangeRate");
+    if (!b.treatmentChosen) {
+      throw new IllegalStateException(
+          "Choose the VAT treatment of the item (E731): taxed, exonerated, exempt, partiallyTaxed,"
+              + " or selfInvoice for an item of a self-invoice (C002 = 4)");
+    }
     this.vatTreatmentCode = b.vatTreatmentCode;
     if (vatTreatmentCode == null) {
       if (discountPerUnit.signum() != 0
@@ -233,6 +240,7 @@ public final class ItemPrice {
     private @Nullable String vatTreatmentCode;
     private @Nullable BigDecimal vatRate;
     private @Nullable BigDecimal taxableProportionRate;
+    private boolean treatmentChosen;
 
     private Builder() {}
 
@@ -331,9 +339,7 @@ public final class ItemPrice {
      * @return this builder
      */
     public Builder taxed(BigDecimal rate) {
-      this.vatTreatmentCode = "1";
-      this.vatRate = rate;
-      return this;
+      return treatment("1", rate, null);
     }
 
     /**
@@ -342,8 +348,7 @@ public final class ItemPrice {
      * @return this builder
      */
     public Builder exonerated() {
-      this.vatTreatmentCode = "2";
-      return this;
+      return treatment("2", null, null);
     }
 
     /**
@@ -352,8 +357,7 @@ public final class ItemPrice {
      * @return this builder
      */
     public Builder exempt() {
-      this.vatTreatmentCode = "3";
-      return this;
+      return treatment("3", null, null);
     }
 
     /**
@@ -364,9 +368,25 @@ public final class ItemPrice {
      * @return this builder
      */
     public Builder partiallyTaxed(BigDecimal rate, BigDecimal taxableProportionRate) {
-      this.vatTreatmentCode = "4";
+      return treatment("4", rate, taxableProportionRate);
+    }
+
+    /**
+     * An item of a self-invoice (C002 = 4): without VAT treatment (E731) nor VAT group (R-E730-P1),
+     * and without discounts nor advances (R-EA008-A2).
+     *
+     * @return this builder
+     */
+    public Builder selfInvoice() {
+      return treatment(null, null, null);
+    }
+
+    private Builder treatment(
+        @Nullable String code, @Nullable BigDecimal rate, @Nullable BigDecimal proportion) {
+      this.vatTreatmentCode = code;
       this.vatRate = rate;
-      this.taxableProportionRate = taxableProportionRate;
+      this.taxableProportionRate = proportion;
+      this.treatmentChosen = true;
       return this;
     }
 
@@ -375,6 +395,8 @@ public final class ItemPrice {
      *
      * @return the input
      * @throws NullPointerException if the currency, quantity or unit price is missing
+     * @throws IllegalStateException if no VAT treatment was chosen ({@link #taxed}, {@link
+     *     #exonerated}, {@link #exempt}, {@link #partiallyTaxed} or {@link #selfInvoice})
      * @throws IllegalArgumentException if a value is out of range
      */
     public ItemPrice build() {

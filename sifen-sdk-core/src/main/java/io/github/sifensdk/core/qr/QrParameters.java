@@ -21,8 +21,9 @@ import org.jspecify.annotations.Nullable;
  *     {@code yyyy-MM-ddTHH:mm:ss}); it is converted to hexadecimal in the QR
  * @param receiverRuc {@code dRucRec}: the receiver's RUC without check digit, D206, when the
  *     receiver is a taxpayer; otherwise {@code null}
- * @param receiverIdNumber {@code dNumIDRec}: the receiver's identity document number, D210, used
- *     when there is no {@code receiverRuc}; {@code null} if not informed ({@code 0} is written)
+ * @param receiverIdDocumentNumber {@code dNumIDRec}: the receiver's identity document number, D210,
+ *     used when there is no {@code receiverRuc}; {@code null} if not informed ({@code 0} is
+ *     written)
  * @param generalOperationTotal {@code dTotGralOpe}: total of the operation, F014; {@code null} if
  *     the document does not have it ({@code 0} is written, Manual 13.8.4.1)
  * @param vatTotal {@code dTotIVA}: total VAT, F017; {@code null} if the document does not have it
@@ -36,7 +37,7 @@ public record QrParameters(
     String cdc,
     String issueDateTime,
     @Nullable String receiverRuc,
-    @Nullable String receiverIdNumber,
+    @Nullable String receiverIdDocumentNumber,
     @Nullable String generalOperationTotal,
     @Nullable String vatTotal,
     int itemCount,
@@ -53,7 +54,7 @@ public record QrParameters(
     requireText(cdc, "cdc (Id)");
     requireText(issueDateTime, "issueDateTime (dFeEmiDE)");
     requireText(digestValue, "digestValue (DigestValue)");
-    if (receiverRuc != null && receiverIdNumber != null) {
+    if (receiverRuc != null && receiverIdDocumentNumber != null) {
       throw new IllegalArgumentException(
           "The QR has either dRucRec or dNumIDRec, not both (Manual Técnico v150, 13.8.2)");
     }

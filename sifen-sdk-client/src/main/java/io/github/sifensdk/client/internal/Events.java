@@ -4,6 +4,7 @@
  */
 package io.github.sifensdk.client.internal;
 
+import io.github.sifensdk.client.EventReceptionResult;
 import io.github.sifensdk.client.EventResult;
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.ProtocolException;
@@ -60,7 +61,7 @@ public final class Events {
    * @return the outcome of each event
    * @throws IllegalArgumentException if the events break a documented limit
    */
-  public static EventResult send(Transport transport, List<byte[]> signedEvents) {
+  public static EventReceptionResult send(Transport transport, List<byte[]> signedEvents) {
     String requestId = transport.newRequestId();
     return parse(transport.post(Endpoints.EVENTS, requestId, request(requestId, signedEvents)));
   }
@@ -131,14 +132,14 @@ public final class Events {
    * @throws ProtocolException if the response is not {@code rRetEnviEventoDe}, has no event result,
    *     or an event result cannot be read
    */
-  public static EventResult parse(Exchange exchange) {
+  public static EventReceptionResult parse(Exchange exchange) {
     Element root = Soap.body(exchange, "rRetEnviEventoDe");
     List<Element> groups = Soap.children(root, "gResProcEVe");
     if (groups.isEmpty()) {
       throw new ProtocolException(
           "SIFEN's event answer has no event result (gResProcEVe, GRSch03 1-15)", exchange);
     }
-    List<EventResult.Event> events = new ArrayList<>();
+    List<EventResult> events = new ArrayList<>();
     for (Element group : groups) {
       String id = Batches.childText(group, "id");
       String state = Batches.childText(group, "dEstRes");
@@ -148,13 +149,13 @@ public final class Events {
       }
       String protocol = Batches.childText(group, "dProtAut");
       events.add(
-          new EventResult.Event(
+          EventResult.of(
               id,
               eventStatus(state, exchange),
-              protocol == null ? "" : protocol,
+              protocol,
               Soap.messages(Soap.children(group, "gResProc"))));
     }
-    return new EventResult(events, exchange);
+    return EventReceptionResult.of(events, exchange);
   }
 
   /**

@@ -69,7 +69,7 @@ class SifenEventsTest {
             .receiverName("Receptor de prueba")
             .receiverRuc("44444401")
             .receiverCheckDigit("7")
-            .operationTotalPyg(new BigDecimal("110000"))
+            .guaraniTotal(new BigDecimal("110000"))
             .build(),
         Conformity.builder().cdc(cdc()).typeCode("1").build(),
         Disconformity.builder()

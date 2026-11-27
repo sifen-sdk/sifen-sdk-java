@@ -241,7 +241,7 @@ public final class Calculator {
     BigDecimal base10 = zero(currency);
     BigDecimal guaranies = BigDecimal.ZERO;
     for (Item item : document.documentTypeData().items()) {
-      ItemValues values = item.valuation();
+      ItemValues values = item.values();
       if (values == null) {
         throw new IllegalArgumentException("An item has no values (E720)");
       }

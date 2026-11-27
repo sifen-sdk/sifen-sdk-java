@@ -70,7 +70,7 @@ class ExternalKeysTlsTest {
     ReceptionResult result = client(keyMaterial).send(signed());
 
     assertThat(result.document().status()).isEqualTo(Status.APPROVED);
-    assertThat(sifen.recordedRequests(SimulatedSifen.RECEPTION))
+    assertThat(sifen.recordedRequests(SimulatedSifen.Service.RECEPTION))
         .last()
         .satisfies(r -> assertThat(r.clientCertificate()).isEqualTo(SyntheticClient.certificate()));
   }

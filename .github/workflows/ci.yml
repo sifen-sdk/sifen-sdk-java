@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+    # labeled/unlabeled: the "api-incompatible" label changes the API check (RELEASING.md).
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main, "[0-9]+.x"]
 
@@ -41,7 +43,11 @@ jobs:
       - name: Build and test
         env:
           SIFEN_REQUIRE_SOFTHSM: ${{ runner.os == 'Linux' }}
-        run: ./mvnw -B -ntp verify
+          # An incompatible API change fails the build unless the PR is labeled "api-incompatible".
+          API_BREAK_BUILD: ${{ !contains(github.event.pull_request.labels.*.name, 'api-incompatible') }}
+        # bash also on Windows: the default shell there (PowerShell) splits the -D argument.
+        shell: bash
+        run: ./mvnw -B -ntp verify -Dapi.breakBuild="$API_BREAK_BUILD"
 
   packaging:
     name: Release packaging (dry run)

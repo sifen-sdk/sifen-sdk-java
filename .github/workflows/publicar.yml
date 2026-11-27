@@ -1,0 +1,91 @@
+# Publishes a version to Maven Central (RELEASING.md).
+# - Pushing a tag vX.Y.Z or vX.Y.Z-beta.N publishes that version and creates its GitHub release.
+# - Running it by hand ("Run workflow") with "ensayo" uploads to the Central Portal without publishing:
+#   the deployment is validated there and can be dropped.
+# Both wait for approval in the protected "release" environment, which holds the secrets.
+name: Publicar
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  workflow_dispatch:
+    inputs:
+      ensayo:
+        description: "Ensayo: subir sin publicar (se descarta en el Central Portal)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    name: Publicar en Maven Central
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: release
+    permissions:
+      contents: write # GitHub release
+      id-token: write # build provenance
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: Check the version
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          ENSAYO: ${{ inputs.ensayo }}
+        run: |
+          version=$(./mvnw -B -q -ntp help:evaluate -Dexpression=project.version -DforceStdout)
+          case "$version" in *-SNAPSHOT) echo "The version $version is a snapshot"; exit 1 ;; esac
+          if [ "$REF_TYPE" = tag ]; then
+            [ "v$version" = "$REF_NAME" ] || { echo "Tag $REF_NAME does not match version $version"; exit 1; }
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif [ "$ENSAYO" = "true" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Only a tag publishes; run by hand only as a dry run"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Install SoftHSM2 (PKCS#11 token tests)
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends softhsm2
+      - name: Build, test, sign and upload
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          SIFEN_REQUIRE_SOFTHSM: "true"
+          PUBLISH: ${{ steps.version.outputs.publish }}
+        run: ./mvnw -B -ntp -Prelease deploy -Dcentral.autoPublish="$PUBLISH"
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: sifen-sdk-*/target/sifen-sdk-*.jar
+      - name: GitHub release
+        if: steps.version.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$TAG" $prerelease --verify-tag --title "$VERSION" \
+            --notes "Artefactos en Maven Central: \`io.github.sifen-sdk:*:$VERSION\`. Cambios en [CHANGELOG.md](https://github.com/sifen-sdk/sifen-sdk-java/blob/$TAG/CHANGELOG.md)." \
+            sifen-sdk-*/target/sifen-sdk-*.jar target/bom.json

@@ -6,6 +6,8 @@ package io.github.sifensdk.core.cdc;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -17,7 +19,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>44 characters, in this order (Manual Técnico v150, 10.1 and validation 1000): document type
  * C002 (2), issuer RUC D101 (8, zero-padded on the left), issuer RUC check digit D102 (1),
- * establishment C005 (3), expedition point C006 (3), document number C007 (7), taxpayer type D103
+ * establishment C005 (3), dispatch point C006 (3), document number C007 (7), taxpayer type D103
  * (1), issue date D002 ({@code yyyyMMdd}, 8), emission type B002 (1), security code B004 (9) and
  * the check digit (1).
  *
@@ -47,7 +49,7 @@ public final class Cdc {
   private static final Pattern DIGITS = Pattern.compile("[0-9]+");
 
   private static final DateTimeFormatter CDC_DATE =
-      DateTimeFormatter.ofPattern("uuuuMMdd", Locale.ROOT);
+      DateTimeFormatter.ofPattern("uuuuMMdd", Locale.ROOT).withResolverStyle(ResolverStyle.STRICT);
 
   private final String value;
 
@@ -61,8 +63,8 @@ public final class Cdc {
    * @param value the 44 characters of the CDC
    * @return the CDC
    * @throws IllegalArgumentException if the value does not have 44 characters, does not match the
-   *     XSD type {@code tCDC} or its check digit (A003) is wrong; the message does not contain the
-   *     value
+   *     XSD type {@code tCDC}, its date of issue is not a date {@code yyyyMMdd} (Manual Técnico
+   *     v150, 10.1) or its check digit (A003) is wrong; the message does not contain the value
    */
   public static Cdc parse(String value) {
     Objects.requireNonNull(value, "value");
@@ -72,6 +74,12 @@ public final class Cdc {
     }
     if (!CDC_PATTERN.matcher(value).matches()) {
       throw new IllegalArgumentException("The CDC does not match the XSD type tCDC");
+    }
+    try {
+      LocalDate.parse(value.substring(25, 33), CDC_DATE);
+    } catch (DateTimeParseException e) {
+      throw new IllegalArgumentException(
+          "The date of issue in the CDC (positions 26 to 33) is not a date yyyyMMdd", e);
     }
     int expected = checkDigit(value.substring(0, LENGTH - 1));
     if (value.charAt(LENGTH - 1) - '0' != expected) {
@@ -87,30 +95,30 @@ public final class Cdc {
    * <p>The document type, the RUC and the document number are padded with zeros on the left to 2, 8
    * and 7 positions (validation 1000). Nothing else is completed or transformed.
    *
-   * @param documentType document type, C002 ({@code iTiDE}), 1 or 2 digits
+   * @param documentTypeCode document type, C002 ({@code iTiDE}), 1 or 2 digits
    * @param issuerRuc issuer RUC without check digit, D101 ({@code dRucEm}), up to 8 characters; the
    *     last one may be a letter A to D (see the class description)
    * @param issuerRucCheckDigit check digit of the issuer RUC, D102 ({@code dDVEmi}), 1 digit
    * @param establishment establishment, C005 ({@code dEst}), 3 digits
-   * @param expeditionPoint expedition point, C006 ({@code dPunExp}), 3 digits
+   * @param dispatchPoint dispatch point (punto de expedición), C006 ({@code dPunExp}), 3 digits
    * @param documentNumber document number, C007 ({@code dNumDoc}), up to 7 digits
-   * @param taxpayerType taxpayer type of the issuer, D103 ({@code iTipCont}), 1 digit
+   * @param taxpayerTypeCode taxpayer type of the issuer, D103 ({@code iTipCont}), 1 digit
    * @param issueDate date of issue, from D002 ({@code dFeEmiDE})
-   * @param emissionType emission type, B002 ({@code iTipEmi}), 1 digit
+   * @param emissionTypeCode emission type, B002 ({@code iTipEmi}), 1 digit
    * @param securityCode security code, B004 ({@code dCodSeg}), 9 digits
    * @return the CDC
    * @throws IllegalArgumentException if a part has the wrong length or characters
    */
   public static Cdc compose(
-      String documentType,
+      String documentTypeCode,
       String issuerRuc,
       String issuerRucCheckDigit,
       String establishment,
-      String expeditionPoint,
+      String dispatchPoint,
       String documentNumber,
-      String taxpayerType,
+      String taxpayerTypeCode,
       LocalDate issueDate,
-      String emissionType,
+      String emissionTypeCode,
       String securityCode) {
     Objects.requireNonNull(issueDate, "issueDate");
     String ruc = leftPad(Objects.requireNonNull(issuerRuc, "issuerRuc"), 8, "issuerRuc (D101)");
@@ -123,16 +131,19 @@ public final class Cdc {
       throw new IllegalArgumentException("issueDate (D002) must have a 4-digit year");
     }
     String base =
-        digits(leftPad(documentType, 2, "documentType (C002)"), 2, "documentType (C002)")
+        digits(
+                leftPad(documentTypeCode, 2, "documentTypeCode (C002)"),
+                2,
+                "documentTypeCode (C002)")
             + ruc
             + digits(issuerRucCheckDigit, 1, "issuerRucCheckDigit (D102)")
             + digits(establishment, 3, "establishment (C005)")
-            + digits(expeditionPoint, 3, "expeditionPoint (C006)")
+            + digits(dispatchPoint, 3, "dispatchPoint (C006)")
             + digits(
                 leftPad(documentNumber, 7, "documentNumber (C007)"), 7, "documentNumber (C007)")
-            + digits(taxpayerType, 1, "taxpayerType (D103)")
+            + digits(taxpayerTypeCode, 1, "taxpayerTypeCode (D103)")
             + date
-            + digits(emissionType, 1, "emissionType (B002)")
+            + digits(emissionTypeCode, 1, "emissionTypeCode (B002)")
             + digits(securityCode, 9, "securityCode (B004)");
     return new Cdc(base + checkDigit(base));
   }
@@ -209,11 +220,11 @@ public final class Cdc {
   }
 
   /**
-   * Returns the document type (C002), 2 digits.
+   * Returns the code of the document type (C002), 2 digits.
    *
-   * @return the document type as written in the CDC
+   * @return the document type code as written in the CDC
    */
-  public String documentType() {
+  public String documentTypeCode() {
     return value.substring(0, 2);
   }
 
@@ -245,11 +256,11 @@ public final class Cdc {
   }
 
   /**
-   * Returns the expedition point (C006).
+   * Returns the dispatch point, "punto de expedición" (C006).
    *
    * @return three digits
    */
-  public String expeditionPoint() {
+  public String dispatchPoint() {
     return value.substring(14, 17);
   }
 
@@ -263,29 +274,29 @@ public final class Cdc {
   }
 
   /**
-   * Returns the taxpayer type of the issuer (D103).
+   * Returns the code of the taxpayer type of the issuer (D103).
    *
    * @return one digit
    */
-  public String taxpayerType() {
+  public String taxpayerTypeCode() {
     return value.substring(24, 25);
   }
 
   /**
-   * Returns the date of issue as written in the CDC (from D002).
+   * Returns the date of issue written in the CDC (from D002, {@code yyyyMMdd}).
    *
-   * @return eight digits, {@code yyyyMMdd}
+   * @return the date
    */
-  public String issueDate() {
-    return value.substring(25, 33);
+  public LocalDate issueDate() {
+    return LocalDate.parse(value.substring(25, 33), CDC_DATE);
   }
 
   /**
-   * Returns the emission type (B002).
+   * Returns the code of the emission type (B002).
    *
    * @return one digit
    */
-  public String emissionType() {
+  public String emissionTypeCode() {
     return value.substring(33, 34);
   }
 

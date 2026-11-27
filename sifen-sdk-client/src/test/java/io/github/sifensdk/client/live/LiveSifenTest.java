@@ -8,10 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.sifensdk.client.BatchResult;
 import io.github.sifensdk.client.BatchSubmission;
-import io.github.sifensdk.client.DocumentQuery;
+import io.github.sifensdk.client.DocumentQueryResult;
 import io.github.sifensdk.client.DocumentResult;
 import io.github.sifensdk.client.ReceptionResult;
-import io.github.sifensdk.client.RucQuery;
+import io.github.sifensdk.client.RucQueryResult;
 import io.github.sifensdk.client.SifenClient;
 import io.github.sifensdk.core.Environment;
 import io.github.sifensdk.core.SifenDocuments;
@@ -87,7 +87,7 @@ class LiveSifenTest {
         SifenClient.builder().environment(Environment.TEST).keyMaterial(key).build();
 
     // 1. The issuer exists and is an electronic issuer.
-    RucQuery ruc = client.queryRuc(issuerData.getProperty("ruc"));
+    RucQueryResult ruc = client.queryRuc(issuerData.getProperty("ruc"));
     report(
         "consulta RUC",
         ruc.found() + " estado=" + ruc.statusCode() + " fe=" + ruc.electronicIssuer(),
@@ -121,7 +121,7 @@ class LiveSifenTest {
         report("  documento del lote", d.status().toString(), d.messages());
       }
       assertThat(result.state()).isEqualTo(BatchResult.State.PROCESSED);
-      DocumentQuery query = client.queryDocument(second.cdc());
+      DocumentQueryResult query = client.queryDocument(second.cdc());
       report("consulta de documento", "encontrado=" + query.found(), query.messages());
     }
   }
@@ -216,7 +216,7 @@ class LiveSifenTest {
                         .description("Ítem de prueba del SIFEN SDK")
                         .unitOfMeasureCode("77")
                         .quantity(BigDecimal.ONE)
-                        .valuation(
+                        .values(
                             ItemValues.builder()
                                 .unitPrice(PRICE)
                                 .grossTotal(PRICE)

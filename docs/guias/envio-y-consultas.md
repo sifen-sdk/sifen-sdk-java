@@ -27,6 +27,7 @@ switch (result.status()) {
   case APPROVED, APPROVED_WITH_OBSERVATION -> guardarProtocolo(result.authorizationProtocol());
   case REJECTED -> corregir(result.messages());     // códigos y mensajes de SIFEN
   case IN_PROCESS -> consultarMasTarde(result.cdc());
+  default -> revisar(result.messages());            // estados que agregue una versión menor
 }
 ```
 
@@ -73,6 +74,7 @@ switch (batch.state()) {
   case IN_PROCESS -> reagendar(schedule.nextQueryAt(Instant.now()));
   case EXPIRED -> consultarCadaDocumentoPorCdc();                 // pasaron las 48 horas
   case NOT_FOUND, REJECTED -> revisar(batch.messages());
+  default -> revisar(batch.messages());                           // estados que agregue una versión menor
 }
 ```
 
@@ -82,7 +84,7 @@ se procesó.
 ## Consultar un documento
 
 ```java
-DocumentQuery query = client.queryDocument(cdc);
+DocumentQueryResult query = client.queryDocument(cdc);
 if (query.found()) {
   query.authorizationProtocol();   // número de transacción
   query.documentXml();             // el documento tal como lo devuelve SIFEN
@@ -95,7 +97,7 @@ Es la forma de saber qué pasó con un documento cuando no sabés si llegó, o c
 ## Consultar un RUC
 
 ```java
-RucQuery ruc = client.queryRuc("80000000");          // sin dígito verificador
+RucQueryResult ruc = client.queryRuc("80000000");          // sin dígito verificador
 if (ruc.found()) {
   ruc.name();
   ruc.statusDescription();
@@ -116,7 +118,7 @@ try {
 } catch (TransportException e) {
   if (e.outcomeUnknown()) {
     // Pudo haber llegado. Antes de reenviar, consultá por CDC.
-    DocumentQuery query = client.queryDocument(signed.cdc());
+    DocumentQueryResult query = client.queryDocument(signed.cdc());
   } else {
     // No llegó (por ejemplo, no se pudo conectar). Podés reenviar los mismos bytes.
   }

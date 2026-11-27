@@ -40,7 +40,7 @@ import java.util.Set;
  *     .detail(Cancellation.builder().cdc(cdc).reason("Error en los datos del receptor").build())
  *     .build();
  * SignedEvent signed = events.sign(cancel, keyMaterial);
- * EventResult result = client.sendEvents(List.of(signed));
+ * EventReceptionResult result = client.sendEvents(List.of(signed));
  * }</pre>
  *
  * <p>Deadlines that depend on SIFEN's clock (for example, 48 hours to cancel an invoice) cannot be
@@ -125,7 +125,7 @@ public final class SifenEvents {
   private void requireUsableCertificate(KeyMaterial keyMaterial) {
     for (CertificateChecks.Issue issue :
         CertificateChecks.check(keyMaterial, clock.instant(), null)) {
-      if (issue.error()) {
+      if (issue.isError()) {
         throw new SigningException(issue.message());
       }
     }
@@ -166,7 +166,9 @@ public final class SifenEvents {
     }
 
     /**
-     * The clock used for the signature date and time (defaults to the system clock).
+     * The clock used for the signature date and time ({@code dFecFirma}), to select the rules of
+     * the events in force on that date, and to check that the signer's certificate is within its
+     * validity period (defaults to the system clock).
      *
      * @param clock the clock
      * @return this builder
@@ -193,7 +195,7 @@ public final class SifenEvents {
      * @param ruleIds specification rule ids
      * @return this builder
      */
-    public Builder warnings(Set<String> ruleIds) {
+    public Builder warningRules(Set<String> ruleIds) {
       this.warningRuleIds = Set.copyOf(ruleIds);
       return this;
     }

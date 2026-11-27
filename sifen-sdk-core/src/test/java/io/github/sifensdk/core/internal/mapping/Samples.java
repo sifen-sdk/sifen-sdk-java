@@ -230,7 +230,7 @@ public final class Samples {
                         .description("Producto agrícola de ejemplo")
                         .unitOfMeasureCode("77")
                         .quantity(new BigDecimal("2"))
-                        .valuation(values("50000", "100000"))
+                        .values(values("50000", "100000"))
                         .build())
                 .build())
         .totals(totals("100000").build())
@@ -243,8 +243,8 @@ public final class Samples {
   private static SelfInvoice seller() {
     return SelfInvoice.builder()
         .sellerNatureCode("1")
-        .sellerIdTypeCode("1")
-        .sellerIdNumber("1234567")
+        .sellerIdDocumentTypeCode("1")
+        .sellerIdDocumentNumber("1234567")
         .sellerName("Vendedor de Ejemplo")
         .sellerAddress("Calle del Vendedor")
         .sellerHouseNumber("0")
@@ -308,7 +308,7 @@ public final class Samples {
         .description("Producto de ejemplo gravado al 10 %")
         .unitOfMeasureCode("77")
         .quantity(new BigDecimal("1"))
-        .valuation(values("110000", "110000"))
+        .values(values("110000", "110000"))
         .vat(vat("10", "100000", "10000"))
         .build();
   }
@@ -319,7 +319,7 @@ public final class Samples {
         .description("Producto de ejemplo gravado al 5 %")
         .unitOfMeasureCode("77")
         .quantity(new BigDecimal("2"))
-        .valuation(values("10500", "21000"))
+        .values(values("10500", "21000"))
         .vat(vat("5", "20000", "1000"))
         .build();
   }

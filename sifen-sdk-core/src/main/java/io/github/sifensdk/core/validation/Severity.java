@@ -4,7 +4,11 @@
  */
 package io.github.sifensdk.core.validation;
 
-/** How serious a validation issue is. */
+/**
+ * How serious a validation issue, or an issue of the signer's certificate, is.
+ *
+ * <p>Constants may be added in minor versions: {@code switch} statements need a default branch.
+ */
 public enum Severity {
   /** SIFEN would reject the document. The SDK refuses to sign it. */
   ERROR,

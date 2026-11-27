@@ -18,16 +18,18 @@ import org.jspecify.annotations.Nullable;
 @SifenField(id = "D140", xml = "gRespDE")
 public final class GenerationResponsible {
 
-  private final String idTypeCode;
-  private final @Nullable String idTypeDescription;
-  private final String idNumber;
+  private final String idDocumentTypeCode;
+  private final @Nullable String idDocumentTypeDescription;
+  private final String idDocumentNumber;
   private final String name;
   private final String position;
 
   private GenerationResponsible(Builder b) {
-    this.idTypeCode = Checks.required(b.idTypeCode, "idTypeCode", "D141", "iTipIDRespDE");
-    this.idTypeDescription = b.idTypeDescription;
-    this.idNumber = Checks.required(b.idNumber, "idNumber", "D143", "dNumIDRespDE");
+    this.idDocumentTypeCode =
+        Checks.required(b.idDocumentTypeCode, "idDocumentTypeCode", "D141", "iTipIDRespDE");
+    this.idDocumentTypeDescription = b.idDocumentTypeDescription;
+    this.idDocumentNumber =
+        Checks.required(b.idDocumentNumber, "idDocumentNumber", "D143", "dNumIDRespDE");
     this.name = Checks.required(b.name, "name", "D144", "dNomRespDE");
     this.position = Checks.required(b.position, "position", "D145", "dCarRespDE");
   }
@@ -58,8 +60,8 @@ public final class GenerationResponsible {
    * @return the value
    */
   @SifenField(id = "D141", xml = "iTipIDRespDE")
-  public String idTypeCode() {
-    return idTypeCode;
+  public String idDocumentTypeCode() {
+    return idDocumentTypeCode;
   }
 
   /**
@@ -74,8 +76,8 @@ public final class GenerationResponsible {
    * @return the value, or {@code null} if not informed
    */
   @SifenField(id = "D142", xml = "dDTipIDRespDE")
-  public @Nullable String idTypeDescription() {
-    return idTypeDescription;
+  public @Nullable String idDocumentTypeDescription() {
+    return idDocumentTypeDescription;
   }
 
   /**
@@ -86,8 +88,8 @@ public final class GenerationResponsible {
    * @return the value
    */
   @SifenField(id = "D143", xml = "dNumIDRespDE")
-  public String idNumber() {
-    return idNumber;
+  public String idDocumentNumber() {
+    return idDocumentNumber;
   }
 
   /**
@@ -129,9 +131,9 @@ public final class GenerationResponsible {
       return false;
     }
     GenerationResponsible that = (GenerationResponsible) other;
-    return Objects.equals(idTypeCode, that.idTypeCode)
-        && Objects.equals(idTypeDescription, that.idTypeDescription)
-        && Objects.equals(idNumber, that.idNumber)
+    return Objects.equals(idDocumentTypeCode, that.idDocumentTypeCode)
+        && Objects.equals(idDocumentTypeDescription, that.idDocumentTypeDescription)
+        && Objects.equals(idDocumentNumber, that.idDocumentNumber)
         && Objects.equals(name, that.name)
         && Objects.equals(position, that.position);
   }
@@ -143,7 +145,8 @@ public final class GenerationResponsible {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(idTypeCode, idTypeDescription, idNumber, name, position);
+    return Objects.hash(
+        idDocumentTypeCode, idDocumentTypeDescription, idDocumentNumber, name, position);
   }
 
   /**
@@ -162,52 +165,52 @@ public final class GenerationResponsible {
    */
   public static final class Builder {
 
-    private @Nullable String idTypeCode;
-    private @Nullable String idTypeDescription;
-    private @Nullable String idNumber;
+    private @Nullable String idDocumentTypeCode;
+    private @Nullable String idDocumentTypeDescription;
+    private @Nullable String idDocumentNumber;
     private @Nullable String name;
     private @Nullable String position;
 
     private Builder() {}
 
     private Builder(GenerationResponsible source) {
-      this.idTypeCode = source.idTypeCode;
-      this.idTypeDescription = source.idTypeDescription;
-      this.idNumber = source.idNumber;
+      this.idDocumentTypeCode = source.idDocumentTypeCode;
+      this.idDocumentTypeDescription = source.idDocumentTypeDescription;
+      this.idDocumentNumber = source.idDocumentNumber;
       this.name = source.name;
       this.position = source.position;
     }
 
     /**
-     * Sets {@code idTypeCode} (D141, {@code iTipIDRespDE}).
+     * Sets {@code idDocumentTypeCode} (D141, {@code iTipIDRespDE}).
      *
-     * @param idTypeCode the value
+     * @param idDocumentTypeCode the value
      * @return this builder
      */
-    public Builder idTypeCode(String idTypeCode) {
-      this.idTypeCode = idTypeCode;
+    public Builder idDocumentTypeCode(String idDocumentTypeCode) {
+      this.idDocumentTypeCode = idDocumentTypeCode;
       return this;
     }
 
     /**
-     * Sets {@code idTypeDescription} (D142, {@code dDTipIDRespDE}).
+     * Sets {@code idDocumentTypeDescription} (D142, {@code dDTipIDRespDE}).
      *
-     * @param idTypeDescription the value, or {@code null} to leave it out
+     * @param idDocumentTypeDescription the value, or {@code null} to leave it out
      * @return this builder
      */
-    public Builder idTypeDescription(@Nullable String idTypeDescription) {
-      this.idTypeDescription = idTypeDescription;
+    public Builder idDocumentTypeDescription(@Nullable String idDocumentTypeDescription) {
+      this.idDocumentTypeDescription = idDocumentTypeDescription;
       return this;
     }
 
     /**
-     * Sets {@code idNumber} (D143, {@code dNumIDRespDE}).
+     * Sets {@code idDocumentNumber} (D143, {@code dNumIDRespDE}).
      *
-     * @param idNumber the value
+     * @param idDocumentNumber the value
      * @return this builder
      */
-    public Builder idNumber(String idNumber) {
-      this.idNumber = idNumber;
+    public Builder idDocumentNumber(String idDocumentNumber) {
+      this.idDocumentNumber = idDocumentNumber;
       return this;
     }
 

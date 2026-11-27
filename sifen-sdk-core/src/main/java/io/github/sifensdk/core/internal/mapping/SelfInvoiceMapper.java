@@ -27,12 +27,12 @@ final class SelfInvoiceMapper {
         "dDesNatVen",
         "E302",
         descriptions.of("E301", v.sellerNatureCode(), v.sellerNatureDescription()));
-    n.add(Node.leaf("iTipIDVen", "E304", v.sellerIdTypeCode()));
+    n.add(Node.leaf("iTipIDVen", "E304", v.sellerIdDocumentTypeCode()));
     n.addIfPresent(
         "dDTipIDVen",
         "E305",
-        descriptions.of("E304", v.sellerIdTypeCode(), v.sellerIdTypeDescription()));
-    n.add(Node.leaf("dNumIDVen", "E306", v.sellerIdNumber()));
+        descriptions.of("E304", v.sellerIdDocumentTypeCode(), v.sellerIdDocumentTypeDescription()));
+    n.add(Node.leaf("dNumIDVen", "E306", v.sellerIdDocumentNumber()));
     n.add(Node.leaf("dNomVen", "E307", v.sellerName()));
     n.add(Node.leaf("dDirVen", "E308", v.sellerAddress()));
     n.add(Node.leaf("dNumCasVen", "E309", v.sellerHouseNumber()));

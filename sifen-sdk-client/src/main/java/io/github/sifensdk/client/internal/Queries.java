@@ -4,11 +4,11 @@
  */
 package io.github.sifensdk.client.internal;
 
-import io.github.sifensdk.client.DocumentQuery;
+import io.github.sifensdk.client.DocumentQueryResult;
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.ProtocolException;
 import io.github.sifensdk.client.ResultMessage;
-import io.github.sifensdk.client.RucQuery;
+import io.github.sifensdk.client.RucQueryResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -64,7 +64,7 @@ public final class Queries {
    * @throws io.github.sifensdk.client.TransportException if no response was received
    * @throws ProtocolException if the response is not a valid answer of the service
    */
-  public static DocumentQuery document(Transport transport, String cdc) {
+  public static DocumentQueryResult document(Transport transport, String cdc) {
     Objects.requireNonNull(transport, "transport");
     requireCdc(cdc);
     String requestId = transport.newRequestId();
@@ -82,7 +82,7 @@ public final class Queries {
    * @throws io.github.sifensdk.client.TransportException if no response was received
    * @throws ProtocolException if the response is not a valid answer of the service
    */
-  public static RucQuery ruc(Transport transport, String ruc) {
+  public static RucQueryResult ruc(Transport transport, String ruc) {
     Objects.requireNonNull(transport, "transport");
     requireRuc(ruc);
     String requestId = transport.newRequestId();
@@ -124,7 +124,7 @@ public final class Queries {
    * @return the answer
    * @throws ProtocolException if the answer cannot be read or its code is unknown
    */
-  static DocumentQuery parseDocument(Exchange exchange) {
+  static DocumentQueryResult parseDocument(Exchange exchange) {
     Element root = Soap.body(exchange, "rEnviConsDeResponse");
     ResultMessage message = message(root, exchange, "siConsDE");
     boolean found;
@@ -143,7 +143,7 @@ public final class Queries {
       documentXml = content(content, exchange);
     }
     QueryContent read = documentXml == null ? QueryContent.EMPTY : QueryContent.read(documentXml);
-    return new DocumentQuery(
+    return DocumentQueryResult.of(
         found, documentXml, read.authorizationProtocol, read.events, List.of(message), exchange);
   }
 
@@ -179,26 +179,26 @@ public final class Queries {
    * @throws ProtocolException if the answer cannot be read, its code is unknown or it refers to
    *     another RUC
    */
-  static RucQuery parseRuc(Exchange exchange, String ruc) {
+  static RucQueryResult parseRuc(Exchange exchange, String ruc) {
     Element root = Soap.body(exchange, "rResEnviConsRUC");
     ResultMessage message = message(root, exchange, "siConsRUC");
     if (RUC_NOT_FOUND.contains(message.code())
         || ReceptionCodes.isServiceRejection(message.code(), ReceptionCodes.RUC_QUERY_TOO_LARGE)) {
-      return new RucQuery(false, ruc, null, null, null, null, List.of(message), exchange);
+      return RucQueryResult.of(false, ruc, null, null, null, null, List.of(message), exchange);
     }
     if (!RUC_FOUND.equals(message.code())) {
       throw unknownCode(message, exchange, "siConsRUC");
     }
     Element container = Soap.child(root, "xContRUC");
     if (container == null) {
-      return new RucQuery(true, ruc, null, null, null, null, List.of(message), exchange);
+      return RucQueryResult.of(true, ruc, null, null, null, null, List.of(message), exchange);
     }
     String answered = Soap.text(container, "dRUCCons");
     if (answered != null && !answered.equals(ruc)) {
       throw new ProtocolException(
           "SIFEN's taxpayer answer (xContRUC/dRUCCons, ContRUC02) refers to another RUC", exchange);
     }
-    return new RucQuery(
+    return RucQueryResult.of(
         true,
         ruc,
         Soap.text(container, "dRazCons"),

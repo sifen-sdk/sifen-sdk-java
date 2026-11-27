@@ -12,7 +12,7 @@ prestador (firma remota). La misma clave firma el documento y autentica la conex
 
 - La firma y la autenticación TLS se piden a una interfaz de material de claves, no a un archivo.
 - Implementaciones previstas: PKCS#12 (ruta, bytes o flujo), `KeyStore` con alias, PEM, PKCS#11 y firmante remoto
-  (experimental).
+  (verificado contra el ambiente de test de SIFEN, ver [ADR 0012](0012-claves-externas-y-proveedor-de-firma.md)).
 - La clave privada nunca se exporta ni se copia; las contraseñas no se guardan en `String` de larga vida ni
   aparecen en `toString()`.
 - Antes de usar un certificado se puede verificar su vigencia, su uso permitido y que su RUC sea el del emisor.

@@ -10,7 +10,7 @@ body:
     id: version
     attributes:
       label: Versión del SDK y de Java
-      placeholder: "sifen-sdk 0.1.0, Java 21"
+      placeholder: "sifen-sdk 1.0.0-beta.1, Java 21"
     validations:
       required: true
   - type: dropdown
@@ -33,6 +33,14 @@ body:
       description: Código mínimo con datos sintéticos. Si SIFEN rechazó, incluí el código y el mensaje de respuesta.
     validations:
       required: true
+  - type: textarea
+    id: intercambio
+    attributes:
+      label: Intercambio anonimizado (si hubo respuesta de SIFEN)
+      description: >-
+        El resultado de `exchange().anonymized()` (pedido y respuesta). Revisalo antes de pegarlo: no debe tener
+        RUC, nombres, CDC, importes reales ni firmas. Ver la guía "Pasar a producción".
+      render: xml
   - type: input
     id: fuente
     attributes:

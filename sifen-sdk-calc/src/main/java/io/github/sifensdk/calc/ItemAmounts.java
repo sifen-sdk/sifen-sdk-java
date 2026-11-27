@@ -10,7 +10,7 @@ import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The derived amounts of one item, ready for {@code Item.builder().valuation(values()).vat(vat())}.
+ * The derived amounts of one item, ready for {@code Item.builder().values(values()).vat(vat())}.
  *
  * @param values the item's values and discounts (E720, EA001)
  * @param vat the item's VAT (E730), or {@code null} for an item of a self-invoice

@@ -48,8 +48,11 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Passwords are only used while loading and are never kept; the caller owns the arrays and
  * should clear them afterwards. The returned key material is immutable, thread-safe, and its {@code
- * toString()} shows only the subject of the certificate. Errors are {@link SigningException}s
- * without secrets.
+ * toString()} shows only the issuer's common name, the serial number and the end of validity of the
+ * certificate, never its subject (the certificate of a natural person carries their name and
+ * identity document). Errors while loading or adapting a key are {@link SigningException}s without
+ * secrets; {@link #of(PrivateKey, List)} throws {@link IllegalArgumentException} for an empty
+ * chain, a programming error.
  */
 public final class KeyMaterials {
 
@@ -525,9 +528,43 @@ public final class KeyMaterials {
       return chain;
     }
 
+    /** Returns the issuer's common name, the serial number and the end of validity. */
     @Override
     public String toString() {
-      return "KeyMaterial[subject=" + certificate().getSubjectX500Principal() + "]";
+      X509Certificate c = certificate();
+      return "KeyMaterial[issuer="
+          + commonName(c.getIssuerX500Principal().getName())
+          + ", serialNumber="
+          + c.getSerialNumber().toString(16)
+          + ", notAfter="
+          + c.getNotAfter().toInstant()
+          + "]";
+    }
+
+    /** The value of the first CN of an RFC 2253 name, unescaped, or "?" if it has none. */
+    private static String commonName(String rfc2253) {
+      int i = 0;
+      while (i < rfc2253.length()) {
+        int end = i;
+        boolean escaped = false;
+        while (end < rfc2253.length()) {
+          char ch = rfc2253.charAt(end);
+          if (escaped) {
+            escaped = false;
+          } else if (ch == '\\') {
+            escaped = true;
+          } else if (ch == ',' || ch == '+') {
+            break;
+          }
+          end++;
+        }
+        String rdn = rfc2253.substring(i, end);
+        if (rdn.regionMatches(true, 0, "CN=", 0, 3)) {
+          return rdn.substring(3).replaceAll("\\\\(.)", "$1");
+        }
+        i = end + 1;
+      }
+      return "?";
     }
   }
 }

@@ -18,6 +18,7 @@ import io.github.sifensdk.core.signing.KeyMaterials;
 import io.github.sifensdk.core.signing.Pkcs11Config;
 import io.github.sifensdk.core.signing.RemoteSigner;
 import io.github.sifensdk.core.signing.SoftHsm;
+import io.github.sifensdk.core.validation.Severity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -312,7 +313,8 @@ class ExternalKeysTest {
     assertThat(CertificateChecks.check(fileKey(), CLOCK.instant(), "80000000-1"))
         .singleElement()
         .satisfies(i -> {
-          assertThat(i.error()).isFalse();
+          assertThat(i.severity()).isEqualTo(Severity.WARNING);
+          assertThat(i.isError()).isFalse();
           assertThat(i.code()).isEqualTo(CertificateChecks.RUC_MISMATCH);
         });
     assertThat(CertificateChecks.check(fileKey(), CLOCK.instant(), "44444401-7")).isEmpty();

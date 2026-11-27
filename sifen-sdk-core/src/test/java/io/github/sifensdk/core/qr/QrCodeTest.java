@@ -87,13 +87,13 @@ class QrCodeTest {
   }
 
   private static QrParameters parameters(
-      String ruc, String idNumber, String total, String vatTotal) {
+      String ruc, String idDocumentNumber, String total, String vatTotal) {
     return new QrParameters(
         "150",
         CDC,
         "2017-01-25T09:35:17",
         ruc,
-        idNumber,
+        idDocumentNumber,
         total,
         vatTotal,
         1,

@@ -51,9 +51,9 @@ final class ItemMapper {
     n.addIfPresent("dCanQuiMer", "E717", Format.amountOrNull(v.breakageOrShrinkageQuantity()));
     n.addIfPresent("dPorQuiMer", "E718", Format.amountOrNull(v.breakageOrShrinkageRate()));
     n.addIfPresent("dCDCAnticipo", "E719", v.advanceCdc());
-    ItemValues valuation = v.valuation();
-    if (valuation != null) {
-      n.add(itemValues(valuation));
+    ItemValues values = v.values();
+    if (values != null) {
+      n.add(itemValues(values));
     }
     ItemVat vat = v.vat();
     if (vat != null) {

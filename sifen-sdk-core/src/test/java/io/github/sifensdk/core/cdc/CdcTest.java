@@ -59,15 +59,15 @@ class CdcTest {
   @Test
   void exposesTheComponents() {
     Cdc cdc = Cdc.parse(EXAMPLE);
-    assertThat(cdc.documentType()).isEqualTo("01");
+    assertThat(cdc.documentTypeCode()).isEqualTo("01");
     assertThat(cdc.issuerRuc()).isEqualTo("44444401");
     assertThat(cdc.issuerRucCheckDigit()).isEqualTo("7");
     assertThat(cdc.establishment()).isEqualTo("001");
-    assertThat(cdc.expeditionPoint()).isEqualTo("001");
+    assertThat(cdc.dispatchPoint()).isEqualTo("001");
     assertThat(cdc.documentNumber()).isEqualTo("0014528");
-    assertThat(cdc.taxpayerType()).isEqualTo("2");
-    assertThat(cdc.issueDate()).isEqualTo("20170125");
-    assertThat(cdc.emissionType()).isEqualTo("1");
+    assertThat(cdc.taxpayerTypeCode()).isEqualTo("2");
+    assertThat(cdc.issueDate()).isEqualTo(LocalDate.of(2017, 1, 25));
+    assertThat(cdc.emissionTypeCode()).isEqualTo("1");
     assertThat(cdc.securityCode()).isEqualTo("587326098");
     assertThat(cdc.toString()).isEqualTo(EXAMPLE);
   }

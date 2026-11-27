@@ -96,10 +96,7 @@ class TransportDocumentsTest {
                 note(d ->
                     d.items(
                         List.of(
-                            goods.toBuilder()
-                                .valuation(valued.valuation())
-                                .vat(valued.vat())
-                                .build())))))
+                            goods.toBuilder().values(valued.values()).vat(valued.vat()).build())))))
         .contains("R-E720-P1", "R-E730-P1");
     assertThat(
             ruleIds(
