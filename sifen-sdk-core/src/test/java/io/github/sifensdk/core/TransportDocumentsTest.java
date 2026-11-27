@@ -223,9 +223,12 @@ class TransportDocumentsTest {
   }
 
   @Test
-  void theCarrierIsRequiredUnlessTheTruckIsIdentifiedByItsNumber() {
-    // R-E980-C1 (NT 10, C-407): optional by road with E967 = 1, required otherwise.
-    assertThat(ruleIds(transport(t -> t.carrier(null)))).doesNotContain("R-E980-C1");
+  void theCarrierIsAlwaysRequiredInADeliveryNote() {
+    // C-407, evidence E-002: SIFEN applies validation 2300 without the exception of the Manual and
+    // NT 10 (R-E980-C1, discarded): the carrier is required even by road with E967 = 1.
+    assertThat(ruleIds(transport(t -> t.carrier(null))))
+        .contains("R-E980-C2")
+        .doesNotContain("R-E980-C1");
     assertThat(
             ruleIds(
                 transport(t ->
@@ -238,7 +241,8 @@ class TransportDocumentsTest {
                                     .identificationTypeCode("2")
                                     .plateNumber("ABC123")
                                     .build())))))
-        .contains("R-E980-C1");
+        .contains("R-E980-C2");
+    assertThat(ruleIds(transport(t -> t))).doesNotContain("R-E980-C2");
   }
 
   @Test

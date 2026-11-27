@@ -38,9 +38,8 @@ import org.jspecify.annotations.Nullable;
  *       VAT) counts as 0. When a required operand is absent or not a number, the rule is not
  *       checked: the presence rules or the XSD report it.
  *   <li>Self-invoices (C002 = 4): the item total is {@code R-EA008-A2} and the gross total {@code
- *       R-F008-A3}; {@code R-EA008-A1} (C-305) and {@code R-F008-A1} do not apply to them, since
- *       the specific formula of the Manual prevails and F002 to F005 are prohibited (R-F002-P4 to
- *       R-F005-P4).
+ *       R-F008-A3}; {@code R-EA008-A1} (C-305) does not apply to them, and the specification's
+ *       condition of {@code R-F008-A1} excludes them (C-517, evidence E-002).
  *   <li>Rules the specification records as {@code descartada} are never evaluated: SIFEN does not
  *       apply them ({@code R-F017-A2}: SIFEN verifies the field table's formula, {@code R-F017-A1},
  *       with code 2371, C-502). {@code R-F014-A1} is covered by {@code R-F014-A3} (2365, same
@@ -218,12 +217,6 @@ final class ArithmeticChecks {
     m.put(
         "R-F008-A1",
         (e, r, t) -> {
-          if ("4".equals(e.text(t, "C002"))) {
-            // Self-invoice: F002 to F005 must not be informed (R-F002-P4 to R-F005-P4) and MT150
-            // F008 gives the specific formula for C002 = 4, R-F008-A3 (same code 2362). As in
-            // C-305 for EA008, the specific case applies.
-            return null;
-          }
           return verify(
               r,
               t,

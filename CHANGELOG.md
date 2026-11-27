@@ -7,6 +7,8 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+Target: 0.3.0 (phase 4). Nothing has been published to Maven Central yet.
+
 ### Added (phase 4)
 
 - `SifenEvents`: validates and signs the eight events a taxpayer sends (cancellation, number invalidation,
@@ -18,6 +20,8 @@ what that means before 1.0).
 - Sector-specific groups (E9): electricity, insurance and policies, supermarkets, additional commercial data.
 - `LiveDocumentsTest`: sends one document of each new type and group, and a transport update event, to SIFEN's
   test environment. Local only. All were approved.
+- The specification is updated with evidence E-002: the carrier group is required in every delivery note
+  (validation 2300, C-407), and R-F008-A1 does not apply to self-invoices (C-517).
 
 - `DocumentQuery` reads the document's transaction number (`authorizationProtocol`) and the events registered on
   it (`events`, as `QueriedEvent` with an `EventType`), including the ones the SET registers. Verified against
