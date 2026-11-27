@@ -45,27 +45,30 @@ public final class DocumentMapper {
    * @return the root {@code rDE}
    */
   public static Node toTree(ElectronicDocument document, LocalDateTime signatureDateTime) {
-    GroupMapper groups = new GroupMapper(Spec.bundled());
+    Descriptions descriptions = new Descriptions(Spec.bundled());
+    HeaderMapper header = new HeaderMapper(descriptions);
+    TypeDataMapper typeData = new TypeDataMapper(descriptions);
+    TotalsMapper closing = new TotalsMapper(descriptions);
     String cdc = Cdc.of(document);
 
     Node de = Node.group("DE", "A001").attribute("Id", cdc);
     de.add(Node.leaf("dDVId", "A003", cdc.substring(cdc.length() - 1)));
     de.add(Node.leaf("dFecFirma", "A004", Format.dateTime(signatureDateTime)));
     de.add(Node.leaf("dSisFact", "A005", BILLING_SYSTEM));
-    de.add(groups.operation(document.operation()));
-    de.add(groups.stamp(document.stamp()));
-    de.add(groups.generalData(document.generalData()));
-    de.add(groups.documentTypeData(document.documentTypeData()));
+    de.add(header.operation(document.operation()));
+    de.add(header.stamp(document.stamp()));
+    de.add(header.generalData(document.generalData()));
+    de.add(typeData.documentTypeData(document.documentTypeData()));
     Totals totals = document.totals();
     if (totals != null) {
-      de.add(groups.totals(totals));
+      de.add(closing.totals(totals));
     }
     ComplementaryData complementary = document.complementaryData();
     if (complementary != null) {
-      de.add(groups.complementaryData(complementary));
+      de.add(closing.complementaryData(complementary));
     }
     for (AssociatedDocument associated : document.associatedDocuments()) {
-      de.add(groups.associatedDocument(associated));
+      de.add(closing.associatedDocument(associated));
     }
 
     return Node.group("rDE", "AA001").add(Node.leaf("dVerFor", "AA002", FORMAT_VERSION)).add(de);

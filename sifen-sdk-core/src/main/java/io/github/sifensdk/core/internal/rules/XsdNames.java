@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,7 +21,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * The element and attribute names declared in the bundled XSD of the electronic document.
+ * The element and attribute names declared in the bundled XSD of a tree (the electronic document or
+ * the events).
  *
  * <p>Used to know which specification fields have no element in the current XSD (for example {@code
  * dFeFinT}, C-105, or {@code dTotCom}, C-505): structure follows the XSD, so their rules cannot be
@@ -35,19 +35,17 @@ record XsdNames(Set<String> elements, Set<String> attributes) {
 
   private static final String XSD_NS = XMLConstants.W3C_XML_SCHEMA_NS_URI;
 
-  /** The schemas of the electronic document (DE). */
-  static final List<String> DOCUMENT_SCHEMAS = List.of("DE_v150.xsd", "DE_Types_v150.xsd");
-
-  static XsdNames bundled() {
+  static XsdNames bundled(Engine.Profile profile) {
     Set<String> elements = new HashSet<>();
     Set<String> attributes = new HashSet<>();
-    for (String schema : DOCUMENT_SCHEMAS) {
+    for (String schema : profile.schemas()) {
       Document doc = parse(Spec.BASE + "xsd/oficial/" + schema);
       collect(doc.getElementsByTagNameNS(XSD_NS, "element"), elements);
       collect(doc.getElementsByTagNameNS(XSD_NS, "attribute"), attributes);
     }
-    // The root is declared as a complex type named rDE; it is always present.
-    elements.add("rDE");
+    // The root may be declared as a complex type (rDE) rather than an element; it is always
+    // present.
+    elements.add(profile.rootElement());
     return new XsdNames(
         Collections.unmodifiableSet(elements), Collections.unmodifiableSet(attributes));
   }
