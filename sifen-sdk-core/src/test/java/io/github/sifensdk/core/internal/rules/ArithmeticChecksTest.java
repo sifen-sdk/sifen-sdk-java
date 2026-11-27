@@ -360,6 +360,24 @@ class ArithmeticChecksTest {
   }
 
   @Test
+  void theSelfInvoiceGrossTotalIsOnlyTheSumOfTheItemTotals() {
+    // C002 = 4: F002 to F005 are prohibited (R-F002-P4 to R-F005-P4) and MT150 F008 gives the sum
+    // of EA008 (R-F008-A3); the sum of subtotals (R-F008-A1) does not apply, as in C-305.
+    UnaryOperator<SampleDocument> selfInvoice = d -> d.set("C002", "4").omit("F005");
+    ValidationResult ok = run(selfInvoice, NT13);
+    assertThat(issues(ok, "R-F008-A1")).isEmpty();
+    assertThat(issues(ok, "R-F008-A3")).isEmpty();
+    assertThat(ok.uncheckedRules()).doesNotContain("R-F008-A1", "R-F008-A3");
+
+    ValidationResult bad = run(d -> selfInvoice.apply(d).set("F008", "100000"), NT13);
+    assertThat(issues(bad, "R-F008-A3")).hasSize(1);
+    assertThat(issues(bad, "R-F008-A1")).isEmpty();
+
+    // Outside the self-invoice R-F008-A1 still applies to the same document.
+    assertThat(issues(run(d -> d.omit("F005"), NT13), "R-F008-A1")).hasSize(1);
+  }
+
+  @Test
   void rulesWithoutImplementationAreUncheckedWhenTheyApply() {
     ValidationResult result = run(d -> d.add("F001", "F037", "dLiqTotIVA10", "0"), NT13);
     assertThat(result.uncheckedRules()).contains("R-F013-A1", "R-F037-A1");

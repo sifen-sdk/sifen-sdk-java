@@ -81,6 +81,15 @@ SIFEN_TEST_PROBE=true ./mvnw -o -B -ntp -pl sifen-sdk-client -am verify \
 Con `SIFEN_TEST_PROBE_ONLY='<expresión regular>'` corre solo los casos cuyo nombre coincide (`nc` prueba el límite de
 las notas de crédito).
 
+Los eventos se prueban igual con `LiveEventsTest` y `SIFEN_TEST_EVENTS=true`: emite unas facturas nuevas y sobre
+ellas envía cada evento (cancelación, inutilización de dos números, nominación de una factura innominada y los cuatro
+del receptor).
+
+Dos comportamientos intermitentes del ambiente de test, observados el 2026-11-27: la consulta de RUC respondió
+alguna vez 0160 ("XML mal formado") a un pedido correcto, y un evento sobre una factura aprobada segundos antes fue
+rechazado con 4152 ("CDC del DTE es inexistente"), aunque otro evento sobre esa misma factura se había registrado.
+En ambos casos, repetir más tarde funcionó. El SDK nunca reintenta solo.
+
 ## 4. Limpiar (opcional)
 
 ```bash

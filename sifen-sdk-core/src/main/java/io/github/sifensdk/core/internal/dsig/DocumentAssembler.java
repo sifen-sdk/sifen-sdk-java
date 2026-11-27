@@ -176,6 +176,22 @@ public final class DocumentAssembler {
       throw new SigningException("The signed document has no DE or no Signature in rDE");
     }
     de.setIdAttributeNS(null, "Id", true);
+    verifySignatureIn(rde, publicKey);
+  }
+
+  /**
+   * Verifies the {@code Signature} child of an element with the given public key, with secure
+   * validation. The referenced element must already have its {@code Id} registered as an ID.
+   *
+   * @param parent the element that holds the {@code Signature}
+   * @param publicKey the key of the signer's certificate
+   * @throws SigningException if the signature is missing or not valid
+   */
+  static void verifySignatureIn(Element parent, PublicKey publicKey) {
+    Element signature = firstChild(parent, XMLSignature.XMLNS, "Signature");
+    if (signature == null) {
+      throw new SigningException("The signed XML has no Signature");
+    }
     DOMValidateContext context =
         new DOMValidateContext(KeySelector.singletonKeySelector(publicKey), signature);
     context.setProperty(SECURE_VALIDATION, Boolean.TRUE);
@@ -192,7 +208,7 @@ public final class DocumentAssembler {
     }
   }
 
-  private static Element sign(Element rde, Element de, String cdc, KeyMaterial keyMaterial) {
+  static Element sign(Element rde, Element de, String cdc, KeyMaterial keyMaterial) {
     XMLSignatureFactory factory = XMLSignatureFactory.getInstance("DOM");
     try {
       Reference reference =
@@ -288,7 +304,7 @@ public final class DocumentAssembler {
     return element == null ? null : element.getTextContent();
   }
 
-  private static void removeWhitespace(Element signature, String localName) {
+  static void removeWhitespace(Element signature, String localName) {
     var nodes = signature.getElementsByTagNameNS(XMLSignature.XMLNS, localName);
     for (int i = 0; i < nodes.getLength(); i++) {
       Node node = nodes.item(i);
@@ -296,7 +312,7 @@ public final class DocumentAssembler {
     }
   }
 
-  private static byte[] serialize(Document document) {
+  static byte[] serialize(Document document) {
     try {
       TransformerFactory factory = TransformerFactory.newDefaultInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -341,12 +357,12 @@ public final class DocumentAssembler {
     }
   }
 
-  private static boolean isSifen(Element element, String localName) {
+  static boolean isSifen(Element element, String localName) {
     return SIFEN_NAMESPACE.equals(element.getNamespaceURI())
         && localName.equals(element.getLocalName());
   }
 
-  private static @Nullable Element firstChild(Element parent, String namespace, String localName) {
+  static @Nullable Element firstChild(Element parent, String namespace, String localName) {
     for (Node n = parent.getFirstChild(); n != null; n = n.getNextSibling()) {
       if (n instanceof Element
           && namespace.equals(n.getNamespaceURI())
@@ -357,7 +373,7 @@ public final class DocumentAssembler {
     return null;
   }
 
-  private static Element requireChild(Element parent, String localName) {
+  static Element requireChild(Element parent, String localName) {
     Element child = firstChild(parent, SIFEN_NAMESPACE, localName);
     if (child == null) {
       throw new SigningException(

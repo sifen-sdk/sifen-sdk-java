@@ -278,7 +278,7 @@ public final class Soap {
     return head.startsWith("<!doctype html") || head.startsWith("<html") || head.contains("<html");
   }
 
-  private static DocumentBuilder parser() {
+  static DocumentBuilder parser() {
     try {
       DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
       f.setNamespaceAware(true);

@@ -7,6 +7,32 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+Target: 0.3.0 (phase 4). Nothing has been published to Maven Central yet.
+
+### Added (phase 4)
+
+- `SifenEvents`: validates and signs the eight events a taxpayer sends (cancellation, number invalidation,
+  nomination, transport update, receipt notification, conformity, disconformity and non-recognition), with an
+  event model (`Event`, `EventDetail`) and `SignedEvent`. Verified against SIFEN's test environment.
+- `LiveEventsTest`: sends each event to SIFEN's test environment on documents it issues first. Local only.
+- Self-invoice (C002 = 4, group E4) and debit note (C002 = 6).
+- Delivery note (C002 = 7, group E6) and transport (group E10, also in invoices).
+- Sector-specific groups (E9): electricity, insurance and policies, supermarkets, additional commercial data.
+- `LiveDocumentsTest`: sends one document of each new type and group, and a transport update event, to SIFEN's
+  test environment. Local only. All were approved.
+- The specification is updated with evidence E-002: the carrier group is required in every delivery note
+  (validation 2300, C-407), and R-F008-A1 does not apply to self-invoices (C-517).
+
+- `DocumentQuery` reads the document's transaction number (`authorizationProtocol`) and the events registered on
+  it (`events`, as `QueriedEvent` with an `EventType`), including the ones the SET registers. Verified against
+  SIFEN's test environment, which returns the content without the `rContDe` root the XSD describes.
+
+### Changed (phase 4)
+
+- `SifenClient.sendEvents` takes `SignedEvent`s instead of raw bytes.
+- The event request declares `xsi:schemaLocation` on `gGroupGesEve`: without it SIFEN answers 0160.
+- The rule engine evaluates a profile (the electronic document or the events) instead of assuming `rDE`.
+
 ### Changed
 
 - Arithmetic checks follow what SIFEN does, verified against its test environment (evidence E-001 of the

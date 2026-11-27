@@ -15,9 +15,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Java implementations of the {@code aritmetica} rules of the electronic document that apply to
- * invoices (C002 = 1) and credit notes (C002 = 5), registered by rule id ({@code
- * spec/reglas/de-e8-*.json} and {@code spec/reglas/de-f-totales.json}, every version with its
- * validity; the engine selects the version in force).
+ * invoices (C002 = 1), self-invoices (C002 = 4) and credit and debit notes (C002 = 5 and 6),
+ * registered by rule id ({@code spec/reglas/de-e8-*.json} and {@code
+ * spec/reglas/de-f-totales.json}, every version with its validity; the engine selects the version
+ * in force).
  *
  * <h2>Comparison semantics (ADR 0010)</h2>
  *
@@ -36,6 +37,9 @@ import org.jspecify.annotations.Nullable;
  *   <li>An optional operand that is absent (discounts and advances per item, commission, rounding
  *       VAT) counts as 0. When a required operand is absent or not a number, the rule is not
  *       checked: the presence rules or the XSD report it.
+ *   <li>Self-invoices (C002 = 4): the item total is {@code R-EA008-A2} and the gross total {@code
+ *       R-F008-A3}; {@code R-EA008-A1} (C-305) does not apply to them, and the specification's
+ *       condition of {@code R-F008-A1} excludes them (C-517, evidence E-002).
  *   <li>Rules the specification records as {@code descartada} are never evaluated: SIFEN does not
  *       apply them ({@code R-F017-A2}: SIFEN verifies the field table's formula, {@code R-F017-A1},
  *       with code 2371, C-502). {@code R-F014-A1} is covered by {@code R-F014-A3} (2365, same
@@ -46,8 +50,10 @@ import org.jspecify.annotations.Nullable;
  * multiples of 50 is optional, F013 may be 0, there is no validation code, and SIFEN does not
  * verify it, E-001), {@code R-F026-A1} (formula not written; SIFEN does not verify it, E-001),
  * {@code R-F036-A1} and {@code R-F037-A1} (C-504; SIFEN does not verify F037, E-001), {@code
- * R-F008-A2} (C-501), {@code R-H004-A1} (needs other documents in SIFEN) and {@code R-E797-A0}
- * (operands are a vehicle type code and a capacity, corrected by the NT 23).
+ * R-F008-A2} (C-501), {@code R-F023-A3} (F023 = F014 for C002 = 4: removed by the NT 8 without a
+ * published date, so never selected while R-F023-A1 and R-F023-A2 are in force; F023 is prohibited
+ * with C002 = 4 anyway, R-F023-P4), {@code R-H004-A1} (needs other documents in SIFEN) and {@code
+ * R-E797-A0} (operands are a vehicle type code and a capacity, corrected by the NT 23).
  */
 final class ArithmeticChecks {
 
@@ -210,16 +216,17 @@ final class ArithmeticChecks {
                     + " E731 = 4"));
     m.put(
         "R-F008-A1",
-        (e, r, t) ->
-            verify(
-                r,
-                t,
-                sum(
-                    orZero(e, t, "F002"),
-                    orZero(e, t, "F003"),
-                    orZero(e, t, "F004"),
-                    orZero(e, t, "F005")),
-                "F002 + F003 + F004 + F005"));
+        (e, r, t) -> {
+          return verify(
+              r,
+              t,
+              sum(
+                  orZero(e, t, "F002"),
+                  orZero(e, t, "F003"),
+                  orZero(e, t, "F004"),
+                  orZero(e, t, "F005")),
+              "F002 + F003 + F004 + F005");
+        });
     m.put(
         "R-F008-A3",
         (e, r, t) -> verify(r, t, sumItems(e, item -> itemNum(e, item, "EA008")), "sum of EA008"));

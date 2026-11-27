@@ -6,9 +6,11 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: en desarrollo (fase 3), sin versión publicada.** Valida, firma y genera el QR de facturas y notas de
-> crédito, y las envía a SIFEN (síncrono y por lote), con consultas y eventos. Probado contra un SIFEN simulado y
-> contra el ambiente de test real, incluida cada fórmula de importes ([cómo correr esas pruebas](docs/pruebas-contra-sifen.md)).
+> **Estado: en desarrollo (fase 4 terminada, 0.3.0), sin versión publicada.** Valida, firma y envía a SIFEN todos
+> los documentos electrónicos (factura, autofactura, notas de crédito y de débito, nota de remisión, con transporte y
+> grupos sectoriales) y los 8 eventos que envía un contribuyente, con consultas que leen los eventos registrados.
+> Probado contra un SIFEN simulado y contra el ambiente de test real: cada tipo de documento, cada evento y cada
+> fórmula de importes ([cómo correr esas pruebas](docs/pruebas-contra-sifen.md)).
 > El avance se sigue en la [hoja de ruta](#hoja-de-ruta).
 
 > Proyecto comunitario e independiente. **No está afiliado a la DNIT ni cuenta con su aval.** "SIFEN" y
@@ -60,6 +62,14 @@ SifenClient client = SifenClient.builder()
 BatchSubmission submission = client.sendBatch(List.of(signed));
 // Más tarde (BatchSchedule dice cuándo, para no provocar bloqueos):
 BatchResult result = client.queryBatch(submission.protocolNumber());
+
+// Eventos: cancelación, inutilización, nominación, transporte y los del receptor.
+SifenEvents events = SifenEvents.builder().environment(Environment.TEST).build();
+Event cancel = Event.builder()
+    .id("1")
+    .detail(Cancellation.builder().cdc(signed.cdc()).reason("Error en los datos del receptor").build())
+    .build();
+EventResult registered = client.sendEvents(List.of(events.sign(cancel, certificate)));
 ```
 
 - **Un rechazo de SIFEN es un resultado** (`Status.REJECTED` con sus códigos y mensajes), no una excepción.
@@ -102,8 +112,8 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 | 0 | Fundaciones: repositorios, decisiones, integración continua | Hecha |
 | 1 | Especificación como datos (`spec`) | Hecha |
 | 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | Hecha (sin publicar) |
-| 3 | Cliente de web services → 0.2.0 | En curso |
-| 4 | Resto de documentos y todos los eventos → 0.3.0 | Pendiente |
+| 3 | Cliente de web services → 0.2.0 | Hecha (sin publicar) |
+| 4 | Resto de documentos y todos los eventos → 0.3.0 | Hecha (sin publicar) |
 | 5 | Certificados en token, HSM y firma remota → 0.4.0 | Pendiente |
 | 6 | Cálculo opcional, KuDE y sitio de documentación → 0.5.0 | Pendiente |
 | 7 | Estabilización → 1.0.0 | Pendiente |

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2026 SIFEN SDK contributors
+ SPDX-License-Identifier: Apache-2.0
+
+ Wrapper schema of the SIFEN SDK (not an official SIFEN file). The official Evento_v150.xsd only
+ declares types for an event (trEve, trGesEve); the global element that holds them, gGroupGesEve,
+ belongs to the web service request. This wrapper includes the official Evento_v150.xsd unchanged
+ and declares global elements rEve and rGesEve of the official types, so an event can be validated
+ before signing (rEve) and after signing (rGesEve, which requires ds:Signature).
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://ekuatia.set.gov.py/sifen/xsd"
+           targetNamespace="http://ekuatia.set.gov.py/sifen/xsd"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="https://ekuatia.set.gov.py/sifen/xsd/Evento_v150.xsd"/>
+  <xs:element name="rEve" type="trEve"/>
+  <xs:element name="rGesEve" type="trGesEve"/>
+</xs:schema>
