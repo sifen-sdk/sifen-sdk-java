@@ -35,7 +35,12 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
           cache: maven
+      - name: Install SoftHSM2 (PKCS#11 token tests)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends softhsm2
       - name: Build and test
+        env:
+          SIFEN_REQUIRE_SOFTHSM: ${{ runner.os == 'Linux' }}
         run: ./mvnw -B -ntp verify
 
   packaging:

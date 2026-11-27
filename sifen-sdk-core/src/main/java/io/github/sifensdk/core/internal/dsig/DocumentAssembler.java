@@ -7,6 +7,8 @@ package io.github.sifensdk.core.internal.dsig;
 import io.github.sifensdk.core.Environment;
 import io.github.sifensdk.core.SigningException;
 import io.github.sifensdk.core.cdc.Cdc;
+import io.github.sifensdk.core.internal.keys.ExternalKey;
+import io.github.sifensdk.core.internal.keys.SifenKeysProvider;
 import io.github.sifensdk.core.qr.QrCode;
 import io.github.sifensdk.core.qr.QrParameters;
 import io.github.sifensdk.core.signing.Csc;
@@ -94,6 +96,15 @@ public final class DocumentAssembler {
   static final String SIFEN_NAMESPACE = "http://ekuatia.set.gov.py/sifen/xsd";
   static final String RSA_SHA256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
   private static final String SECURE_VALIDATION = "org.jcp.xml.dsig.secureValidation";
+
+  /**
+   * Context property of the JDK's XMLDSig implementation with the provider of the signature
+   * algorithm. Keys held in a token or by a remote signer sign through {@link SifenKeysProvider}
+   * without installing it (ADR-0012).
+   */
+  private static final String SIGNATURE_PROVIDER =
+      "org.jcp.xml.dsig.internal.dom.SignatureProvider";
+
   private static final String DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
   private DocumentAssembler() {}
@@ -235,6 +246,9 @@ public final class DocumentAssembler {
               : new DOMSignContext(keyMaterial.privateKey(), rde, next);
       context.setDefaultNamespacePrefix("");
       context.setProperty(SECURE_VALIDATION, Boolean.TRUE);
+      if (keyMaterial.privateKey() instanceof ExternalKey) {
+        context.setProperty(SIGNATURE_PROVIDER, SifenKeysProvider.INSTANCE);
+      }
       factory.newXMLSignature(signedInfo, keyInfo).sign(context);
     } catch (GeneralSecurityException | MarshalException | XMLSignatureException e) {
       throw new SigningException("Could not sign the document", e);

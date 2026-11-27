@@ -29,7 +29,6 @@ import io.github.sifensdk.core.model.Stamp;
 import io.github.sifensdk.core.model.Totals;
 import io.github.sifensdk.core.signing.Csc;
 import io.github.sifensdk.core.signing.KeyMaterial;
-import io.github.sifensdk.core.signing.KeyMaterials;
 import io.github.sifensdk.core.signing.SignedDocument;
 import io.github.sifensdk.core.validation.ValidationIssue;
 import io.github.sifensdk.core.validation.ValidationResult;
@@ -124,9 +123,7 @@ class LiveArithmeticProbeTest {
   @Test
   void probesTheArithmeticRules() throws Exception {
     Properties p = issuer();
-    KeyMaterial key =
-        KeyMaterials.pkcs12(
-            Path.of(env("SIFEN_TEST_P12_PATH")), env("SIFEN_TEST_P12_PASSWORD").toCharArray());
+    KeyMaterial key = LiveKeys.key();
     Csc csc = Csc.of(env("SIFEN_TEST_CSC_ID"), env("SIFEN_TEST_CSC").toCharArray());
     SifenClient client =
         SifenClient.builder().environment(Environment.TEST).keyMaterial(key).build();
@@ -186,9 +183,7 @@ class LiveArithmeticProbeTest {
       return;
     }
     Properties p = issuer();
-    KeyMaterial key =
-        KeyMaterials.pkcs12(
-            Path.of(env("SIFEN_TEST_P12_PATH")), env("SIFEN_TEST_P12_PASSWORD").toCharArray());
+    KeyMaterial key = LiveKeys.key();
     Csc csc = Csc.of(env("SIFEN_TEST_CSC_ID"), env("SIFEN_TEST_CSC").toCharArray());
     SifenClient client =
         SifenClient.builder().environment(Environment.TEST).keyMaterial(key).build();

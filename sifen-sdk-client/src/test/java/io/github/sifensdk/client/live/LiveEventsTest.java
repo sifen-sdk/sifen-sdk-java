@@ -25,7 +25,6 @@ import io.github.sifensdk.core.model.ReceiptNotification;
 import io.github.sifensdk.core.model.Receiver;
 import io.github.sifensdk.core.signing.Csc;
 import io.github.sifensdk.core.signing.KeyMaterial;
-import io.github.sifensdk.core.signing.KeyMaterials;
 import io.github.sifensdk.core.signing.SignedDocument;
 import io.github.sifensdk.core.validation.ValidationIssue;
 import java.io.Reader;
@@ -62,9 +61,7 @@ class LiveEventsTest {
         Files.newBufferedReader(Path.of(env("SIFEN_TEST_ISSUER_FILE")), StandardCharsets.UTF_8)) {
       p.load(r);
     }
-    KeyMaterial key =
-        KeyMaterials.pkcs12(
-            Path.of(env("SIFEN_TEST_P12_PATH")), env("SIFEN_TEST_P12_PASSWORD").toCharArray());
+    KeyMaterial key = LiveKeys.key();
     Csc csc = Csc.of(env("SIFEN_TEST_CSC_ID"), env("SIFEN_TEST_CSC").toCharArray());
     SifenClient client =
         SifenClient.builder().environment(Environment.TEST).keyMaterial(key).build();

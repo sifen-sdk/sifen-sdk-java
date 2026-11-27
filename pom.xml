@@ -4,7 +4,7 @@
 
   <groupId>io.github.sifen-sdk</groupId>
   <artifactId>sifen-sdk-parent</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SIFEN SDK for Java (parent)</name>
@@ -48,6 +48,8 @@
   </issueManagement>
 
   <properties>
+    <!-- SoftHSM2 configuration of the PKCS#11 tests; scripts/prueba-sifen-token.sh points it to a temporary token. -->
+    <softhsm2.conf>${project.build.directory}/softhsm2/softhsm2.conf</softhsm2.conf>
     <!-- One artifact for every supported Java version: compiled for the minimum, tested on every later LTS (ADR-0001). -->
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -123,6 +125,12 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.6.1</version>
+          <configuration>
+            <environmentVariables>
+              <!-- SoftHSM2 token for the PKCS#11 tests; skipped where SoftHSM2 is not installed. -->
+              <SOFTHSM2_CONF>${softhsm2.conf}</SOFTHSM2_CONF>
+            </environmentVariables>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

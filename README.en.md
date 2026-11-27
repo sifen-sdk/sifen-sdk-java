@@ -3,7 +3,7 @@
 Community SDK for integrating Java systems with **SIFEN**, Paraguay's national electronic invoicing system.
 [Español](README.md) (primary documentation).
 
-> **Status: under construction (phase 4 done, 0.3.0), no published version.** Validates, signs and sends to SIFEN
+> **Status: under construction (phase 5 done, 0.4.0), no published version.** Validates, signs and sends to SIFEN
 > every electronic document (invoice, self-invoice, credit and debit notes, delivery note, with transport and
 > sector-specific groups) and the eight events a taxpayer sends, with queries that read the registered events.
 > Tested against a simulated SIFEN and against the real test environment: every document type, every event and every

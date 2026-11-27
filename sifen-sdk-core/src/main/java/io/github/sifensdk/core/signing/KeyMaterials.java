@@ -5,6 +5,9 @@
 package io.github.sifensdk.core.signing;
 
 import io.github.sifensdk.core.SigningException;
+import io.github.sifensdk.core.internal.keys.ExternalKey;
+import io.github.sifensdk.core.internal.keys.ProviderBackend;
+import io.github.sifensdk.core.internal.keys.RemoteBackend;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +15,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.ProviderException;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -32,11 +39,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.security.auth.login.LoginException;
 import org.jspecify.annotations.Nullable;
 
 /**
  * The usual sources of {@link KeyMaterial}: PKCS#12 (path, bytes or stream), a {@link KeyStore}
- * with an alias (which also covers PKCS#11 tokens) and PEM (ADR-0008).
+ * with an alias, PEM, a PKCS#11 token or HSM, and a remote signer (ADR-0008, ADR-0012).
  *
  * <p>Passwords are only used while loading and are never kept; the caller owns the arrays and
  * should clear them afterwards. The returned key material is immutable, thread-safe, and its {@code
@@ -153,8 +161,12 @@ public final class KeyMaterials {
   }
 
   /**
-   * Takes the key material from a loaded {@link KeyStore}: a PKCS#12 or JKS store, or a PKCS#11
-   * token ({@code KeyStore.getInstance("PKCS11", provider)}), whose key never leaves the device.
+   * Takes the key material from a loaded {@link KeyStore}: a PKCS#12 or JKS store, a PKCS#11 token
+   * ({@code KeyStore.getInstance("PKCS11", provider)}) or the Windows store ({@code Windows-MY}).
+   *
+   * <p>A key that cannot leave its store (a token's) signs through the store's provider, even when
+   * that provider is not installed. For a PKCS#11 token, {@link #pkcs11(Pkcs11Config, char[],
+   * String)} is simpler.
    *
    * @param keyStore the loaded store
    * @param alias the alias of the private key
@@ -214,6 +226,107 @@ public final class KeyMaterials {
       throw new SigningException("Could not read the PEM files", e);
     }
     return pem(certificates, key);
+  }
+
+  /**
+   * Opens a PKCS#11 token or HSM (certificates on a token, type A3) and takes the key with a single
+   * private key. See {@link #pkcs11(Pkcs11Config, char[], String)}.
+   *
+   * @param config the token's library and slot
+   * @param pin the user PIN of the token
+   * @return the key material
+   * @throws SigningException if the library cannot be loaded, the PIN is wrong, or the token does
+   *     not have exactly one private key with a certificate
+   */
+  public static KeyMaterial pkcs11(Pkcs11Config config, char[] pin) {
+    return pkcs11(config, pin, null);
+  }
+
+  /**
+   * Opens a PKCS#11 token or HSM (certificates on a token, type A3) and takes a key from it.
+   *
+   * <p>The key never leaves the device: every signature, of documents and events and of the TLS
+   * handshake with SIFEN, is made by the token. The JDK's SunPKCS11 provider is used without
+   * installing it (ADR-0012). The PIN is used only to log in and is not kept (clear the array
+   * afterwards). PKCS#11 login belongs to the whole process: the token stays logged in while the
+   * process runs, and opening it again in the same process does not check the PIN again. Each call
+   * opens the token anew: create the key material once and reuse it.
+   *
+   * @param config the token's library and slot
+   * @param pin the user PIN of the token
+   * @param alias the alias (label) of the private key; {@code null} if the token has exactly one
+   * @return the key material
+   * @throws SigningException if the library cannot be loaded, the slot has no token, the PIN is
+   *     wrong, or the key is not found; messages never include the PIN
+   */
+  public static KeyMaterial pkcs11(Pkcs11Config config, char[] pin, @Nullable String alias) {
+    Objects.requireNonNull(config, "config");
+    Objects.requireNonNull(pin, "pin");
+    Path library = config.library();
+    if (library != null && !Files.isRegularFile(library)) {
+      throw new SigningException("The PKCS#11 library does not exist: " + library);
+    }
+    Path configFile = config.configFile();
+    if (configFile != null && !Files.isRegularFile(configFile)) {
+      throw new SigningException("The PKCS#11 configuration file does not exist: " + configFile);
+    }
+    Provider base = Security.getProvider("SunPKCS11");
+    if (base == null) {
+      throw new SigningException(
+          "This Java runtime has no SunPKCS11 provider (module jdk.crypto.cryptoki)");
+    }
+    Provider token;
+    try {
+      token = base.configure(config.sunPkcs11Argument());
+    } catch (InvalidParameterException | ProviderException | UnsupportedOperationException e) {
+      throw new SigningException(
+          "Could not load the PKCS#11 library or find the token's slot (" + config + ")", e);
+    }
+    KeyStore store;
+    try {
+      store = KeyStore.getInstance("PKCS11", token);
+      store.load(null, pin);
+    } catch (IOException e) {
+      if (hasCause(e, LoginException.class)) {
+        throw new SigningException(
+            "Could not log in to the PKCS#11 token: the PIN is wrong or the token is locked", e);
+      }
+      throw new SigningException("Could not open the PKCS#11 token (" + config + ")", e);
+    } catch (GeneralSecurityException | ProviderException e) {
+      throw new SigningException("Could not open the PKCS#11 token (" + config + ")", e);
+    }
+    return fromStore(store, resolveAlias(store, alias), null);
+  }
+
+  /**
+   * Adapts a remote signer (a signing service, a cloud KMS or HSM, or the certification provider's
+   * custody): the key never reaches this process and the signer only receives SHA-256 digests,
+   * never documents (ADR-0012).
+   *
+   * <p>The signer signs with RSASSA-PKCS1-v1_5, what SIFEN uses for XML signatures and in its TLS
+   * 1.2 handshake; the TLS connection to SIFEN then uses TLS 1.2.
+   *
+   * @param signer the remote signer; its certificate chain is read now
+   * @return the key material
+   * @throws SigningException if the chain is empty or its first certificate does not have an RSA
+   *     key
+   */
+  public static KeyMaterial remote(RemoteSigner signer) {
+    Objects.requireNonNull(signer, "signer");
+    List<X509Certificate> chain = List.copyOf(signer.certificateChain());
+    if (chain.isEmpty()) {
+      throw new SigningException("The remote signer has no certificate");
+    }
+    if (!(chain.get(0).getPublicKey() instanceof RSAPublicKey)) {
+      throw new SigningException(
+          "SIFEN signatures use RSA (Manual Técnico v150, 7.7); the remote signer's key is "
+              + chain.get(0).getPublicKey().getAlgorithm());
+    }
+    java.math.BigInteger modulus = ((RSAPublicKey) chain.get(0).getPublicKey()).getModulus();
+    return of(
+        new ExternalKey(
+            new RemoteBackend(signer, chain.get(0).getPublicKey(), modulus.bitLength()), modulus),
+        chain);
   }
 
   /**
@@ -282,12 +395,39 @@ public final class KeyMaterials {
         }
         chain.add((X509Certificate) certificate);
       }
-      return of((PrivateKey) key, chain);
+      return of(signable((PrivateKey) key, chain.get(0), store), chain);
     } catch (UnrecoverableKeyException e) {
       throw new SigningException("Could not recover the private key: the password is wrong", e);
     } catch (GeneralSecurityException e) {
       throw new SigningException("Could not read the private key from the store", e);
     }
+  }
+
+  /**
+   * A key of a store whose provider is not installed (a SunPKCS11 instance configured by the
+   * caller) signs through that provider (ADR-0012). Keys of installed providers, and keys that can
+   * be exported, are returned as they are.
+   */
+  private static PrivateKey signable(PrivateKey key, X509Certificate certificate, KeyStore store) {
+    Provider provider = store.getProvider();
+    if (Security.getProvider(provider.getName()) == provider
+        || !"RSA".equals(key.getAlgorithm())
+        || key.getEncoded() != null
+        || !(certificate.getPublicKey() instanceof RSAPublicKey)) {
+      return key;
+    }
+    return new ExternalKey(
+        new ProviderBackend(provider, key, "key store " + store.getType()),
+        ((RSAPublicKey) certificate.getPublicKey()).getModulus());
+  }
+
+  private static boolean hasCause(Throwable e, Class<? extends Throwable> type) {
+    for (Throwable t = e; t != null; t = t.getCause()) {
+      if (type.isInstance(t)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static List<X509Certificate> readCertificates(String pem) {
