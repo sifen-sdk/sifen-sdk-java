@@ -25,6 +25,7 @@ public final class DocumentTypeData {
   private final @Nullable CreditDebitNote creditDebitNote;
   private final @Nullable OperationCondition operationCondition;
   private final List<Item> items;
+  private final @Nullable SectorSpecificFields sectorSpecificFields;
 
   private DocumentTypeData(Builder b) {
     this.invoice = b.invoice;
@@ -32,6 +33,7 @@ public final class DocumentTypeData {
     this.creditDebitNote = b.creditDebitNote;
     this.operationCondition = b.operationCondition;
     this.items = List.copyOf(b.items);
+    this.sectorSpecificFields = b.sectorSpecificFields;
   }
 
   /**
@@ -113,6 +115,18 @@ public final class DocumentTypeData {
   }
 
   /**
+   * Campos complementarios comerciales de uso específico.
+   *
+   * <p>SIFEN group {@code E790} ({@code gCamEsp}).
+   *
+   * @return the value, or {@code null} if not informed
+   */
+  @SifenField(id = "E790", xml = "gCamEsp")
+  public @Nullable SectorSpecificFields sectorSpecificFields() {
+    return sectorSpecificFields;
+  }
+
+  /**
    * Compares all values; amounts compare with their scale ({@code 1.0} differs from {@code 1}).
    *
    * @param other the object to compare with
@@ -131,7 +145,8 @@ public final class DocumentTypeData {
         && Objects.equals(selfInvoice, that.selfInvoice)
         && Objects.equals(creditDebitNote, that.creditDebitNote)
         && Objects.equals(operationCondition, that.operationCondition)
-        && Objects.equals(items, that.items);
+        && Objects.equals(items, that.items)
+        && Objects.equals(sectorSpecificFields, that.sectorSpecificFields);
   }
 
   /**
@@ -141,7 +156,8 @@ public final class DocumentTypeData {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(invoice, selfInvoice, creditDebitNote, operationCondition, items);
+    return Objects.hash(
+        invoice, selfInvoice, creditDebitNote, operationCondition, items, sectorSpecificFields);
   }
 
   /**
@@ -165,6 +181,7 @@ public final class DocumentTypeData {
     private @Nullable CreditDebitNote creditDebitNote;
     private @Nullable OperationCondition operationCondition;
     private List<Item> items = new ArrayList<>();
+    private @Nullable SectorSpecificFields sectorSpecificFields;
 
     private Builder() {}
 
@@ -174,6 +191,7 @@ public final class DocumentTypeData {
       this.creditDebitNote = source.creditDebitNote;
       this.operationCondition = source.operationCondition;
       this.items = new ArrayList<>(source.items);
+      this.sectorSpecificFields = source.sectorSpecificFields;
     }
 
     /**
@@ -239,6 +257,17 @@ public final class DocumentTypeData {
      */
     public Builder addItem(Item item) {
       this.items.add(Objects.requireNonNull(item, "item"));
+      return this;
+    }
+
+    /**
+     * Sets {@code sectorSpecificFields} (E790, {@code gCamEsp}).
+     *
+     * @param sectorSpecificFields the value, or {@code null} to leave it out
+     * @return this builder
+     */
+    public Builder sectorSpecificFields(@Nullable SectorSpecificFields sectorSpecificFields) {
+      this.sectorSpecificFields = sectorSpecificFields;
       return this;
     }
 

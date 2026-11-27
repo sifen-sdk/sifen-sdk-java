@@ -11,6 +11,7 @@ import io.github.sifensdk.core.model.Invoice;
 import io.github.sifensdk.core.model.Item;
 import io.github.sifensdk.core.model.OperationCondition;
 import io.github.sifensdk.core.model.PublicProcurement;
+import io.github.sifensdk.core.model.SectorSpecificFields;
 import io.github.sifensdk.core.model.SelfInvoice;
 
 /**
@@ -23,6 +24,7 @@ final class TypeDataMapper {
   private final ItemMapper items;
   private final ConditionMapper conditions;
   private final SelfInvoiceMapper selfInvoices;
+  private final SectorMapper sectors = new SectorMapper();
 
   TypeDataMapper(Descriptions descriptions) {
     this.descriptions = descriptions;
@@ -51,6 +53,10 @@ final class TypeDataMapper {
     }
     for (Item e : v.items()) {
       n.add(items.item(e));
+    }
+    SectorSpecificFields sectorSpecificFields = v.sectorSpecificFields();
+    if (sectorSpecificFields != null) {
+      n.add(sectors.sectorSpecificFields(sectorSpecificFields));
     }
     return n;
   }

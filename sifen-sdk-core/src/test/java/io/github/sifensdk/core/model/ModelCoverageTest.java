@@ -33,13 +33,12 @@ class ModelCoverageTest {
   private static final Set<String> GROUPS =
       Set.of(
           "AA-A", "B", "C", "D", "D1", "D2", "D3", "E", "E1", "E4", "E5", "E7", "E8", "E8.1",
-          "E8.2", "E8.4", "E8.5", "F", "G", "H");
+          "E8.2", "E8.4", "E8.5", "E9", "F", "G", "H");
 
   /** Group roots of {@code gDtipDE} left for a later version (phase 4), with all their fields. */
   private static final Map<String, String> OUT_OF_SCOPE =
       Map.of(
           "E500", "E6 delivery note",
-          "E790", "E9 sector-specific fields",
           "E900", "E10 transport");
 
   /** Fields of the covered groups that are deliberately not in the model, with the reason. */
@@ -65,7 +64,8 @@ class ModelCoverageTest {
   private static final Map<String, String> RENAMED =
       Map.of(
           "G001", "complementaryData", // the spec repeats "generalData" (D001) under A001
-          "H001", "associatedDocuments"); // a list of up to 99
+          "H001", "associatedDocuments", // a list of up to 99
+          "E824", "paymentDueDates"); // a list of up to 3
 
   private final Spec spec = Spec.bundled();
 
@@ -128,7 +128,7 @@ class ModelCoverageTest {
   void groupTypesAreImmutableFinalClasses() {
     Set<Class<?>> types = new HashSet<>();
     walk(ElectronicDocument.class, types, new ArrayList<>(), new LinkedHashMap<>());
-    assertThat(types).hasSize(31);
+    assertThat(types).hasSize(37);
     for (Class<?> type : types) {
       assertThat(Modifier.isFinal(type.getModifiers())).as(type.getName()).isTrue();
       for (java.lang.reflect.Field f : type.getDeclaredFields()) {
