@@ -144,6 +144,44 @@ class LiveDocumentsTest {
             .build());
     String deliveryNote = send(client, documents, key, csc, "nota de remision", deliveryNote());
     send(client, documents, key, csc, "factura con transporte", withTransport());
+    // C-407: the carrier may be left out when the transport is by road and the vehicle is
+    // identified by its identification number (E967 = 1); with two vehicles, one by plate.
+    ElectronicDocument noCarrier = deliveryNote();
+    Transport t = noCarrier.documentTypeData().transport();
+    sendAnyway(
+        client,
+        key,
+        csc,
+        "remision sin transportista",
+        noCarrier.toBuilder()
+            .documentTypeData(
+                noCarrier.documentTypeData().toBuilder()
+                    .transport(t.toBuilder().carrier(null).build())
+                    .build())
+            .build());
+    ElectronicDocument twoVehicles = deliveryNote();
+    Transport t2 = twoVehicles.documentTypeData().transport();
+    sendAnyway(
+        client,
+        key,
+        csc,
+        "remision sin transportista dos vehiculos",
+        twoVehicles.toBuilder()
+            .documentTypeData(
+                twoVehicles.documentTypeData().toBuilder()
+                    .transport(
+                        t2.toBuilder()
+                            .carrier(null)
+                            .addVehicle(
+                                TransportVehicle.builder()
+                                    .type("Camioneta")
+                                    .brand("Marca")
+                                    .identificationTypeCode("2")
+                                    .plateNumber("ABC123")
+                                    .build())
+                            .build())
+                    .build())
+            .build());
     send(
         client,
         documents,
