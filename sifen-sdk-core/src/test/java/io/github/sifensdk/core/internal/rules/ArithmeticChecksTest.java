@@ -98,7 +98,7 @@ class ArithmeticChecksTest {
             "R-EA004-A2",
             NT13,
             d -> d.set("F010", "10").set("EA004", "11000"),
-            d -> d.set("F010", "10").set("EA004", "11002")), // beyond 0.5 + 0.8
+            d -> d.set("F010", "10").set("EA004", "11001")), // beyond 0.8, without adding 0.5
         c(
             "R-EA008-A1",
             NT13,
@@ -118,16 +118,16 @@ class ArithmeticChecksTest {
             d -> fivePercent(beforeNt13(d)).set("E735", "100001")),
         c("R-E735-A3", BEFORE_NT13, d -> beforeNt13(d), d -> beforeNt13(d).set("E735", "99999")),
         c("R-E735-A4", NT13, d -> fivePercent(d), d -> fivePercent(d).set("E735", "100001")),
-        // Rounding at 0 decimals: exact 100000; 100000.4 at 1 decimal is not a valid rounding.
-        c("R-E735-A5", NT13, d -> d, d -> d.set("E735", "100000.4")),
+        // Exact 100000: 100000.5 is accepted (difference 0.5), 100000.6 is not.
+        c("R-E735-A5", NT13, d -> d.set("E735", "100000.5"), d -> d.set("E735", "100000.6")),
         c("R-E736-A1", NT13, d -> exempt(d), d -> exempt(d).set("E736", "1")),
         c("R-E736-A2", NT13, d -> d, d -> d.set("E736", "10001")),
-        // Exact 52380.952...: 52381 and 52380.95 are valid roundings, 52380.9 is not.
+        // Exact 52380.952...: 52381.4 differs by 0.448, 52381.5 by 0.548.
         c(
             "R-E737-A1",
             NT13,
-            d -> partial(d).set("E737", "52380.95"),
-            d -> partial(d).set("E737", "52380.9")),
+            d -> partial(d).set("E737", "52381.4"),
+            d -> partial(d).set("E737", "52381.5")),
         c("R-E737-A2", NT13, d -> d, d -> d.set("E737", "1")),
         c(
             "R-F002-A1",
@@ -220,7 +220,7 @@ class ArithmeticChecksTest {
             d -> fivePercent(d).set("F015", "5000"),
             d -> fivePercent(d).set("F015", "5001")),
         c("R-F016-A1", NT13, d -> d, d -> d.set("F016", "10001")),
-        c("R-F017-A2", NT13, d -> d, d -> d.set("F017", "10001")),
+        c("R-F017-A1", NT13, d -> d, d -> d.set("F017", "10001")),
         c(
             "R-F018-A1",
             NT13,
@@ -271,18 +271,42 @@ class ArithmeticChecksTest {
   }
 
   @Test
-  void theValueIsAValidRoundingAtTheScaleTheIssuerChose() {
-    // 100000 taxed at 10%: exact base 90909.0909...
+  void theDifferenceWithTheExactResultIsAtMostHalfAUnit() {
+    // 100000 taxed at 10%: exact base 90909.0909... SIFEN accepts a difference of up to 0.5 in
+    // the unit of the field, whatever the decimals (specification evidence E-001).
     Consumer<String> accepted =
         base -> assertThat(issues(run(d -> amount(d, base), NT13), "R-E735-A5")).isEmpty();
     Consumer<String> rejected =
         base -> assertThat(issues(run(d -> amount(d, base), NT13), "R-E735-A5")).hasSize(1);
     accepted.accept("90909");
     accepted.accept("90909.09");
-    accepted.accept("90909.1");
+    accepted.accept("90909.5");
+    accepted.accept("90909.59");
+    accepted.accept("90908.60");
+    rejected.accept("90909.60");
+    rejected.accept("90908.59");
     rejected.accept("90910");
-    rejected.accept("90909.10");
-    rejected.accept("90909.2");
+  }
+
+  @Test
+  void aDocumentedToleranceReplacesTheHalfUnit() {
+    // EA003 = EA002 * 100 / E721 with a tolerance of 0.8: 11000 over 110000 is exactly 10.
+    Consumer<String> accepted =
+        rate ->
+            assertThat(
+                    issues(
+                        run(d -> d.set("EA002", "11000").set("EA003", rate), NT13), "R-EA003-A1"))
+                .isEmpty();
+    Consumer<String> rejected =
+        rate ->
+            assertThat(
+                    issues(
+                        run(d -> d.set("EA002", "11000").set("EA003", rate), NT13), "R-EA003-A1"))
+                .hasSize(1);
+    accepted.accept("10.80");
+    accepted.accept("9.20");
+    rejected.accept("10.81");
+    rejected.accept("9.19");
   }
 
   private static SampleDocument amount(SampleDocument d, String base) {
@@ -290,17 +314,27 @@ class ArithmeticChecksTest {
   }
 
   @Test
-  void theTotalVatFormulaOfTheFieldTableIsOnlyAWarning() {
-    // C-502: with a commission VAT (F026), F017 = F015 + F016 satisfies 2371 (R-F017-A2) and
-    // differs from the field table (R-F017-A1), reported as a warning.
-    ValidationResult result =
-        run(
-            d -> d.add("F001", "F025", "dComi", "1100").add("F001", "F026", "dIVAComi", "100"),
-            NT13);
-    assertThat(issues(result, "R-F017-A2")).isEmpty();
-    assertThat(issues(result, "R-F017-A1"))
+  void theTotalVatFollowsTheFieldTable() {
+    // C-502, evidence E-001: SIFEN verifies F017 = F015 + F016 - F036 - F037 + F026 (R-F017-A1)
+    // and rejects with 2371; the formula of validation 2371 (R-F017-A2) is discarded.
+    UnaryOperator<SampleDocument> commission =
+        d -> d.add("F001", "F025", "dComi", "1100").add("F001", "F026", "dIVAComi", "100");
+    ValidationResult withoutCommissionVat = run(commission, NT13);
+    assertThat(issues(withoutCommissionVat, "R-F017-A1"))
         .singleElement()
-        .satisfies(i -> assertThat(i.severity()).isEqualTo(Severity.WARNING));
+        .satisfies(i -> assertThat(i.severity()).isEqualTo(Severity.ERROR));
+    ValidationResult withCommissionVat = run(d -> commission.apply(d).set("F017", "10100"), NT13);
+    assertThat(issues(withCommissionVat, "R-F017-A1")).isEmpty();
+    assertThat(withoutCommissionVat.issues()).noneMatch(i -> i.ruleId().equals("R-F017-A2"));
+    assertThat(withCommissionVat.issues()).noneMatch(i -> i.ruleId().equals("R-F017-A2"));
+    assertThat(withCommissionVat.uncheckedRules()).doesNotContain("R-F017-A2");
+  }
+
+  @Test
+  void thePerItemExchangeRateIsNotRequiredWithAGlobalOne() {
+    // C-303, evidence E-001: R-E725-C2 is discarded.
+    ValidationResult result = run(d -> usdGlobal(d), NT13);
+    assertThat(result.issues()).noneMatch(i -> i.ruleId().startsWith("R-E725"));
   }
 
   @Test

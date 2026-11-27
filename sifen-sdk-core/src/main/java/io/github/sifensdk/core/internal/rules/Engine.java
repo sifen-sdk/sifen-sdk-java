@@ -45,10 +45,10 @@ final class Engine {
 
   /**
    * Rules reported as warnings unless configured otherwise, each by a decision of the
-   * specification. {@code R-F017-A1}: contradiction C-502 decides to verify validation 2371 ({@code
-   * R-F017-A2}) and to report the difference with the field table's formula only as a warning.
+   * specification. None at present: rules that SIFEN does not apply are recorded as {@code
+   * descartada} in the specification and never evaluated (for example {@code R-F017-A2}, C-502).
    */
-  static final Set<String> DEFAULT_WARNINGS = Set.of("R-F017-A1");
+  static final Set<String> DEFAULT_WARNINGS = Set.of();
 
   /**
    * {@code formato} rules whose only requirement is that the code belongs to the field's catalog.
@@ -157,7 +157,7 @@ final class Engine {
     List<Rule> scoped = new ArrayList<>();
     Map<String, List<Rule>> grouped = new LinkedHashMap<>();
     for (Rule r : allRules) {
-      if (chains.containsKey(r.field())) {
+      if (chains.containsKey(r.field()) && !r.discarded()) {
         scoped.add(r);
         grouped.computeIfAbsent(r.field() + "|" + r.type(), k -> new ArrayList<>()).add(r);
       }

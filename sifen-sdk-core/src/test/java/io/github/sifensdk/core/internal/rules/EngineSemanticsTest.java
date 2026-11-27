@@ -72,7 +72,7 @@ class EngineSemanticsTest {
       String id, String fieldId, String type, @Nullable Condition condition, Validity validity) {
     return new Rule(
         id, fieldId, type, "text", condition, true, null, List.of(), null, null, SRC, validity,
-        List.of());
+        List.of(), false);
   }
 
   private static Rule rule(String id, String fieldId, String type, @Nullable Condition condition) {
@@ -217,6 +217,29 @@ class EngineSemanticsTest {
   }
 
   @Test
+  void discardedRulesAreNeverEvaluated() {
+    Rule discarded =
+        new Rule(
+            "R-T-O9",
+            "T",
+            "obligatorio",
+            "text",
+            null,
+            true,
+            null,
+            List.of(),
+            null,
+            null,
+            SRC,
+            Validity.ALWAYS,
+            List.of("C-999"),
+            true);
+    ValidationResult r = evaluate(List.of(discarded), tree("a", null));
+    assertThat(r.issues()).isEmpty();
+    assertThat(r.uncheckedRules()).doesNotContain("R-T-O9");
+  }
+
+  @Test
   void nonDeclarativeAndUnimplementedRulesAreListedAsUnchecked() {
     Rule nonDeclarative =
         new Rule(
@@ -232,7 +255,8 @@ class EngineSemanticsTest {
             null,
             SRC,
             Validity.ALWAYS,
-            List.of());
+            List.of(),
+            false);
     Rule format = rule("R-X1-F1", "X1", "formato", null);
     Rule formatOnAbsent = rule("R-T-F1", "T", "formato", null);
     ValidationResult r = evaluate(List.of(nonDeclarative, format, formatOnAbsent), tree("a", null));

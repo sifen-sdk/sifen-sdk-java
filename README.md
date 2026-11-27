@@ -7,8 +7,8 @@ SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado 
 Nacional de Paraguay. [English](README.en.md)
 
 > **Estado: en desarrollo (fase 3), sin versión publicada.** Valida, firma y genera el QR de facturas y notas de
-> crédito, y las envía a SIFEN (síncrono y por lote), con consultas y eventos. Probado contra un SIFEN simulado;
-> todavía no contra el ambiente de test real ([cómo correr esa prueba](docs/pruebas-contra-sifen.md)).
+> crédito, y las envía a SIFEN (síncrono y por lote), con consultas y eventos. Probado contra un SIFEN simulado y
+> contra el ambiente de test real, incluida cada fórmula de importes ([cómo correr esas pruebas](docs/pruebas-contra-sifen.md)).
 > El avance se sigue en la [hoja de ruta](#hoja-de-ruta).
 
 > Proyecto comunitario e independiente. **No está afiliado a la DNIT ni cuenta con su aval.** "SIFEN" y

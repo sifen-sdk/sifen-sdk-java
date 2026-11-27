@@ -3,8 +3,10 @@
 Community SDK for integrating Java systems with **SIFEN**, Paraguay's national electronic invoicing system.
 [Español](README.md) (primary documentation).
 
-> **Status: under construction (phase 0).** Nothing is published or usable yet. This repository currently holds
-> the project structure, its design decisions and its continuous integration.
+> **Status: under construction (phase 3), no published version.** Validates, signs and adds the QR code to invoices
+> and credit notes, and sends them to SIFEN (synchronous and batch), with queries and events. Tested against a
+> simulated SIFEN and against the real test environment, including every amount formula
+> ([how to run those tests](docs/pruebas-contra-sifen.md), in Spanish).
 
 > Independent community project. **Not affiliated with or endorsed by DNIT.**
 

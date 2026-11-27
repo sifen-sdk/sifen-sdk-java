@@ -26,33 +26,35 @@ import org.jspecify.annotations.Nullable;
  *       compares.
  *   <li>The formula is evaluated <b>exactly</b> (fractions, no intermediate rounding) on the values
  *       as reported.
- *   <li>A reported value is correct when it is a valid rounding of the exact result at the scale
- *       the issuer used: {@code |reported - exact| <= 0.5 * 10^-scale(reported)}. With 0 decimals,
- *       a VAT base of 100000 is accepted for an exact 100000.0 and for 99999.5; with 2 decimals
- *       33.33 is accepted for 33.333...
- *   <li>The tolerance ({@code holgura}) is added only when the rule carries a numeric one (0.8 in
- *       the discount percentages, validations 1861 and 1862), in the unit of the checked field.
+ *   <li>A reported value is correct when its difference with the exact result is at most the rule's
+ *       documented tolerance ({@code holgura}: 0.8 in the discount percentages, validations 1861
+ *       and 1862) or, without one, at most 0.5 in the unit of the field: {@code |reported - exact|
+ *       <= 0.5}. This is what SIFEN does in its test environment (specification evidence E-001): in
+ *       guaraníes and in dollars it accepts 0.50 and rejects 0.51; with a tolerance of 0.8 it
+ *       accepts 0.80 and rejects 0.81, without adding the 0.5.
  *   <li>Sums over items use each item's reported values, never recalculated ones.
  *   <li>An optional operand that is absent (discounts and advances per item, commission, rounding
  *       VAT) counts as 0. When a required operand is absent or not a number, the rule is not
  *       checked: the presence rules or the XSD report it.
- *   <li>With an open contradiction and two versions of a formula, the numbered validation (the one
- *       with a SIFEN code) is verified: {@code R-F017-A2} (2371) as an error and {@code R-F017-A1}
- *       as a warning (C-502); {@code R-F014-A1} is covered by {@code R-F014-A3} (2365, same
+ *   <li>Rules the specification records as {@code descartada} are never evaluated: SIFEN does not
+ *       apply them ({@code R-F017-A2}: SIFEN verifies the field table's formula, {@code R-F017-A1},
+ *       with code 2371, C-502). {@code R-F014-A1} is covered by {@code R-F014-A3} (2365, same
  *       formula) for C002 = 1, 5 and 6.
  * </ul>
  *
  * <p>Not implemented, so reported as unchecked when they apply: {@code R-F013-A1} (rounding to
- * multiples of 50 is optional, F013 may be 0, and there is no validation code), {@code R-F026-A1}
- * (formula not written), {@code R-F036-A1} and {@code R-F037-A1} (C-504), {@code R-F008-A2}
- * (C-501), {@code R-H004-A1} (needs other documents in SIFEN) and {@code R-E797-A0} (operands are a
- * vehicle type code and a capacity, corrected by the NT 23).
+ * multiples of 50 is optional, F013 may be 0, there is no validation code, and SIFEN does not
+ * verify it, E-001), {@code R-F026-A1} (formula not written; SIFEN does not verify it, E-001),
+ * {@code R-F036-A1} and {@code R-F037-A1} (C-504; SIFEN does not verify F037, E-001), {@code
+ * R-F008-A2} (C-501), {@code R-H004-A1} (needs other documents in SIFEN) and {@code R-E797-A0}
+ * (operands are a vehicle type code and a capacity, corrected by the NT 23).
  */
 final class ArithmeticChecks {
 
   private static final Rational HUNDRED = Rational.of(100);
   private static final Rational TEN_THOUSAND = Rational.of(10000);
   private static final BigDecimal FIVE = BigDecimal.valueOf(5);
+  private static final BigDecimal HALF = new BigDecimal("0.5");
 
   /** Document types where {@code R-F014-A3} (validation 2365) applies. */
   private static final Set<String> TYPES_WITH_2365 = Set.of("1", "5", "6");
@@ -300,15 +302,17 @@ final class ArithmeticChecks {
       return null;
     }
     BigDecimal tolerance = tolerance(rule);
-    BigDecimal allowed = Rational.halfUnitOfLastDecimal(reported).add(tolerance);
+    // What SIFEN accepts (spec FORMATO.md, evidence E-001): the documented tolerance when the rule
+    // has one, otherwise half a unit of the field (0.5 guaraníes, 0.5 dollars, 0.5 points).
+    BigDecimal allowed = tolerance.signum() > 0 ? tolerance : HALF;
     if (exact.isWithin(reported, allowed)) {
       return null;
     }
     return "Does not match "
         + expression
         + (tolerance.signum() > 0
-            ? " (rounded at the reported scale, with the documented tolerance)"
-            : " (rounded at the reported scale)");
+            ? " (difference above the documented tolerance of " + tolerance.toPlainString() + ")"
+            : " (difference above 0.5)");
   }
 
   private static BigDecimal tolerance(Rule rule) {

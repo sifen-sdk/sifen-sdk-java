@@ -209,7 +209,8 @@ public final class Spec {
         nstr(m.get("codigo_sifen")),
         sources(m.get("fuentes")),
         validity(m.get("vigencia")),
-        strings(m.get("contradiccion")));
+        strings(m.get("contradiccion")),
+        m.get("descartada") != null);
   }
 
   private static Condition condition(Map<String, Object> m) {

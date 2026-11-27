@@ -5,7 +5,6 @@
 package io.github.sifensdk.core.internal.rules;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -84,15 +83,6 @@ final class Rational {
   boolean isWithin(BigDecimal reported, BigDecimal allowed) {
     BigDecimal difference = reported.multiply(denominator).subtract(numerator).abs();
     return difference.compareTo(allowed.multiply(denominator)) <= 0;
-  }
-
-  /**
-   * Half a unit of the last decimal of a reported value: the largest difference for which the
-   * reported value is a valid rounding of an exact result at the scale the issuer chose.
-   */
-  static BigDecimal halfUnitOfLastDecimal(BigDecimal reported) {
-    int scale = Math.max(0, reported.scale());
-    return new BigDecimal(BigInteger.valueOf(5), scale + 1);
   }
 
   @Override
