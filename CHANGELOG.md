@@ -7,7 +7,31 @@ what that means before 1.0).
 
 ## [Unreleased]
 
-Target: 0.3.0 (phase 4). Nothing has been published to Maven Central yet.
+Target: 0.4.0 (phase 5). Nothing has been published to Maven Central yet.
+
+### Added (phase 5)
+
+- `KeyMaterials.pkcs11` and `Pkcs11Config`: certificates on a token (type A3) or in an HSM, through the JDK's
+  SunPKCS11 provider without installing it. The key never leaves the device.
+- `RemoteSigner` and `KeyMaterials.remote`: a remote signing service, cloud KMS or HSM signs; it only receives the
+  SHA-256 digest of what is signed, never the document.
+- `CertificateChecks`: the signer's certificate is checked before signing. Out of its validity period, or without
+  digital signature or non-repudiation usage, `sign` refuses to sign; another RUC than the issuer's is a warning.
+- Token and remote keys sign documents and events and authenticate mutual TLS. Verified against SIFEN's test
+  environment with the test certificate copied to a SoftHSM2 token and behind an in-process remote signer.
+- `scripts/prueba-sifen-token.sh` runs the live tests with the key in a temporary SoftHSM2 token or behind a remote
+  signer. Local only.
+- Guide: [docs/claves-en-token-hsm-y-firma-remota.md](docs/claves-en-token-hsm-y-firma-remota.md); decision in
+  ADR 0012.
+
+### Changed (phase 5)
+
+- `KeyMaterials.keyStore` signs with a non-extractable key through its store's provider when that provider is not
+  installed (keys of installed providers are returned as before).
+- With a token or remote key, the client installs the SDK's own provider once (it signs only with those keys) and,
+  if the key cannot sign with RSA-PSS, offers TLS 1.2 only. SIFEN only offers TLS 1.2.
+- `SifenDocuments.sign` and `SifenEvents.sign` throw `SigningException` for an expired, not yet valid or
+  non-signing certificate.
 
 ### Added (phase 4)
 

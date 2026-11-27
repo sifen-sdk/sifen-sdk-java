@@ -11,6 +11,7 @@ import io.github.sifensdk.core.internal.tree.Node;
 import io.github.sifensdk.core.internal.xml.SchemaValidator;
 import io.github.sifensdk.core.internal.xml.XmlWriter;
 import io.github.sifensdk.core.model.ElectronicDocument;
+import io.github.sifensdk.core.signing.CertificateChecks;
 import io.github.sifensdk.core.signing.Csc;
 import io.github.sifensdk.core.signing.KeyMaterial;
 import io.github.sifensdk.core.signing.SignedDocument;
@@ -102,7 +103,8 @@ public final class SifenDocuments {
    * @param csc the issuer's security code for the QR, given by SIFEN
    * @return the signed document, its CDC and its QR address
    * @throws ValidationException if the document has validation errors; nothing is signed
-   * @throws SigningException if signing fails
+   * @throws SigningException if the signer's certificate is out of its validity period or does not
+   *     allow digital signature ({@link CertificateChecks}), or signing fails
    */
   public SignedDocument sign(ElectronicDocument document, KeyMaterial keyMaterial, Csc csc) {
     Objects.requireNonNull(document, "document");
@@ -113,6 +115,7 @@ public final class SifenDocuments {
     if (!result.isValid()) {
       throw new ValidationException(result);
     }
+    requireUsableCertificate(keyMaterial);
     SignedDocument signed =
         DocumentAssembler.signAndFinish(XmlWriter.write(tree), keyMaterial, csc, environment);
     List<ValidationIssue> schema = SchemaValidator.validateSigned(signed.xml());
@@ -122,6 +125,15 @@ public final class SifenDocuments {
           "The signed document does not match the official XSD (" + schema.get(0) + ")");
     }
     return signed;
+  }
+
+  private void requireUsableCertificate(KeyMaterial keyMaterial) {
+    for (CertificateChecks.Issue issue :
+        CertificateChecks.check(keyMaterial, clock.instant(), null)) {
+      if (issue.error()) {
+        throw new SigningException(issue.message());
+      }
+    }
   }
 
   private ValidationResult validate(Node tree, ElectronicDocument document) {

@@ -11,6 +11,7 @@ import io.github.sifensdk.core.internal.tree.Node;
 import io.github.sifensdk.core.internal.xml.SchemaValidator;
 import io.github.sifensdk.core.internal.xml.XmlWriter;
 import io.github.sifensdk.core.model.Event;
+import io.github.sifensdk.core.signing.CertificateChecks;
 import io.github.sifensdk.core.signing.KeyMaterial;
 import io.github.sifensdk.core.signing.SignedEvent;
 import io.github.sifensdk.core.validation.ValidationException;
@@ -98,7 +99,8 @@ public final class SifenEvents {
    *     for the receiver's events)
    * @return the signed event
    * @throws ValidationException if the event has validation errors; nothing is signed
-   * @throws SigningException if signing fails
+   * @throws SigningException if the signer's certificate is out of its validity period or does not
+   *     allow digital signature ({@link CertificateChecks}), or signing fails
    */
   public SignedEvent sign(Event event, KeyMaterial keyMaterial) {
     Objects.requireNonNull(event, "event");
@@ -109,6 +111,7 @@ public final class SifenEvents {
     if (!result.isValid()) {
       throw new ValidationException(result);
     }
+    requireUsableCertificate(keyMaterial);
     SignedEvent signed = EventAssembler.sign(XmlWriter.write(tree), keyMaterial);
     List<ValidationIssue> schema = SchemaValidator.validateSignedEvent(signed.xml());
     if (!schema.isEmpty()) {
@@ -117,6 +120,15 @@ public final class SifenEvents {
           "The signed event does not match the official XSD (" + schema.get(0) + ")");
     }
     return signed;
+  }
+
+  private void requireUsableCertificate(KeyMaterial keyMaterial) {
+    for (CertificateChecks.Issue issue :
+        CertificateChecks.check(keyMaterial, clock.instant(), null)) {
+      if (issue.error()) {
+        throw new SigningException(issue.message());
+      }
+    }
   }
 
   private ValidationResult validate(Node tree, LocalDateTime signatureDateTime) {

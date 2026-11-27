@@ -90,7 +90,22 @@ alguna vez 0160 ("XML mal formado") a un pedido correcto, y un evento sobre una 
 rechazado con 4152 ("CDC del DTE es inexistente"), aunque otro evento sobre esa misma factura se había registrado.
 En ambos casos, repetir más tarde funcionó. El SDK nunca reintenta solo.
 
-## 4. Limpiar (opcional)
+## 4. Con la clave en un token o detrás de un firmante remoto (opcional)
+
+```bash
+scripts/prueba-sifen-token.sh pkcs11 LiveSifenTest       # el certificado, copiado a un token SoftHSM2 temporal
+scripts/prueba-sifen-token.sh remote LiveEventsTest      # el certificado detrás de un firmante remoto en proceso
+```
+
+Con `pkcs11` el script copia el certificado de prueba a un token SoftHSM2 en un directorio privado (en memoria si
+existe `/dev/shm`), con un PIN aleatorio, y lo borra al terminar. Hace falta SoftHSM2 (`sudo apt install softhsm2`).
+Las variables de cada prueba (`SIFEN_TEST_EVENTS=true`, `SIFEN_TEST_DOCUMENTS=true`, …) se pasan igual. El
+2026-11-27, la suite de documentos y la de eventos dieron por los dos caminos los mismos resultados que con el
+archivo. Una cancelación respondió una vez 0100 ("Error Inesperado") y pasó al repetirla.
+
+SIFEN test acepta solo TLS 1.2 y pide la firma del cliente con RSA y SHA-256.
+
+## 5. Limpiar (opcional)
 
 ```bash
 scripts/borrar-credenciales-sifen.sh

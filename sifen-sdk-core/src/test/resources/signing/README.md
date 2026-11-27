@@ -10,6 +10,7 @@ fuera de las pruebas ni agregues acá material de claves real.
 | `dos-alias.p12` | PKCS#12 con dos alias con clave (`firma` y `otra`), para probar el error de alias ambiguo. |
 | `prueba-certificado.pem` | El certificado de `prueba.p12` en PEM. |
 | `prueba-clave.pem` | La clave privada de `prueba.p12` en PEM, PKCS#8 sin cifrar. |
+| `sin-uso-de-firma.pem` | Un certificado autofirmado (sin su clave) cuyo uso de clave es solo cifrado, para probar que no se firma con él. |
 
 - **Contraseña de prueba** (del almacén y de las claves): `prueba-sintetica`
 - **Sujeto:** `CN=CONTRIBUYENTE SINTETICO DE PRUEBA, SERIALNUMBER=RUC44444401-7, O=SIFEN SDK PRUEBAS, C=PY`
@@ -27,6 +28,9 @@ keytool -genkeypair -alias firma -keyalg RSA -keysize 2048 -sigalg SHA256withRSA
 #   y -dname "CN=SEGUNDA CLAVE SINTETICA, SERIALNUMBER=RUC44444401-7, O=SIFEN SDK PRUEBAS, C=PY"
 openssl pkcs12 -in prueba.p12 -passin pass:prueba-sintetica -nokeys -clcerts | openssl x509 -out prueba-certificado.pem
 openssl pkcs12 -in prueba.p12 -passin pass:prueba-sintetica -nocerts -nodes | openssl pkey -out prueba-clave.pem
+# sin-uso-de-firma.pem: -genkeypair en un almacén temporal con -alias cifrado,
+#   -dname "CN=CERTIFICADO SINTETICO SIN FIRMA, SERIALNUMBER=RUC44444401-7, O=SIFEN SDK PRUEBAS, C=PY",
+#   -ext KeyUsage:critical=keyEncipherment, y luego keytool -exportcert -rfc (la clave se descarta)
 ```
 
 `rde-sin-firmar.xml` es un `rDE` sintético mínimo (no completo según el XSD) con los datos del ejemplo del Manual,

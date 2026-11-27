@@ -6,6 +6,8 @@ package io.github.sifensdk.client.internal;
 
 import io.github.sifensdk.client.Exchange;
 import io.github.sifensdk.client.TransportException;
+import io.github.sifensdk.core.internal.keys.ExternalKey;
+import io.github.sifensdk.core.internal.keys.SifenKeysProvider;
 import io.github.sifensdk.core.signing.KeyMaterial;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -41,7 +43,10 @@ import org.jspecify.annotations.Nullable;
  * <p>Each instance owns its own {@link HttpClient} and {@link SSLContext} built from the issuer's
  * key material, so several issuers can work in the same process without sharing a certificate
  * (ADR-0004). The private key is used through a key manager and never exported, so keys held in a
- * token or HSM work too (ADR-0008). Immutable and thread-safe.
+ * token or HSM, or by a remote signer, work too (ADR-0008). JSSE only signs with installed
+ * providers, so for those keys the stateless {@link SifenKeysProvider} is installed once
+ * (ADR-0012); a key that can only sign with RSASSA-PKCS1-v1_5 (a remote signer, or a token without
+ * RSA-PSS) is limited to TLS 1.2, as TLS 1.3 requires RSA-PSS. Immutable and thread-safe.
  */
 public final class Transport {
 
@@ -83,14 +88,15 @@ public final class Transport {
     this.requestTimeout = Objects.requireNonNull(requestTimeout, "requestTimeout");
     this.clock = Objects.requireNonNull(clock, "clock");
     this.random = Objects.requireNonNull(random, "random");
+    Objects.requireNonNull(keyMaterial, "keyMaterial");
     SSLParameters parameters = new SSLParameters();
-    parameters.setProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
+    parameters.setProtocols(protocols(keyMaterial));
     HttpClient.Builder builder =
         HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .connectTimeout(Objects.requireNonNull(connectTimeout, "connectTimeout"))
             .followRedirects(HttpClient.Redirect.NEVER)
-            .sslContext(sslContext(Objects.requireNonNull(keyMaterial, "keyMaterial"), trustStore))
+            .sslContext(sslContext(keyMaterial, trustStore))
             .sslParameters(parameters);
     if (proxy != null) {
       builder.proxy(proxy);
@@ -162,7 +168,19 @@ public final class Transport {
     }
   }
 
+  /** TLS 1.3 only signs with RSA-PSS; SIFEN itself only offers TLS 1.2 (ADR-0012). */
+  private static String[] protocols(KeyMaterial keyMaterial) {
+    PrivateKey key = keyMaterial.privateKey();
+    if (key instanceof ExternalKey && !((ExternalKey) key).supports(SifenKeysProvider.RSASSA_PSS)) {
+      return new String[] {"TLSv1.2"};
+    }
+    return new String[] {"TLSv1.3", "TLSv1.2"};
+  }
+
   private static SSLContext sslContext(KeyMaterial keyMaterial, @Nullable KeyStore trustStore) {
+    if (keyMaterial.privateKey() instanceof ExternalKey) {
+      SifenKeysProvider.install();
+    }
     try {
       TrustManagerFactory tmf =
           TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

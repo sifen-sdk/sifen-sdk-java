@@ -35,7 +35,6 @@ import io.github.sifensdk.core.model.Stamp;
 import io.github.sifensdk.core.model.Totals;
 import io.github.sifensdk.core.signing.Csc;
 import io.github.sifensdk.core.signing.KeyMaterial;
-import io.github.sifensdk.core.signing.KeyMaterials;
 import io.github.sifensdk.core.signing.SignedDocument;
 import io.github.sifensdk.core.validation.ValidationResult;
 import java.io.IOException;
@@ -50,7 +49,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -80,13 +78,8 @@ class LiveSifenTest {
     } else {
       issuerData.load(new StringReader(env("SIFEN_TEST_ISSUER")));
     }
-    char[] password = env("SIFEN_TEST_P12_PASSWORD").toCharArray();
-    String p12File = System.getenv("SIFEN_TEST_P12_PATH");
-    KeyMaterial key =
-        p12File != null && !p12File.isBlank()
-            ? KeyMaterials.pkcs12(Path.of(p12File), password)
-            : KeyMaterials.pkcs12(
-                Base64.getMimeDecoder().decode(env("SIFEN_TEST_P12_BASE64")), password);
+    KeyMaterial key = LiveKeys.key();
+    report("clave", LiveKeys.mode(), List.of());
     Csc csc = Csc.of(env("SIFEN_TEST_CSC_ID"), env("SIFEN_TEST_CSC").toCharArray());
 
     SifenDocuments documents = SifenDocuments.builder().environment(Environment.TEST).build();

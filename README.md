@@ -6,9 +6,10 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: en desarrollo (fase 4 terminada, 0.3.0), sin versión publicada.** Valida, firma y envía a SIFEN todos
+> **Estado: en desarrollo (fase 5 terminada, 0.4.0), sin versión publicada.** Valida, firma y envía a SIFEN todos
 > los documentos electrónicos (factura, autofactura, notas de crédito y de débito, nota de remisión, con transporte y
 > grupos sectoriales) y los 8 eventos que envía un contribuyente, con consultas que leen los eventos registrados.
+> Firma con el certificado en un archivo, en un token o HSM, o con un servicio de firma remota.
 > Probado contra un SIFEN simulado y contra el ambiente de test real: cada tipo de documento, cada evento y cada
 > fórmula de importes ([cómo correr esas pruebas](docs/pruebas-contra-sifen.md)).
 > El avance se sigue en la [hoja de ruta](#hoja-de-ruta).
@@ -49,6 +50,8 @@ result.errors().forEach(System.out::println);
 // ERROR rDE/DE/gTotSub/dTotGralOpe (dTotGralOpe, F014): ... [R-F014-A3, SIFEN 2365, MT150 2365]
 
 KeyMaterial certificate = KeyMaterials.pkcs12(Path.of("certificado.p12"), password);
+// o en un token/HSM: KeyMaterials.pkcs11(Pkcs11Config.library(Path.of("/usr/lib/libeToken.so")), pin)
+// o con firma remota: KeyMaterials.remote(firmante)   (docs/claves-en-token-hsm-y-firma-remota.md)
 Csc csc = Csc.of("0001", secret);
 SignedDocument signed = documents.sign(invoice, certificate, csc);
 
@@ -114,7 +117,7 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 | 2 | Núcleo: factura y nota de crédito → versión 0.1.0 | Hecha (sin publicar) |
 | 3 | Cliente de web services → 0.2.0 | Hecha (sin publicar) |
 | 4 | Resto de documentos y todos los eventos → 0.3.0 | Hecha (sin publicar) |
-| 5 | Certificados en token, HSM y firma remota → 0.4.0 | Pendiente |
+| 5 | Certificados en token, HSM y firma remota → 0.4.0 | Hecha (sin publicar) |
 | 6 | Cálculo opcional, KuDE y sitio de documentación → 0.5.0 | Pendiente |
 | 7 | Estabilización → 1.0.0 | Pendiente |
 
