@@ -20,3 +20,7 @@ target/
 !sifen-sdk-core/src/test/resources/signing/*.p12
 !sifen-sdk-core/src/test/resources/signing/*.pem
 !sifen-sdk-testing/src/main/resources/io/github/sifensdk/testing/simulated-sifen-server.p12
+
+# Documentation site: generated at build time (scripts/referencia-reglas.py, mkdocs build)
+docs/reglas/
+site/

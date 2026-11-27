@@ -7,7 +7,25 @@ what that means before 1.0).
 
 ## [Unreleased]
 
-Target: 0.4.0 (phase 5). Nothing has been published to Maven Central yet.
+Target: 0.5.0 (phase 6). Nothing has been published to Maven Central yet.
+
+### Added (phase 6)
+
+- `sifen-sdk-calc`, optional: `Calculator` derives the amounts of each item (`ItemPrice` → `ItemAmounts`: E727,
+  EA002–EA009, E735–E737) and the totals of the document (group F) with the Manual's formulas, computed per item
+  and summed as SIFEN verifies them. Rounding is explicit (decimals per currency, half-way modes only) and the
+  rounding to multiples of 50 is optional. The core never invokes it.
+- A property test completes thousands of random documents with the calculator and checks that the core finds no
+  error; another test fails if an arithmetic rule of the specification is neither computed nor left out on purpose.
+- `LiveCalcTest`: invoices completed by the calculator, in guaraníes and in dollars, sent to SIFEN's test
+  environment. Local only. All were approved.
+- Documentation site (MkDocs Material on GitHub Pages) with guides, the API reference and a reference of every rule
+  generated from the specification. ADR 0013.
+
+### Removed (phase 6)
+
+- The empty `sifen-sdk-kude` module: the graphic representation (KuDE) is each company's own design. The SDK gives
+  what it needs (CDC, QR address and signed XML); the site explains what a KuDE carries.
 
 ### Added (phase 5)
 
