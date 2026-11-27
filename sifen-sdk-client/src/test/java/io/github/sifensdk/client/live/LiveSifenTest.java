@@ -144,7 +144,7 @@ class LiveSifenTest {
   /**
    * A cash invoice of one item at 10 % VAT, to the issuer itself, so no third-party data is used.
    */
-  private static ElectronicDocument invoice(Properties p, long number, SecureRandom random) {
+  static ElectronicDocument invoice(Properties p, long number, SecureRandom random) {
     String documentNumber = String.format("%07d", number);
     BigDecimal base = new BigDecimal("10000");
     BigDecimal vat = new BigDecimal("1000");

@@ -94,4 +94,23 @@ public final class RuleEngine {
     Objects.requireNonNull(warningRuleIds, "warningRuleIds");
     return Engine.bundled().evaluate(rde, environment, referenceDate, warningRuleIds);
   }
+
+  /**
+   * Evaluates the rules of the events ({@code ev-*} in the specification) on an event tree.
+   *
+   * @param rGesEve the root {@code rGesEve} of the unsigned event tree
+   * @param environment the environment the event is for
+   * @param referenceDate the event's signature date ({@code dFecFirma}, GDE004), which selects the
+   *     rules in force
+   * @param warningRuleIds ids of rules whose issues are reported with severity {@code WARNING}
+   * @return issues found and rules that could not be checked
+   */
+  public static ValidationResult evaluateEvent(
+      Node rGesEve, Environment environment, LocalDate referenceDate, Set<String> warningRuleIds) {
+    Objects.requireNonNull(rGesEve, "rGesEve");
+    Objects.requireNonNull(environment, "environment");
+    Objects.requireNonNull(referenceDate, "referenceDate");
+    Objects.requireNonNull(warningRuleIds, "warningRuleIds");
+    return Engine.bundledEvents().evaluate(rGesEve, environment, referenceDate, warningRuleIds);
+  }
 }

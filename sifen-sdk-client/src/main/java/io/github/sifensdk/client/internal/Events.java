@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 /**
@@ -32,6 +33,16 @@ public final class Events {
    * {@code tgGroupGesEve}) and {@code gResProcEVe} 1-15 (GRSch03).
    */
   public static final int MAX_EVENTS = 15;
+
+  /**
+   * Start of {@code gGroupGesEve}. SIFEN's test environment answers 0160 ("XML mal formado") to an
+   * event request whose {@code gGroupGesEve} has no {@code xsi:schemaLocation}, although the XSD
+   * does not require it, and registers the same signed event when it has one (specification
+   * evidence E-002, 2026-11-27).
+   */
+  static final String GROUP_START =
+      "<gGroupGesEve xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+          + " xsi:schemaLocation=\"http://ekuatia.set.gov.py/sifen/xsd siRecepEvento_v150.xsd\">";
 
   /**
    * Maximum size of the request message, in bytes: 1000 KB (MT150 12.3.6, code 0560), with KB read
@@ -78,7 +89,8 @@ public final class Events {
                 + Soap.SIFEN_NS
                 + "\"><dId>"
                 + Soap.escape(requestId)
-                + "</dId><dEvReg><gGroupGesEve>")
+                + "</dId><dEvReg>"
+                + GROUP_START)
             .getBytes(StandardCharsets.UTF_8));
     for (int i = 0; i < signedEvents.size(); i++) {
       byte[] event =
@@ -143,6 +155,30 @@ public final class Events {
               Soap.messages(Soap.children(group, "gResProc"))));
     }
     return new EventResult(events, exchange);
+  }
+
+  /**
+   * The state of an event from its text ({@code dEstRes}), or null when it is not one SIFEN
+   * documents.
+   *
+   * @param value the text
+   * @return the state, or null
+   */
+  static @Nullable Status statusOrNull(String value) {
+    Status status = BatchStatus.ofText(value);
+    if (status != null) {
+      return status;
+    }
+    switch (BatchStatus.normalize(value)) {
+      case "a":
+        return Status.APPROVED;
+      case "ao":
+        return Status.APPROVED_WITH_OBSERVATION;
+      case "r":
+        return Status.REJECTED;
+      default:
+        return null;
+    }
   }
 
   private static Status eventStatus(String value, Exchange exchange) {

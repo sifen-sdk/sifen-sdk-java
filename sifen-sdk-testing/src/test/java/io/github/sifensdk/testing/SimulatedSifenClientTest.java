@@ -19,6 +19,7 @@ import io.github.sifensdk.client.Status;
 import io.github.sifensdk.client.TransportException;
 import io.github.sifensdk.core.Environment;
 import io.github.sifensdk.core.signing.SignedDocument;
+import io.github.sifensdk.core.signing.SignedEvent;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -109,10 +110,14 @@ class SimulatedSifenClientTest {
 
   @Test
   void sendsEvents() {
-    byte[] event =
-        ("<rGesEve xmlns=\"http://ekuatia.set.gov.py/sifen/xsd\"><rEve Id=\"7\">"
-                + "<dFecFirma>2026-11-26T10:00:00</dFecFirma><dVerFor>150</dVerFor></rEve></rGesEve>")
-            .getBytes(StandardCharsets.UTF_8);
+    SignedEvent event =
+        SignedEvent.of(
+            ("<rGesEve xmlns=\"http://ekuatia.set.gov.py/sifen/xsd\"><rEve Id=\"7\">"
+                    + "<dFecFirma>2026-11-26T10:00:00</dFecFirma><dVerFor>150</dVerFor></rEve>"
+                    + "</rGesEve>")
+                .getBytes(StandardCharsets.UTF_8),
+            "7",
+            LocalDateTime.parse("2026-11-26T10:00:00"));
 
     EventResult registered = client.sendEvents(List.of(event));
     assertThat(registered.events()).hasSize(1);

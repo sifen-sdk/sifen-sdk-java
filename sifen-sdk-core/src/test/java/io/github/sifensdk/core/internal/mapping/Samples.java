@@ -21,6 +21,7 @@ import io.github.sifensdk.core.model.Operation;
 import io.github.sifensdk.core.model.OperationCondition;
 import io.github.sifensdk.core.model.Payment;
 import io.github.sifensdk.core.model.Receiver;
+import io.github.sifensdk.core.model.SelfInvoice;
 import io.github.sifensdk.core.model.Stamp;
 import io.github.sifensdk.core.model.Totals;
 import java.math.BigDecimal;
@@ -35,7 +36,8 @@ import java.time.LocalDateTime;
  * <ul>
  *   <li>item 1: 1 × 110000, VAT 10 %: taxable base 100000, VAT 10000;
  *   <li>item 2: 2 × 10500 = 21000, VAT 5 %: taxable base 20000, VAT 1000;
- *   <li>invoice total 131000, VAT 11000; credit note total 110000, VAT 10000.
+ *   <li>invoice total 131000, VAT 11000; credit note and debit note total 110000, VAT 10000;
+ *   <li>self-invoice: 2 × 50000 = 100000, without VAT group (C002 = 4, R-E730-P1).
  * </ul>
  */
 public final class Samples {
@@ -126,6 +128,131 @@ public final class Samples {
                 .build())
         .addAssociatedDocument(
             AssociatedDocument.builder().typeCode("1").cdc(Cdc.of(invoice())).build())
+        .build();
+  }
+
+  /**
+   * An electronic debit note (C002 = 6) for a cost recovery (E401 = 6) on {@link #invoice()}, which
+   * it references by CDC. Same structure as {@link #creditNote()}: the specification groups both
+   * notes (E400, H001, F014 with C002 = 5 or 6).
+   *
+   * @return the debit note
+   */
+  public static ElectronicDocument debitNote() {
+    return ElectronicDocument.builder()
+        .operation(operation("192837465"))
+        .stamp(stamp("6", "0000001"))
+        .generalData(
+            GeneralData.builder()
+                .issueDateTime(LocalDateTime.of(2026, 11, 27, 11, 0, 0))
+                .commercialOperation(
+                    CommercialOperation.builder().taxTypeCode("1").currencyCode("PYG").build())
+                .issuer(issuer())
+                .receiver(receiver())
+                .build())
+        .documentTypeData(
+            DocumentTypeData.builder()
+                .creditDebitNote(CreditDebitNote.builder().reasonCode("6").build())
+                .addItem(item10())
+                .build())
+        .totals(
+            totals("110000")
+                .vat10Subtotal(gs("110000"))
+                .vat10Amount(gs("10000"))
+                .vatTotal(gs("10000"))
+                .vat10TaxableBaseTotal(gs("100000"))
+                .vatTaxableBaseTotal(gs("100000"))
+                .build())
+        .addAssociatedDocument(
+            AssociatedDocument.builder().typeCode("1").cdc(Cdc.of(invoice())).build())
+        .build();
+  }
+
+  /**
+   * An electronic self-invoice (C002 = 4): the issuer buys 2 units at 50000 from a seller who is
+   * not a taxpayer, with a Paraguayan identity card, and documents it itself. What the
+   * specification requires for C002 = 4, besides the seller group (E300, R-E300-C1):
+   *
+   * <ul>
+   *   <li>the receiver is the issuer: taxpayer (D201 = 1, R-D201-F1), B2C (D202 = 2, R-D202-F4) and
+   *       the issuer's RUC (D206 = D101, R-D206-D1);
+   *   <li>currency PYG (R-D015-F2), cash (E601 = 1, R-E601-D1);
+   *   <li>no VAT group per item (R-E730-P1); the item total is E721 × E711 (R-EA008-A2);
+   *   <li>no subtotals by rate, VAT, commission or guaraní total (R-F002-P4 … R-F026-P4); the gross
+   *       total is the sum of the item totals (R-F008-A3);
+   *   <li>one associated document, an electronic proof (H002 = 3, R-H002-D1), here of not being a
+   *       taxpayer (H014 = 1).
+   * </ul>
+   *
+   * @return the self-invoice
+   */
+  public static ElectronicDocument selfInvoice() {
+    return ElectronicDocument.builder()
+        .operation(operation("564738291"))
+        .stamp(stamp("4", "0000001"))
+        .generalData(
+            GeneralData.builder()
+                .issueDateTime(LocalDateTime.of(2026, 11, 27, 15, 0, 0))
+                .commercialOperation(
+                    CommercialOperation.builder()
+                        .transactionTypeCode("1")
+                        .taxTypeCode("1")
+                        .currencyCode("PYG")
+                        .build())
+                .issuer(issuer())
+                .receiver(
+                    Receiver.builder()
+                        .natureCode("1")
+                        .operationTypeCode("2")
+                        .countryCode("PRY")
+                        .taxpayerTypeCode("2")
+                        .ruc("44444401")
+                        .checkDigit("7")
+                        .name("DE generado en ambiente de prueba - sin valor comercial ni fiscal")
+                        .build())
+                .build())
+        .documentTypeData(
+            DocumentTypeData.builder()
+                .selfInvoice(seller())
+                .operationCondition(
+                    OperationCondition.builder()
+                        .conditionCode("1")
+                        .addPayment(
+                            Payment.builder()
+                                .typeCode("1")
+                                .amount(gs("100000"))
+                                .currencyCode("PYG")
+                                .build())
+                        .build())
+                .addItem(
+                    Item.builder()
+                        .internalCode("C-003")
+                        .description("Producto agrícola de ejemplo")
+                        .unitOfMeasureCode("77")
+                        .quantity(new BigDecimal("2"))
+                        .valuation(values("50000", "100000"))
+                        .build())
+                .build())
+        .totals(totals("100000").build())
+        .addAssociatedDocument(
+            AssociatedDocument.builder().typeCode("3").certificateTypeCode("1").build())
+        .build();
+  }
+
+  /** A seller who is not a taxpayer (E301 = 1), with a Paraguayan identity card (E304 = 1). */
+  private static SelfInvoice seller() {
+    return SelfInvoice.builder()
+        .sellerNatureCode("1")
+        .sellerIdTypeCode("1")
+        .sellerIdNumber("1234567")
+        .sellerName("Vendedor de Ejemplo")
+        .sellerAddress("Calle del Vendedor")
+        .sellerHouseNumber("0")
+        .sellerDepartmentCode("1")
+        .sellerCityCode("1")
+        .transactionAddress("Calle de la Transacción")
+        .transactionDepartmentCode("1")
+        .transactionCityCode("1")
         .build();
   }
 
