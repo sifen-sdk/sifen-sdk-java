@@ -142,7 +142,9 @@ public final class Queries {
     if (found && content != null) {
       documentXml = content(content, exchange);
     }
-    return new DocumentQuery(found, documentXml, List.of(message), exchange);
+    QueryContent read = documentXml == null ? QueryContent.EMPTY : QueryContent.read(documentXml);
+    return new DocumentQuery(
+        found, documentXml, read.authorizationProtocol, read.events, List.of(message), exchange);
   }
 
   /**

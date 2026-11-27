@@ -23,15 +23,21 @@ public final class DocumentTypeData {
   private final @Nullable Invoice invoice;
   private final @Nullable SelfInvoice selfInvoice;
   private final @Nullable CreditDebitNote creditDebitNote;
+  private final @Nullable DeliveryNote deliveryNote;
   private final @Nullable OperationCondition operationCondition;
   private final List<Item> items;
+  private final @Nullable SectorSpecificFields sectorSpecificFields;
+  private final @Nullable Transport transport;
 
   private DocumentTypeData(Builder b) {
     this.invoice = b.invoice;
     this.selfInvoice = b.selfInvoice;
     this.creditDebitNote = b.creditDebitNote;
+    this.deliveryNote = b.deliveryNote;
     this.operationCondition = b.operationCondition;
     this.items = List.copyOf(b.items);
+    this.sectorSpecificFields = b.sectorSpecificFields;
+    this.transport = b.transport;
   }
 
   /**
@@ -89,6 +95,18 @@ public final class DocumentTypeData {
   }
 
   /**
+   * Campos que componen la Nota de Remisión Electrónica.
+   *
+   * <p>SIFEN group {@code E500} ({@code gCamNRE}).
+   *
+   * @return the value, or {@code null} if not informed
+   */
+  @SifenField(id = "E500", xml = "gCamNRE")
+  public @Nullable DeliveryNote deliveryNote() {
+    return deliveryNote;
+  }
+
+  /**
    * Campos que describen la condición de la operación.
    *
    * <p>SIFEN group {@code E600} ({@code gCamCond}).
@@ -113,6 +131,30 @@ public final class DocumentTypeData {
   }
 
   /**
+   * Campos complementarios comerciales de uso específico.
+   *
+   * <p>SIFEN group {@code E790} ({@code gCamEsp}).
+   *
+   * @return the value, or {@code null} if not informed
+   */
+  @SifenField(id = "E790", xml = "gCamEsp")
+  public @Nullable SectorSpecificFields sectorSpecificFields() {
+    return sectorSpecificFields;
+  }
+
+  /**
+   * Campos que describen el transporte de mercaderías.
+   *
+   * <p>SIFEN group {@code E900} ({@code gTransp}).
+   *
+   * @return the value, or {@code null} if not informed
+   */
+  @SifenField(id = "E900", xml = "gTransp")
+  public @Nullable Transport transport() {
+    return transport;
+  }
+
+  /**
    * Compares all values; amounts compare with their scale ({@code 1.0} differs from {@code 1}).
    *
    * @param other the object to compare with
@@ -130,8 +172,11 @@ public final class DocumentTypeData {
     return Objects.equals(invoice, that.invoice)
         && Objects.equals(selfInvoice, that.selfInvoice)
         && Objects.equals(creditDebitNote, that.creditDebitNote)
+        && Objects.equals(deliveryNote, that.deliveryNote)
         && Objects.equals(operationCondition, that.operationCondition)
-        && Objects.equals(items, that.items);
+        && Objects.equals(items, that.items)
+        && Objects.equals(sectorSpecificFields, that.sectorSpecificFields)
+        && Objects.equals(transport, that.transport);
   }
 
   /**
@@ -141,7 +186,15 @@ public final class DocumentTypeData {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(invoice, selfInvoice, creditDebitNote, operationCondition, items);
+    return Objects.hash(
+        invoice,
+        selfInvoice,
+        creditDebitNote,
+        deliveryNote,
+        operationCondition,
+        items,
+        sectorSpecificFields,
+        transport);
   }
 
   /**
@@ -163,8 +216,11 @@ public final class DocumentTypeData {
     private @Nullable Invoice invoice;
     private @Nullable SelfInvoice selfInvoice;
     private @Nullable CreditDebitNote creditDebitNote;
+    private @Nullable DeliveryNote deliveryNote;
     private @Nullable OperationCondition operationCondition;
     private List<Item> items = new ArrayList<>();
+    private @Nullable SectorSpecificFields sectorSpecificFields;
+    private @Nullable Transport transport;
 
     private Builder() {}
 
@@ -172,8 +228,11 @@ public final class DocumentTypeData {
       this.invoice = source.invoice;
       this.selfInvoice = source.selfInvoice;
       this.creditDebitNote = source.creditDebitNote;
+      this.deliveryNote = source.deliveryNote;
       this.operationCondition = source.operationCondition;
       this.items = new ArrayList<>(source.items);
+      this.sectorSpecificFields = source.sectorSpecificFields;
+      this.transport = source.transport;
     }
 
     /**
@@ -210,6 +269,17 @@ public final class DocumentTypeData {
     }
 
     /**
+     * Sets {@code deliveryNote} (E500, {@code gCamNRE}).
+     *
+     * @param deliveryNote the value, or {@code null} to leave it out
+     * @return this builder
+     */
+    public Builder deliveryNote(@Nullable DeliveryNote deliveryNote) {
+      this.deliveryNote = deliveryNote;
+      return this;
+    }
+
+    /**
      * Sets {@code operationCondition} (E600, {@code gCamCond}).
      *
      * @param operationCondition the value, or {@code null} to leave it out
@@ -239,6 +309,28 @@ public final class DocumentTypeData {
      */
     public Builder addItem(Item item) {
       this.items.add(Objects.requireNonNull(item, "item"));
+      return this;
+    }
+
+    /**
+     * Sets {@code sectorSpecificFields} (E790, {@code gCamEsp}).
+     *
+     * @param sectorSpecificFields the value, or {@code null} to leave it out
+     * @return this builder
+     */
+    public Builder sectorSpecificFields(@Nullable SectorSpecificFields sectorSpecificFields) {
+      this.sectorSpecificFields = sectorSpecificFields;
+      return this;
+    }
+
+    /**
+     * Sets {@code transport} (E900, {@code gTransp}).
+     *
+     * @param transport the value, or {@code null} to leave it out
+     * @return this builder
+     */
+    public Builder transport(@Nullable Transport transport) {
+      this.transport = transport;
       return this;
     }
 

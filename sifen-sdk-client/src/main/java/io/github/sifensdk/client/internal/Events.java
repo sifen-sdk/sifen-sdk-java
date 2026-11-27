@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 /**
@@ -154,6 +155,30 @@ public final class Events {
               Soap.messages(Soap.children(group, "gResProc"))));
     }
     return new EventResult(events, exchange);
+  }
+
+  /**
+   * The state of an event from its text ({@code dEstRes}), or null when it is not one SIFEN
+   * documents.
+   *
+   * @param value the text
+   * @return the state, or null
+   */
+  static @Nullable Status statusOrNull(String value) {
+    Status status = BatchStatus.ofText(value);
+    if (status != null) {
+      return status;
+    }
+    switch (BatchStatus.normalize(value)) {
+      case "a":
+        return Status.APPROVED;
+      case "ao":
+        return Status.APPROVED_WITH_OBSERVATION;
+      case "r":
+        return Status.REJECTED;
+      default:
+        return null;
+    }
   }
 
   private static Status eventStatus(String value, Exchange exchange) {
