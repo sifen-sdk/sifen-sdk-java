@@ -45,6 +45,8 @@ jobs:
           SIFEN_REQUIRE_SOFTHSM: ${{ runner.os == 'Linux' }}
           # An incompatible API change fails the build unless the PR is labeled "api-incompatible".
           API_BREAK_BUILD: ${{ !contains(github.event.pull_request.labels.*.name, 'api-incompatible') }}
+        # bash also on Windows: the default shell there (PowerShell) splits the -D argument.
+        shell: bash
         run: ./mvnw -B -ntp verify -Dapi.breakBuild="$API_BREAK_BUILD"
 
   packaging:
