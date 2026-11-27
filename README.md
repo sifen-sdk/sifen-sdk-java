@@ -6,7 +6,7 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: en desarrollo (fase 5 terminada, 0.4.0), sin versión publicada.** Valida, firma y envía a SIFEN todos
+> **Estado: en desarrollo (fase 6 terminada, 0.5.0), sin versión publicada.** Valida, firma y envía a SIFEN todos
 > los documentos electrónicos (factura, autofactura, notas de crédito y de débito, nota de remisión, con transporte y
 > grupos sectoriales) y los 8 eventos que envía un contribuyente, con consultas que leen los eventos registrados.
 > Firma con el certificado en un archivo, en un token o HSM, o con un servicio de firma remota.
@@ -94,8 +94,7 @@ EventResult registered = client.sendEvents(List.of(events.sign(cancel, certifica
 |---|---|
 | `sifen-sdk-core` | Modelo de documentos, XML, validación, CDC, firma y QR. Funciona sin red. |
 | `sifen-sdk-client` | Web services de SIFEN: ambientes, TLS mutuo, resultados tipados. |
-| `sifen-sdk-calc` | Cálculo de referencia, opcional. El núcleo nunca lo invoca. |
-| `sifen-sdk-kude` | Representación gráfica (KuDE), opcional. |
+| `sifen-sdk-calc` | Cálculo de referencia, opcional: importes por ítem y totales. El núcleo nunca lo invoca. |
 | `sifen-sdk-testing` | SIFEN simulado y certificados sintéticos para tus pruebas. |
 | `sifen-sdk-bom` | Alinea las versiones de todos los módulos. |
 
@@ -118,7 +117,7 @@ La política de versiones y de soporte está en [docs/versiones-y-soporte.md](do
 | 3 | Cliente de web services → 0.2.0 | Hecha (sin publicar) |
 | 4 | Resto de documentos y todos los eventos → 0.3.0 | Hecha (sin publicar) |
 | 5 | Certificados en token, HSM y firma remota → 0.4.0 | Hecha (sin publicar) |
-| 6 | Cálculo opcional, KuDE y sitio de documentación → 0.5.0 | Pendiente |
+| 6 | Cálculo opcional y sitio de documentación → 0.5.0 | Hecha (sin publicar) |
 | 7 | Estabilización → 1.0.0 | Pendiente |
 
 ## Compilar

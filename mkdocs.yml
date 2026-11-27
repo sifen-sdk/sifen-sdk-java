@@ -1,0 +1,101 @@
+# Sitio de documentación (ADR 0013). Compilar: python3 scripts/referencia-reglas.py && mkdocs build --strict
+site_name: SIFEN SDK para Java
+site_description: SDK comunitario para integrar sistemas Java con SIFEN, la facturación electrónica de Paraguay.
+site_url: https://sifen-sdk.github.io/sifen-sdk-java/
+repo_url: https://github.com/sifen-sdk/sifen-sdk-java
+repo_name: sifen-sdk/sifen-sdk-java
+edit_uri: edit/main/docs/
+copyright: Proyecto comunitario, sin afiliación con la DNIT. Apache-2.0.
+
+docs_dir: docs
+exclude_docs: |
+  requirements.txt
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Modo oscuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Modo claro
+
+plugins:
+  - search:
+      lang: es
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+# Each rule page is generated from spec and linked from reglas/index.md; new spec files need no change here.
+not_in_nav: |
+  /reglas/*.md
+
+nav:
+  - Inicio: index.md
+  - Primeros pasos: primeros-pasos.md
+  - Guías:
+      - Documentos: guias/documentos.md
+      - Eventos: guias/eventos.md
+      - Envío y consultas: guias/envio-y-consultas.md
+      - Certificados en token, HSM y firma remota: claves-en-token-hsm-y-firma-remota.md
+      - KuDE: guias/kude.md
+      - Cálculo de referencia: guias/calculo.md
+      - Pruebas contra SIFEN: pruebas-contra-sifen.md
+  - Referencia de reglas: reglas/index.md
+  - Decisiones:
+      - adr/README.md
+      - adr/0001-java-17-un-artefacto-y-lineas-por-rama.md
+      - adr/0002-modulos-y-dependencias.md
+      - adr/0003-modelo-a-mano-con-nombres-en-ingles.md
+      - adr/0004-sin-estado-global.md
+      - adr/0005-xml-firmado-inmutable-y-etapas.md
+      - adr/0006-resultados-y-errores.md
+      - adr/0007-sin-reenvio-automatico.md
+      - adr/0008-material-de-claves-por-interfaz.md
+      - adr/0009-build-publicacion-y-licencia.md
+      - adr/0010-semantica-de-la-verificacion-aritmetica.md
+      - adr/0011-lo-que-completa-el-sdk.md
+      - adr/0012-claves-externas-y-proveedor-de-firma.md
+      - adr/0013-sitio-de-documentacion.md
+      - adr/0000-plantilla.md
+  - Versiones y soporte: versiones-y-soporte.md
+  - API (Javadoc): https://sifen-sdk.github.io/sifen-sdk-java/api/

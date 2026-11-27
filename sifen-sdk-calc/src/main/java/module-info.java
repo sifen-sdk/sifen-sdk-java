@@ -7,4 +7,6 @@
 module io.github.sifensdk.calc {
   requires transitive io.github.sifensdk.core;
   requires static org.jspecify;
+
+  exports io.github.sifensdk.calc;
 }

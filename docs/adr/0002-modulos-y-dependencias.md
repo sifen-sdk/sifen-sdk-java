@@ -13,7 +13,8 @@ integrador necesita todo: algunos solo generan y firman, otros no quieren PDF.
 - `sifen-sdk-core` (modelo, XML, validación, CDC, firma, QR; sin red) y `sifen-sdk-client` (web services) dependen
   solo del JDK: `java.net.http`, `java.xml.crypto`, SunPKCS11 y `System.Logger`. JSpecify se usa solo como
   anotaciones (`requires static`).
-- Lo opcional va en módulos aparte: `sifen-sdk-calc`, `sifen-sdk-kude` y `sifen-sdk-testing`.
+- Lo opcional va en módulos aparte: `sifen-sdk-calc` y `sifen-sdk-testing`. La representación gráfica (KuDE) no es
+  parte del SDK: su diseño es de cada empresa, y el SDK entrega lo que necesita (CDC, URL del QR y XML firmado).
 - Un BOM (`sifen-sdk-bom`) alinea las versiones; lista solo módulos propios.
 - Cada módulo es un módulo de Java (JPMS) que exporta solo su API pública.
 - Una prueba verifica que `core` no requiera nada fuera del JDK.

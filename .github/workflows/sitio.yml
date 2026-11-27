@@ -1,0 +1,89 @@
+name: Sitio
+
+# Sitio de documentación (ADR 0013): guías de docs/, referencia de reglas generada desde spec/ y Javadoc en /api/.
+# En los pull requests solo compila (un enlace roto falla); publica en GitHub Pages desde main.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "spec"
+      - "scripts/referencia-reglas.py"
+      - "sifen-sdk-*/src/main/**"
+      - ".github/workflows/sitio.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "spec"
+      - "scripts/referencia-reglas.py"
+      - "sifen-sdk-*/src/main/**"
+      - ".github/workflows/sitio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sitio-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Compilar el sitio
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - name: Instalar MkDocs (dependencias fijadas por hash)
+        run: python -m pip install --require-hashes -r docs/requirements.txt
+      - name: Generar la referencia de reglas
+        run: python scripts/referencia-reglas.py
+      - name: Compilar el sitio
+        run: mkdocs build --strict
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      # Sin los paquetes internos: core exporta internal.keys solo al cliente (ADR 0012), no es API pública.
+      - name: Generar el Javadoc de todos los módulos
+        run: ./mvnw -B -ntp -q -DskipTests -DexcludePackageNames='*.internal.*' javadoc:aggregate
+      - name: Agregar el Javadoc en /api/
+        run: |
+          test -f target/reports/apidocs/index.html
+          mkdir -p site/api
+          cp -R target/reports/apidocs/. site/api/
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: github.event_name != 'pull_request'
+        with:
+          path: site
+
+  deploy:
+    name: Publicar en GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

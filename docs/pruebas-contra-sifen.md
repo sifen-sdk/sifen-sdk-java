@@ -85,6 +85,11 @@ Los eventos se prueban igual con `LiveEventsTest` y `SIFEN_TEST_EVENTS=true`: em
 ellas envía cada evento (cancelación, inutilización de dos números, nominación de una factura innominada y los cuatro
 del receptor).
 
+Los importes del cálculo opcional se prueban con `LiveCalcTest` y `SIFEN_TEST_CALC=true`: envía facturas cuyos
+importes completó `sifen-sdk-calc`, en guaraníes (con descuentos, descuento global, anticipos, todas las afectaciones
+de IVA y el redondeo a 50) y en dólares (con un tipo de cambio global y con uno por ítem). El 2026-11-27 SIFEN aprobó
+las cuatro.
+
 Dos comportamientos intermitentes del ambiente de test, observados el 2026-11-27: la consulta de RUC respondió
 alguna vez 0160 ("XML mal formado") a un pedido correcto, y un evento sobre una factura aprobada segundos antes fue
 rechazado con 4152 ("CDC del DTE es inexistente"), aunque otro evento sobre esa misma factura se había registrado.
