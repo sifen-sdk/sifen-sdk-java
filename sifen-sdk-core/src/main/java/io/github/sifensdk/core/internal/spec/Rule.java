@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
  * @param sources official sources
  * @param validity validity
  * @param contradictions related contradiction ids
+ * @param discarded true when the specification records the rule as {@code descartada}: written by
+ *     the source, but SIFEN does not apply it (shown by an evidence file), so it is never verified
  */
 public record Rule(
     String id,
@@ -37,4 +39,5 @@ public record Rule(
     @Nullable String sifenCode,
     List<Source> sources,
     Validity validity,
-    List<String> contradictions) {}
+    List<String> contradictions,
+    boolean discarded) {}

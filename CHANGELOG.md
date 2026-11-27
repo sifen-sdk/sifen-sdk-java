@@ -7,7 +7,22 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+### Changed
+
+- Arithmetic checks follow what SIFEN does, verified against its test environment (evidence E-001 of the
+  specification): a value is accepted when it differs from the exact result by at most 0.5 in the unit of the field,
+  or by the rule's documented tolerance (0.8 in discount percentages) without adding the 0.5. Before, the SDK
+  allowed half a unit of the last reported decimal, stricter than SIFEN in foreign currency, and added the 0.5 to
+  the documented tolerance, more lenient than SIFEN in EA004.
+- The total VAT (F017) is verified with the field table's formula, as an error; the formula of validation 2371 is
+  no longer applied (C-502).
+- The per-item exchange rate is no longer required with a global exchange rate (C-303).
+- Rules the specification records as `descartada` are never evaluated.
+
 ### Added
+
+- `LiveArithmeticProbeTest`: sends one document per arithmetic rule to SIFEN's test environment, each with a single
+  amount off by a known delta, and reports SIFEN's answer. Local only, like the live test.
 
 - `SifenClient`: synchronous and batch reception, batch result, document and taxpayer queries, and
   event reception, with mutual TLS per issuer, typed results and the raw exchange. Never resends on its own.

@@ -66,7 +66,22 @@ herramientas ya descargadas.
 
 Los números de documento se derivan del minuto actual, así que cada corrida usa números nuevos del timbrado de test.
 
-## 3. Limpiar (opcional)
+## 3. Probar las fórmulas de importes (opcional)
+
+`LiveArithmeticProbeTest` envía al ambiente de test un documento por cada regla aritmética, cada uno con un solo
+importe desplazado en una cantidad conocida, e imprime qué respondió SIFEN. Sirve para comprobar que el SDK exige lo
+mismo que SIFEN; el último resultado está en la evidencia E-001 de `spec`. Envía más de cien documentos de a uno.
+
+```bash
+set -a; . ~/.config/sifen-sdk/test.env; set +a
+SIFEN_TEST_PROBE=true ./mvnw -o -B -ntp -pl sifen-sdk-client -am verify \
+  -Dtest=LiveArithmeticProbeTest -Dsurefire.failIfNoSpecifiedTests=false -Dsurefire.useFile=false
+```
+
+Con `SIFEN_TEST_PROBE_ONLY='<expresión regular>'` corre solo los casos cuyo nombre coincide (`nc` prueba el límite de
+las notas de crédito).
+
+## 4. Limpiar (opcional)
 
 ```bash
 scripts/borrar-credenciales-sifen.sh
