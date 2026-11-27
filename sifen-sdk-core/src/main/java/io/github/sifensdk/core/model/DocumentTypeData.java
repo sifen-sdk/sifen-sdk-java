@@ -21,12 +21,14 @@ import org.jspecify.annotations.Nullable;
 public final class DocumentTypeData {
 
   private final @Nullable Invoice invoice;
+  private final @Nullable SelfInvoice selfInvoice;
   private final @Nullable CreditDebitNote creditDebitNote;
   private final @Nullable OperationCondition operationCondition;
   private final List<Item> items;
 
   private DocumentTypeData(Builder b) {
     this.invoice = b.invoice;
+    this.selfInvoice = b.selfInvoice;
     this.creditDebitNote = b.creditDebitNote;
     this.operationCondition = b.operationCondition;
     this.items = List.copyOf(b.items);
@@ -60,6 +62,18 @@ public final class DocumentTypeData {
   @SifenField(id = "E010", xml = "gCamFE")
   public @Nullable Invoice invoice() {
     return invoice;
+  }
+
+  /**
+   * Campos que componen la Autofactura Electrónica.
+   *
+   * <p>SIFEN group {@code E300} ({@code gCamAE}).
+   *
+   * @return the value, or {@code null} if not informed
+   */
+  @SifenField(id = "E300", xml = "gCamAE")
+  public @Nullable SelfInvoice selfInvoice() {
+    return selfInvoice;
   }
 
   /**
@@ -114,6 +128,7 @@ public final class DocumentTypeData {
     }
     DocumentTypeData that = (DocumentTypeData) other;
     return Objects.equals(invoice, that.invoice)
+        && Objects.equals(selfInvoice, that.selfInvoice)
         && Objects.equals(creditDebitNote, that.creditDebitNote)
         && Objects.equals(operationCondition, that.operationCondition)
         && Objects.equals(items, that.items);
@@ -126,7 +141,7 @@ public final class DocumentTypeData {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(invoice, creditDebitNote, operationCondition, items);
+    return Objects.hash(invoice, selfInvoice, creditDebitNote, operationCondition, items);
   }
 
   /**
@@ -146,6 +161,7 @@ public final class DocumentTypeData {
   public static final class Builder {
 
     private @Nullable Invoice invoice;
+    private @Nullable SelfInvoice selfInvoice;
     private @Nullable CreditDebitNote creditDebitNote;
     private @Nullable OperationCondition operationCondition;
     private List<Item> items = new ArrayList<>();
@@ -154,6 +170,7 @@ public final class DocumentTypeData {
 
     private Builder(DocumentTypeData source) {
       this.invoice = source.invoice;
+      this.selfInvoice = source.selfInvoice;
       this.creditDebitNote = source.creditDebitNote;
       this.operationCondition = source.operationCondition;
       this.items = new ArrayList<>(source.items);
@@ -167,6 +184,17 @@ public final class DocumentTypeData {
      */
     public Builder invoice(@Nullable Invoice invoice) {
       this.invoice = invoice;
+      return this;
+    }
+
+    /**
+     * Sets {@code selfInvoice} (E300, {@code gCamAE}).
+     *
+     * @param selfInvoice the value, or {@code null} to leave it out
+     * @return this builder
+     */
+    public Builder selfInvoice(@Nullable SelfInvoice selfInvoice) {
+      this.selfInvoice = selfInvoice;
       return this;
     }
 

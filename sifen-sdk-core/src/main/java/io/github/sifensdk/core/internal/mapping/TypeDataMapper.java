@@ -11,6 +11,7 @@ import io.github.sifensdk.core.model.Invoice;
 import io.github.sifensdk.core.model.Item;
 import io.github.sifensdk.core.model.OperationCondition;
 import io.github.sifensdk.core.model.PublicProcurement;
+import io.github.sifensdk.core.model.SelfInvoice;
 
 /**
  * Maps the fields specific to each document type ({@code gDtipDE}, E001): the group of the type,
@@ -21,11 +22,13 @@ final class TypeDataMapper {
   private final Descriptions descriptions;
   private final ItemMapper items;
   private final ConditionMapper conditions;
+  private final SelfInvoiceMapper selfInvoices;
 
   TypeDataMapper(Descriptions descriptions) {
     this.descriptions = descriptions;
     this.items = new ItemMapper(descriptions);
     this.conditions = new ConditionMapper(descriptions);
+    this.selfInvoices = new SelfInvoiceMapper(descriptions);
   }
 
   Node documentTypeData(DocumentTypeData v) {
@@ -33,6 +36,10 @@ final class TypeDataMapper {
     Invoice invoice = v.invoice();
     if (invoice != null) {
       n.add(invoice(invoice));
+    }
+    SelfInvoice selfInvoice = v.selfInvoice();
+    if (selfInvoice != null) {
+      n.add(selfInvoices.selfInvoice(selfInvoice));
     }
     CreditDebitNote creditDebitNote = v.creditDebitNote();
     if (creditDebitNote != null) {

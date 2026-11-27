@@ -32,13 +32,12 @@ class ModelCoverageTest {
   /** Groups ({@code grupo} of {@code spec/campos/*.json}) covered: invoice and credit note. */
   private static final Set<String> GROUPS =
       Set.of(
-          "AA-A", "B", "C", "D", "D1", "D2", "D3", "E", "E1", "E5", "E7", "E8", "E8.1", "E8.2",
-          "E8.4", "E8.5", "F", "G", "H");
+          "AA-A", "B", "C", "D", "D1", "D2", "D3", "E", "E1", "E4", "E5", "E7", "E8", "E8.1",
+          "E8.2", "E8.4", "E8.5", "F", "G", "H");
 
   /** Group roots of {@code gDtipDE} left for a later version (phase 4), with all their fields. */
   private static final Map<String, String> OUT_OF_SCOPE =
       Map.of(
-          "E300", "E4 self-invoice",
           "E500", "E6 delivery note",
           "E790", "E9 sector-specific fields",
           "E900", "E10 transport");
@@ -129,7 +128,7 @@ class ModelCoverageTest {
   void groupTypesAreImmutableFinalClasses() {
     Set<Class<?>> types = new HashSet<>();
     walk(ElectronicDocument.class, types, new ArrayList<>(), new LinkedHashMap<>());
-    assertThat(types).hasSize(30);
+    assertThat(types).hasSize(31);
     for (Class<?> type : types) {
       assertThat(Modifier.isFinal(type.getModifiers())).as(type.getName()).isTrue();
       for (java.lang.reflect.Field f : type.getDeclaredFields()) {
