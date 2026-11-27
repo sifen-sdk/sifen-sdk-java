@@ -1,33 +1,32 @@
 # Pruebas contra el ambiente de test de SIFEN
 
-La prueba `LiveSifenTest` emite documentos reales en el **ambiente de test** de SIFEN: consulta el RUC del emisor,
-envía una factura por el servicio síncrono, otra por lote y, si se pide, espera y consulta el resultado del lote y
-el documento. Es lo único que confirma que el SDK funciona contra el SIFEN real (firma, TLS mutuo, formatos) y
-sirve para resolver las contradicciones abiertas de la especificación.
+La prueba `LiveSifenTest` emite documentos en el **ambiente de test** de SIFEN: consulta el RUC del emisor, envía
+una factura por el servicio síncrono, otra por lote y, si se pide, espera y consulta el resultado del lote y el
+documento. Confirma que el SDK funciona contra el SIFEN real (firma, TLS mutuo, formatos).
 
-## Seguridad
+No forma parte de la integración continua: necesita un certificado de firma, un timbrado y un CSC de test, que nunca
+van al repositorio. Se corre de forma local con tus propias credenciales de test.
 
-- Solo corre **a mano o una vez por semana, sobre `main`**, dentro del entorno protegido `sifen-test` de GitHub.
-  Nunca corre en pull requests, así que nadie puede leer los secretos desde un fork.
-- Los registros de Actions de un repositorio público **son públicos**. La prueba solo imprime estados, códigos y
-  mensajes de SIFEN; nunca certificados, claves, CSC ni el contenido de los documentos. No agregues impresiones.
-- Usá exclusivamente credenciales del **ambiente de test**. Nunca de producción.
+- La prueba solo apunta al ambiente de test (`Environment.TEST` está fijo en el código) y solo imprime estados,
+  códigos y mensajes de SIFEN.
+- Nunca pegues el certificado, su contraseña ni el CSC en un issue, un commit ni un registro.
 
-## Preparación (una vez)
+## 1. Configurar
 
-1. En GitHub: **Settings → Environments → New environment** → `sifen-test`. Recomendado: en "Deployment
-   branches" elegí `main` solamente y agregate como revisor obligatorio.
-2. En ese entorno, cargá estos **secretos**:
+Guardá el certificado y dos archivos de configuración fuera del repositorio, por ejemplo en `~/.config/sifen-sdk/`.
 
-| Secreto | Contenido |
-|---|---|
-| `SIFEN_TEST_P12_BASE64` | El certificado `.p12` del emisor en Base64 (`base64 -w0 certificado.p12`) |
-| `SIFEN_TEST_P12_PASSWORD` | Su contraseña |
-| `SIFEN_TEST_CSC_ID` | El id del CSC de test (por ejemplo `0001`) |
-| `SIFEN_TEST_CSC` | El CSC de test |
-| `SIFEN_TEST_ISSUER` | Los datos del emisor en formato `clave=valor`, uno por línea (ver abajo) |
+`~/.config/sifen-sdk/test.env`:
 
-`SIFEN_TEST_ISSUER`, con los datos tal como figuran en el RUC y el timbrado de test:
+```bash
+SIFEN_TEST_P12_PATH=$HOME/.config/sifen-sdk/certificado.p12
+SIFEN_TEST_P12_PASSWORD='la contraseña del .p12'
+SIFEN_TEST_CSC_ID=0001
+SIFEN_TEST_CSC='el CSC de test'
+SIFEN_TEST_ISSUER_FILE=$HOME/.config/sifen-sdk/emisor.properties
+SIFEN_TEST_WAIT=true
+```
+
+`~/.config/sifen-sdk/emisor.properties`, con los datos tal como figuran en el RUC y el timbrado de test:
 
 ```properties
 ruc=80000000
@@ -48,15 +47,29 @@ actividad=62010
 actividadDescripcion=Descripción de la actividad tal como figura en el RUC
 ```
 
+Después: `chmod 600 ~/.config/sifen-sdk/*`. El script se niega a correr si algún archivo lo pueden leer otros
+usuarios o si está dentro del repositorio.
+
 `tipoContribuyente`: 1 persona física, 2 persona jurídica. Departamento, distrito y ciudad son los códigos de la
-tabla geográfica de SIFEN. El nombre del emisor no se configura: en test SIFEN exige un literal fijo, que el SDK
-pone.
+tabla geográfica de SIFEN. El nombre del emisor no se configura: en test SIFEN exige un literal fijo, que pone la
+prueba.
 
-## Correrla
+## 2. Correr la prueba
 
-- **Desde GitHub:** Actions → *SIFEN test environment* → *Run workflow* (con "Wait" marcado, tarda unos 12
-  minutos).
-- **En tu máquina:** exportá las mismas variables de entorno y ejecutá
-  `./mvnw -pl sifen-sdk-client -am verify -Dtest=LiveSifenTest -Dsurefire.failIfNoSpecifiedTests=false`.
+```bash
+scripts/prueba-sifen-local.sh
+```
+
+Con `SIFEN_TEST_WAIT=true` tarda unos 12 minutos (espera lo que pide la Guía de mejores prácticas antes de consultar
+el lote). Maven corre sin conexión (`-o`), así que mientras las credenciales están cargadas solo se ejecutan
+herramientas ya descargadas.
 
 Los números de documento se derivan del minuto actual, así que cada corrida usa números nuevos del timbrado de test.
+
+## 3. Limpiar (opcional)
+
+```bash
+scripts/borrar-credenciales-sifen.sh
+```
+
+Sobrescribe y borra los archivos de `~/.config/sifen-sdk/` y los reportes de la prueba.

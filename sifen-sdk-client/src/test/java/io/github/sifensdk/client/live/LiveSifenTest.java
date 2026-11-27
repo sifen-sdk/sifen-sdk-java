@@ -39,8 +39,12 @@ import io.github.sifensdk.core.signing.KeyMaterials;
 import io.github.sifensdk.core.signing.SignedDocument;
 import io.github.sifensdk.core.validation.ValidationResult;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -56,12 +60,11 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 /**
  * End to end against the real SIFEN test environment.
  *
- * <p>Runs only when the credentials are present (see {@code docs/pruebas-contra-sifen.md}); in CI,
- * only in the protected {@code sifen-test} environment. It never prints secrets nor document
- * contents: only states, codes and SIFEN's messages, because CI logs of a public repository are
- * public.
+ * <p>Runs only when the credentials are present, locally with {@code scripts/prueba-sifen-local.sh}
+ * (see {@code docs/pruebas-contra-sifen.md}). It never prints secrets nor document contents: only
+ * states, codes and SIFEN's messages.
  */
-@EnabledIfEnvironmentVariable(named = "SIFEN_TEST_P12_BASE64", matches = ".+")
+@EnabledIfEnvironmentVariable(named = "SIFEN_TEST_CSC", matches = ".+")
 class LiveSifenTest {
 
   private static final BigDecimal PRICE = new BigDecimal("11000");
@@ -69,11 +72,21 @@ class LiveSifenTest {
   @Test
   void issuesAnInvoiceInTheTestEnvironment() throws IOException, InterruptedException {
     Properties issuerData = new Properties();
-    issuerData.load(new StringReader(env("SIFEN_TEST_ISSUER")));
+    String issuerFile = System.getenv("SIFEN_TEST_ISSUER_FILE");
+    if (issuerFile != null && !issuerFile.isBlank()) {
+      try (Reader reader = Files.newBufferedReader(Path.of(issuerFile), StandardCharsets.UTF_8)) {
+        issuerData.load(reader);
+      }
+    } else {
+      issuerData.load(new StringReader(env("SIFEN_TEST_ISSUER")));
+    }
+    char[] password = env("SIFEN_TEST_P12_PASSWORD").toCharArray();
+    String p12File = System.getenv("SIFEN_TEST_P12_PATH");
     KeyMaterial key =
-        KeyMaterials.pkcs12(
-            Base64.getMimeDecoder().decode(env("SIFEN_TEST_P12_BASE64")),
-            env("SIFEN_TEST_P12_PASSWORD").toCharArray());
+        p12File != null && !p12File.isBlank()
+            ? KeyMaterials.pkcs12(Path.of(p12File), password)
+            : KeyMaterials.pkcs12(
+                Base64.getMimeDecoder().decode(env("SIFEN_TEST_P12_BASE64")), password);
     Csc csc = Csc.of(env("SIFEN_TEST_CSC_ID"), env("SIFEN_TEST_CSC").toCharArray());
 
     SifenDocuments documents = SifenDocuments.builder().environment(Environment.TEST).build();
