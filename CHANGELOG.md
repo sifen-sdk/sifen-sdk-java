@@ -7,6 +7,19 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+### Added (phase 4)
+
+- `SifenEvents`: validates and signs the eight events a taxpayer sends (cancellation, number invalidation,
+  nomination, transport update, receipt notification, conformity, disconformity and non-recognition), with an
+  event model (`Event`, `EventDetail`) and `SignedEvent`. Verified against SIFEN's test environment.
+- `LiveEventsTest`: sends each event to SIFEN's test environment on documents it issues first. Local only.
+
+### Changed (phase 4)
+
+- `SifenClient.sendEvents` takes `SignedEvent`s instead of raw bytes.
+- The event request declares `xsi:schemaLocation` on `gGroupGesEve`: without it SIFEN answers 0160.
+- The rule engine evaluates a profile (the electronic document or the events) instead of assuming `rDE`.
+
 ### Changed
 
 - Arithmetic checks follow what SIFEN does, verified against its test environment (evidence E-001 of the

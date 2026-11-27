@@ -34,6 +34,16 @@ public final class Events {
   public static final int MAX_EVENTS = 15;
 
   /**
+   * Start of {@code gGroupGesEve}. SIFEN's test environment answers 0160 ("XML mal formado") to an
+   * event request whose {@code gGroupGesEve} has no {@code xsi:schemaLocation}, although the XSD
+   * does not require it, and registers the same signed event when it has one (specification
+   * evidence E-002, 2026-11-27).
+   */
+  static final String GROUP_START =
+      "<gGroupGesEve xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+          + " xsi:schemaLocation=\"http://ekuatia.set.gov.py/sifen/xsd siRecepEvento_v150.xsd\">";
+
+  /**
    * Maximum size of the request message, in bytes: 1000 KB (MT150 12.3.6, code 0560), with KB read
    * as 1000 bytes, the stricter reading.
    */
@@ -78,7 +88,8 @@ public final class Events {
                 + Soap.SIFEN_NS
                 + "\"><dId>"
                 + Soap.escape(requestId)
-                + "</dId><dEvReg><gGroupGesEve>")
+                + "</dId><dEvReg>"
+                + GROUP_START)
             .getBytes(StandardCharsets.UTF_8));
     for (int i = 0; i < signedEvents.size(); i++) {
       byte[] event =

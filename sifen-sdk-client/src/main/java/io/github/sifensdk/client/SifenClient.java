@@ -12,12 +12,14 @@ import io.github.sifensdk.client.internal.Transport;
 import io.github.sifensdk.core.Environment;
 import io.github.sifensdk.core.signing.KeyMaterial;
 import io.github.sifensdk.core.signing.SignedDocument;
+import io.github.sifensdk.core.signing.SignedEvent;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -149,17 +151,23 @@ public final class SifenClient {
   }
 
   /**
-   * Sends up to 15 signed events ({@code siRecepEvento}).
+   * Sends up to 15 signed events ({@code siRecepEvento}), exactly as they were signed (ADR-0005).
+   * Sign them with {@code SifenEvents}; an event signed elsewhere can be wrapped with {@link
+   * SignedEvent#of}.
    *
-   * @param signedEvents each signed event exactly as signed: the {@code rGesEve} element, with its
-   *     {@code rEve} and its {@code Signature}
-   * @return the outcome of each event
+   * @param signedEvents the signed events ({@code rGesEve}, each with its {@code rEve} and its
+   *     {@code Signature})
+   * @return the outcome of each event, by event identifier
    * @throws IllegalArgumentException if more events than SIFEN admits are given
    * @throws TransportException if SIFEN could not be reached
    * @throws ProtocolException if SIFEN's answer is not a valid response
    */
-  public EventResult sendEvents(List<byte[]> signedEvents) {
-    return Events.send(transport, List.copyOf(signedEvents));
+  public EventResult sendEvents(List<SignedEvent> signedEvents) {
+    List<byte[]> xml = new ArrayList<>(signedEvents.size());
+    for (SignedEvent e : signedEvents) {
+      xml.add(Objects.requireNonNull(e, "signedEvents element").xml());
+    }
+    return Events.send(transport, xml);
   }
 
   /** Builder of {@link SifenClient}. */

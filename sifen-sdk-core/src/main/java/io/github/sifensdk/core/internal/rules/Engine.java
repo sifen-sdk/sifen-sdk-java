@@ -146,6 +146,11 @@ final class Engine {
       if (f == null || f.parent() == null) {
         continue;
       }
+      Field parent = fields.get(f.parent());
+      if (parent != null && xsd.elementAttributes().contains(parent.xml() + "@" + f.xml())) {
+        attrs.put(f.parent() + "@" + f.xml(), id);
+        continue;
+      }
       if (xsd.elements().contains(f.xml())) {
         continue;
       }

@@ -87,6 +87,8 @@ public final class SchemaValidator {
   /** The wrapper schema that declares a global {@code DE} element of the official type. */
   static final String DE_WRAPPER = "/io/github/sifensdk/core/xml/DE_elemento_v150.xsd";
 
+  static final String EVENT_WRAPPER = "/io/github/sifensdk/core/xml/Evento_elemento_v150.xsd";
+
   private static final String RULE_ID = "XSD";
   private static final String CURRENT_ELEMENT_NODE =
       "http://apache.org/xml/properties/dom/current-element-node";
@@ -130,6 +132,58 @@ public final class SchemaValidator {
       return issues;
     }
     validate(DocumentSchema.SCHEMA, de, issues);
+    return issues;
+  }
+
+  /**
+   * Validates an unsigned event: its {@code rEve} element against {@code Evento_v150.xsd} (through
+   * the SDK's wrapper schema), without network access.
+   *
+   * @param unsignedEvent UTF-8 bytes of an {@code rGesEve} without {@code Signature}, or of its
+   *     {@code rEve}
+   * @return the issues found, empty if valid
+   */
+  public static List<ValidationIssue> validateEvent(byte[] unsignedEvent) {
+    List<ValidationIssue> issues = new ArrayList<>();
+    Document document = parse(unsignedEvent, issues);
+    if (document == null) {
+      return issues;
+    }
+    Element root = document.getDocumentElement();
+    Element rEve = null;
+    if (XmlWriter.SIFEN_NAMESPACE.equals(root.getNamespaceURI())) {
+      if ("rEve".equals(root.getLocalName())) {
+        rEve = root;
+      } else if ("rGesEve".equals(root.getLocalName())) {
+        rEve = firstChild(root, "rEve");
+      }
+    }
+    if (rEve == null) {
+      issues.add(
+          issue(
+              pathOf(root),
+              root.getLocalName(),
+              "Element rEve in namespace " + XmlWriter.SIFEN_NAMESPACE + " not found"));
+      return issues;
+    }
+    validate(EventSchema.SCHEMA, rEve, issues);
+    return issues;
+  }
+
+  /**
+   * Validates a signed event ({@code rGesEve}, with {@code ds:Signature}) against {@code
+   * Evento_v150.xsd}.
+   *
+   * @param signedEvent UTF-8 bytes of the signed {@code rGesEve}
+   * @return the issues found, empty if valid
+   */
+  public static List<ValidationIssue> validateSignedEvent(byte[] signedEvent) {
+    List<ValidationIssue> issues = new ArrayList<>();
+    Document document = parse(signedEvent, issues);
+    if (document == null) {
+      return issues;
+    }
+    validate(EventSchema.SCHEMA, document.getDocumentElement(), issues);
     return issues;
   }
 
@@ -492,6 +546,11 @@ public final class SchemaValidator {
 
   private static final class DocumentSchema {
     static final Schema SCHEMA = compile(DE_WRAPPER, "urn:io.github.sifensdk:xsd:DE_elemento_v150");
+  }
+
+  private static final class EventSchema {
+    static final Schema SCHEMA =
+        compile(EVENT_WRAPPER, "urn:io.github.sifensdk:xsd:Evento_elemento_v150");
   }
 
   private static final class SignedSchema {

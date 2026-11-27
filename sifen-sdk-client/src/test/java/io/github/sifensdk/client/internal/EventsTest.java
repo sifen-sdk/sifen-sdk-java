@@ -90,6 +90,9 @@ class EventsTest {
     assertThat(body.getLocalName()).isEqualTo("rEnviEventoDe");
     Element group = Soap.descendant(body, "gGroupGesEve");
     assertThat(group).isNotNull();
+    // Evidence E-002: without xsi:schemaLocation SIFEN answers 0160.
+    assertThat(group.getAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
+        .isEqualTo("http://ekuatia.set.gov.py/sifen/xsd siRecepEvento_v150.xsd");
     assertThat(Soap.children(group, "rGesEve")).hasSize(2);
   }
 
