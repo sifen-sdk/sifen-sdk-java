@@ -11,6 +11,7 @@ import io.github.sifensdk.core.internal.spec.Rule;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +91,10 @@ final class ValueChecks {
     // C-402: compared with the estimated transfer start E909.
     m.put(
         "R-E910-D1", dateNotBefore("E910", "E909", "Must not be before the transfer start (E909)"));
+    // MT150 2604: the month of the estimated invoice date must not be after the issue month.
+    m.put(
+        "R-E506-D1",
+        monthNotAfter("E506", "D002", "Its month must not be after the issue month (D002)"));
     m.put("R-E752-F1", date());
     m.put("R-H011-F1", date());
 
@@ -320,6 +325,16 @@ final class ValueChecks {
       LocalDate v = dateOf(e, t, fieldId);
       LocalDate limit = dateOf(e, t, limitId);
       return v == null || limit == null || !v.isBefore(limit) ? null : message;
+    };
+  }
+
+  private static Check monthNotAfter(String fieldId, String limitId, String message) {
+    return (e, r, t) -> {
+      LocalDate v = dateOf(e, t, fieldId);
+      LocalDate limit = dateOf(e, t, limitId);
+      return v == null || limit == null || !YearMonth.from(v).isAfter(YearMonth.from(limit))
+          ? null
+          : message;
     };
   }
 

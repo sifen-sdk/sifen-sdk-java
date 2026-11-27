@@ -13,6 +13,15 @@ what that means before 1.0).
   nomination, transport update, receipt notification, conformity, disconformity and non-recognition), with an
   event model (`Event`, `EventDetail`) and `SignedEvent`. Verified against SIFEN's test environment.
 - `LiveEventsTest`: sends each event to SIFEN's test environment on documents it issues first. Local only.
+- Self-invoice (C002 = 4, group E4) and debit note (C002 = 6).
+- Delivery note (C002 = 7, group E6) and transport (group E10, also in invoices).
+- Sector-specific groups (E9): electricity, insurance and policies, supermarkets, additional commercial data.
+- `LiveDocumentsTest`: sends one document of each new type and group, and a transport update event, to SIFEN's
+  test environment. Local only. All were approved.
+
+- `DocumentQuery` reads the document's transaction number (`authorizationProtocol`) and the events registered on
+  it (`events`, as `QueriedEvent` with an `EventType`), including the ones the SET registers. Verified against
+  SIFEN's test environment, which returns the content without the `rContDe` root the XSD describes.
 
 ### Changed (phase 4)
 

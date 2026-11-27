@@ -156,6 +156,18 @@ class LiveEventsTest {
             .receiverCheckDigit(p.getProperty("dv"))
             .receiverName(TEST_NAME)
             .build());
+    // The document query lists the events registered on the document.
+    Thread.sleep(5000);
+    io.github.sifensdk.client.DocumentQuery q = client.queryDocument(forReceipt);
+    System.out.println(
+        "EVENTO consulta: encontrado="
+            + q.found()
+            + " protocolo="
+            + (q.authorizationProtocol() != null)
+            + " eventos="
+            + q.events().stream()
+                .map(e -> e.type() + "/" + e.status() + "/" + !e.xml().isEmpty())
+                .collect(Collectors.joining(",")));
     // Two numbers far from the ones the other tests use.
     long start = (number + 3_000_000L) % 9_000_000L + 500_000L;
     send(
