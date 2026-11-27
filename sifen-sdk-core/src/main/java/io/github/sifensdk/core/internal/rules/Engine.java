@@ -25,23 +25,42 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The specification prepared for evaluation: rules of the electronic document, the fields they
- * apply to, catalogs indexed by code and the Java checks registered by rule id.
+ * The specification prepared for evaluation of one kind of tree (a {@link Profile}): its rules, the
+ * fields they apply to, catalogs indexed by code and the Java checks registered by rule id.
  *
  * <p>Immutable and thread-safe once built. Everything that depends on the environment, the date or
  * the document is computed per evaluation in {@link Evaluation}.
  */
 final class Engine {
 
-  /** Root of the electronic document tree ({@code rDE}). */
-  static final String ROOT = "AA001";
-
   /**
-   * Groups added by the signer ({@code ds:Signature}, I001, and {@code gCamFuFD}, J001): they are
-   * not in the tree the rule engine evaluates (contract of the mapper), so their rules do not apply
-   * at this stage; the signed document is validated against the XSD instead.
+   * What an engine evaluates: the root field of the tree, the groups under it that the signer adds
+   * (not in the tree the mapper produces, so their rules do not apply at this stage; the signed XML
+   * is validated against the XSD instead), and the schemas that declare its elements.
+   *
+   * @param root field id of the root
+   * @param rootElement XML name of the root
+   * @param signerGroups field ids of groups added by the signer
+   * @param schemas bundled XSD files of the tree
    */
-  static final Set<String> SIGNER_GROUPS = Set.of("I001", "J001");
+  record Profile(String root, String rootElement, Set<String> signerGroups, List<String> schemas) {
+
+    /**
+     * The electronic document: {@code rDE} (AA001), without {@code ds:Signature} (I001) and {@code
+     * gCamFuFD} (J001).
+     */
+    static final Profile DOCUMENT =
+        new Profile(
+            "AA001", "rDE", Set.of("I001", "J001"), List.of("DE_v150.xsd", "DE_Types_v150.xsd"));
+
+    /** The events: {@code rGesEve} (GDE001), without {@code ds:Signature} (GDE008). */
+    static final Profile EVENT =
+        new Profile(
+            "GDE001",
+            "rGesEve",
+            Set.of("GDE008"),
+            List.of("Evento_v150.xsd", "Evento_Types_v150.xsd"));
+  }
 
   /**
    * Rules reported as warnings unless configured otherwise, each by a decision of the
@@ -92,16 +111,30 @@ final class Engine {
       Map<String, Catalog> catalogs,
       XsdNames xsd,
       Map<String, Check> registeredChecks) {
+    this(Profile.DOCUMENT, fields, allRules, catalogs, xsd, registeredChecks);
+  }
+
+  Engine(
+      Profile profile,
+      Map<String, Field> fields,
+      List<Rule> allRules,
+      Map<String, Catalog> catalogs,
+      XsdNames xsd,
+      Map<String, Check> registeredChecks) {
     this.fields = Map.copyOf(fields);
     this.catalogs = Map.copyOf(catalogs);
 
+    // A field belongs to the tree when the root is among its ancestors (or is the field); its
+    // chain is cut at the root, so fields above it (the web service envelope) are not part of it.
     Map<String, List<String>> chainMap = new HashMap<>();
     for (Field f : fields.values()) {
       List<String> chain = chainOf(fields, f.id());
-      if (!chain.isEmpty()
-          && chain.get(chain.size() - 1).equals(ROOT)
-          && Collections.disjoint(chain, SIGNER_GROUPS)) {
-        chainMap.put(f.id(), List.copyOf(chain));
+      int root = chain.indexOf(profile.root());
+      if (root >= 0) {
+        List<String> inTree = chain.subList(0, root + 1);
+        if (Collections.disjoint(inTree, profile.signerGroups())) {
+          chainMap.put(f.id(), List.copyOf(inTree));
+        }
       }
     }
     this.chains = Map.copyOf(chainMap);
@@ -180,19 +213,34 @@ final class Engine {
     this.checks = Map.copyOf(all);
   }
 
-  /** The engine for the specification bundled in the core. */
+  /** The engine of the electronic document for the specification bundled in the core. */
   static Engine bundled() {
-    return Holder.INSTANCE;
+    return DocumentHolder.INSTANCE;
   }
 
-  private static final class Holder {
-    static final Engine INSTANCE = fromSpec(Spec.bundled(), XsdNames.bundled());
+  /** The engine of the events for the specification bundled in the core. */
+  static Engine bundledEvents() {
+    return EventHolder.INSTANCE;
   }
 
-  static Engine fromSpec(Spec spec, XsdNames xsd) {
+  private static final class DocumentHolder {
+    static final Engine INSTANCE = fromSpec(Profile.DOCUMENT, Spec.bundled());
+  }
+
+  private static final class EventHolder {
+    static final Engine INSTANCE = fromSpec(Profile.EVENT, Spec.bundled());
+  }
+
+  static Engine fromSpec(Profile profile, Spec spec) {
     Map<String, Check> registered = new HashMap<>(ValueChecks.all());
     registered.putAll(ArithmeticChecks.all());
-    return new Engine(spec.fields(), spec.rules(), spec.catalogs(), xsd, registered);
+    return new Engine(
+        profile,
+        spec.fields(),
+        spec.rules(),
+        spec.catalogs(),
+        XsdNames.bundled(profile),
+        registered);
   }
 
   ValidationResult evaluate(
@@ -245,7 +293,7 @@ final class Engine {
     return elementFieldId == null ? null : attributeFields.get(elementFieldId + "@" + attribute);
   }
 
-  /** Whether a field belongs to the evaluated tree (descendant of rDE, outside signer groups). */
+  /** Whether a field belongs to the evaluated tree (under the root, outside signer groups). */
   boolean inTree(String fieldId) {
     return chains.containsKey(fieldId);
   }
