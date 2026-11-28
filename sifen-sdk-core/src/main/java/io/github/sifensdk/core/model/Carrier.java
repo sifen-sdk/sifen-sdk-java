@@ -4,7 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CarrierNature;
+import io.github.sifensdk.core.catalog.IdDocumentType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -88,6 +91,15 @@ public final class Carrier {
   }
 
   /**
+   * Returns {@link #natureCode()} (E981) as {@link CarrierNature}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CarrierNature> nature() {
+    return CarrierNature.fromCode(natureCode);
+  }
+
+  /**
    * Nombre o razón social del transportista.
    *
    * <p>SIFEN field {@code E982} ({@code dNomTrans}).
@@ -133,6 +145,17 @@ public final class Carrier {
   @SifenField(id = "E985", xml = "iTipIDTrans")
   public @Nullable String idDocumentTypeCode() {
     return idDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #idDocumentTypeCode()} (E985) as {@link IdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<IdDocumentType> idDocumentType() {
+    return idDocumentTypeCode == null
+        ? Optional.empty()
+        : IdDocumentType.fromCode(idDocumentTypeCode);
   }
 
   /**
@@ -413,6 +436,17 @@ public final class Carrier {
     }
 
     /**
+     * Sets {@code natureCode} (E981, {@code iNatTrans}) from {@link CarrierNature}.
+     *
+     * @param nature the catalog constant
+     * @return this builder
+     */
+    public Builder nature(CarrierNature nature) {
+      this.natureCode = nature.code();
+      return this;
+    }
+
+    /**
      * Sets {@code name} (E982, {@code dNomTrans}).
      *
      * @param name the value
@@ -453,6 +487,17 @@ public final class Carrier {
      */
     public Builder idDocumentTypeCode(@Nullable String idDocumentTypeCode) {
       this.idDocumentTypeCode = idDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code idDocumentTypeCode} (E985, {@code iTipIDTrans}) from {@link IdDocumentType}.
+     *
+     * @param idDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder idDocumentType(@Nullable IdDocumentType idDocumentType) {
+      this.idDocumentTypeCode = idDocumentType == null ? null : idDocumentType.code();
       return this;
     }
 

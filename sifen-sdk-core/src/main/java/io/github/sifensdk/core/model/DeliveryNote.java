@@ -4,9 +4,12 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.DeliveryNoteIssuer;
+import io.github.sifensdk.core.catalog.DeliveryNoteReason;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -71,6 +74,15 @@ public final class DeliveryNote {
   }
 
   /**
+   * Returns {@link #reasonCode()} (E501) as {@link DeliveryNoteReason}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<DeliveryNoteReason> reason() {
+    return DeliveryNoteReason.fromCode(reasonCode);
+  }
+
+  /**
    * Descripción del motivo de emisión.
    *
    * <p>SIFEN field {@code E502} ({@code dDesMotEmiNR}).
@@ -96,6 +108,15 @@ public final class DeliveryNote {
   @SifenField(id = "E503", xml = "iRespEmiNR")
   public String responsibleCode() {
     return responsibleCode;
+  }
+
+  /**
+   * Returns {@link #responsibleCode()} (E503) as {@link DeliveryNoteIssuer}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<DeliveryNoteIssuer> responsible() {
+    return DeliveryNoteIssuer.fromCode(responsibleCode);
   }
 
   /**
@@ -238,6 +259,17 @@ public final class DeliveryNote {
     }
 
     /**
+     * Sets {@code reasonCode} (E501, {@code iMotEmiNR}) from {@link DeliveryNoteReason}.
+     *
+     * @param reason the catalog constant
+     * @return this builder
+     */
+    public Builder reason(DeliveryNoteReason reason) {
+      this.reasonCode = reason.code();
+      return this;
+    }
+
+    /**
      * Sets {@code reasonDescription} (E502, {@code dDesMotEmiNR}).
      *
      * @param reasonDescription the value, or {@code null} to leave it out
@@ -256,6 +288,17 @@ public final class DeliveryNote {
      */
     public Builder responsibleCode(String responsibleCode) {
       this.responsibleCode = responsibleCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code responsibleCode} (E503, {@code iRespEmiNR}) from {@link DeliveryNoteIssuer}.
+     *
+     * @param responsible the catalog constant
+     * @return this builder
+     */
+    public Builder responsible(DeliveryNoteIssuer responsible) {
+      this.responsibleCode = responsible.code();
       return this;
     }
 

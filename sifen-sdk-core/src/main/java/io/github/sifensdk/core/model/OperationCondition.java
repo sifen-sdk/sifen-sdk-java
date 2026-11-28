@@ -4,9 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.PaymentCondition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -60,6 +62,15 @@ public final class OperationCondition {
   @SifenField(id = "E601", xml = "iCondOpe")
   public String conditionCode() {
     return conditionCode;
+  }
+
+  /**
+   * Returns {@link #conditionCode()} (E601) as {@link PaymentCondition}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<PaymentCondition> condition() {
+    return PaymentCondition.fromCode(conditionCode);
   }
 
   /**
@@ -171,6 +182,17 @@ public final class OperationCondition {
      */
     public Builder conditionCode(String conditionCode) {
       this.conditionCode = conditionCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code conditionCode} (E601, {@code iCondOpe}) from {@link PaymentCondition}.
+     *
+     * @param condition the catalog constant
+     * @return this builder
+     */
+    public Builder condition(PaymentCondition condition) {
+      this.conditionCode = condition.code();
       return this;
     }
 

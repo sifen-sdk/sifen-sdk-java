@@ -4,7 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CardBrand;
+import io.github.sifensdk.core.catalog.CardProcessingMethod;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -72,6 +75,15 @@ public final class CardPayment {
   }
 
   /**
+   * Returns {@link #brandCode()} (E621) as {@link CardBrand}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CardBrand> brand() {
+    return CardBrand.fromCode(brandCode);
+  }
+
+  /**
    * Descripción de denominación de la tarjeta.
    *
    * <p>SIFEN field {@code E622} ({@code dDesDenTarj}).
@@ -133,6 +145,15 @@ public final class CardPayment {
   @SifenField(id = "E626", xml = "iForProPa")
   public String processingMethodCode() {
     return processingMethodCode;
+  }
+
+  /**
+   * Returns {@link #processingMethodCode()} (E626) as {@link CardProcessingMethod}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CardProcessingMethod> processingMethod() {
+    return CardProcessingMethod.fromCode(processingMethodCode);
   }
 
   /**
@@ -267,6 +288,17 @@ public final class CardPayment {
     }
 
     /**
+     * Sets {@code brandCode} (E621, {@code iDenTarj}) from {@link CardBrand}.
+     *
+     * @param brand the catalog constant
+     * @return this builder
+     */
+    public Builder brand(CardBrand brand) {
+      this.brandCode = brand.code();
+      return this;
+    }
+
+    /**
      * Sets {@code brandDescription} (E622, {@code dDesDenTarj}).
      *
      * @param brandDescription the value, or {@code null} to leave it out
@@ -318,6 +350,18 @@ public final class CardPayment {
      */
     public Builder processingMethodCode(String processingMethodCode) {
       this.processingMethodCode = processingMethodCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code processingMethodCode} (E626, {@code iForProPa}) from {@link
+     * CardProcessingMethod}.
+     *
+     * @param processingMethod the catalog constant
+     * @return this builder
+     */
+    public Builder processingMethod(CardProcessingMethod processingMethod) {
+      this.processingMethodCode = processingMethod.code();
       return this;
     }
 

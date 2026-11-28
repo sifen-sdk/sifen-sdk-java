@@ -4,9 +4,13 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.Department;
+import io.github.sifensdk.core.catalog.RegimeType;
+import io.github.sifensdk.core.catalog.TaxpayerType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -122,6 +126,15 @@ public final class Issuer {
   }
 
   /**
+   * Returns {@link #taxpayerTypeCode()} (D103) as {@link TaxpayerType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TaxpayerType> taxpayerType() {
+    return TaxpayerType.fromCode(taxpayerTypeCode);
+  }
+
+  /**
    * Tipo de régimen.
    *
    * <p>SIFEN field {@code D104} ({@code cTipReg}).
@@ -131,6 +144,15 @@ public final class Issuer {
   @SifenField(id = "D104", xml = "cTipReg")
   public @Nullable String regimeTypeCode() {
     return regimeTypeCode;
+  }
+
+  /**
+   * Returns {@link #regimeTypeCode()} (D104) as {@link RegimeType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<RegimeType> regimeType() {
+    return regimeTypeCode == null ? Optional.empty() : RegimeType.fromCode(regimeTypeCode);
   }
 
   /**
@@ -215,6 +237,15 @@ public final class Issuer {
   @SifenField(id = "D111", xml = "cDepEmi")
   public String departmentCode() {
     return departmentCode;
+  }
+
+  /**
+   * Returns {@link #departmentCode()} (D111) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> department() {
+    return Department.fromCode(departmentCode);
   }
 
   /**
@@ -513,6 +544,17 @@ public final class Issuer {
     }
 
     /**
+     * Sets {@code taxpayerTypeCode} (D103, {@code iTipCont}) from {@link TaxpayerType}.
+     *
+     * @param taxpayerType the catalog constant
+     * @return this builder
+     */
+    public Builder taxpayerType(TaxpayerType taxpayerType) {
+      this.taxpayerTypeCode = taxpayerType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code regimeTypeCode} (D104, {@code cTipReg}).
      *
      * @param regimeTypeCode the value, or {@code null} to leave it out
@@ -520,6 +562,17 @@ public final class Issuer {
      */
     public Builder regimeTypeCode(@Nullable String regimeTypeCode) {
       this.regimeTypeCode = regimeTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code regimeTypeCode} (D104, {@code cTipReg}) from {@link RegimeType}.
+     *
+     * @param regimeType the catalog constant
+     * @return this builder
+     */
+    public Builder regimeType(@Nullable RegimeType regimeType) {
+      this.regimeTypeCode = regimeType == null ? null : regimeType.code();
       return this;
     }
 
@@ -597,6 +650,17 @@ public final class Issuer {
      */
     public Builder departmentCode(String departmentCode) {
       this.departmentCode = departmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code departmentCode} (D111, {@code cDepEmi}) from {@link Department}.
+     *
+     * @param department the catalog constant
+     * @return this builder
+     */
+    public Builder department(Department department) {
+      this.departmentCode = department.code();
       return this;
     }
 

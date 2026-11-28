@@ -4,8 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.FuelType;
+import io.github.sifensdk.core.catalog.VehicleSaleType;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -83,6 +86,17 @@ public final class NewVehicle {
   @SifenField(id = "E771", xml = "iTipOpVN")
   public @Nullable String saleOperationTypeCode() {
     return saleOperationTypeCode;
+  }
+
+  /**
+   * Returns {@link #saleOperationTypeCode()} (E771) as {@link VehicleSaleType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<VehicleSaleType> saleOperationType() {
+    return saleOperationTypeCode == null
+        ? Optional.empty()
+        : VehicleSaleType.fromCode(saleOperationTypeCode);
   }
 
   /**
@@ -183,6 +197,15 @@ public final class NewVehicle {
   @SifenField(id = "E779", xml = "iTipCom")
   public @Nullable String fuelTypeCode() {
     return fuelTypeCode;
+  }
+
+  /**
+   * Returns {@link #fuelTypeCode()} (E779) as {@link FuelType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<FuelType> fuelType() {
+    return fuelTypeCode == null ? Optional.empty() : FuelType.fromCode(fuelTypeCode);
   }
 
   /**
@@ -397,6 +420,17 @@ public final class NewVehicle {
     }
 
     /**
+     * Sets {@code saleOperationTypeCode} (E771, {@code iTipOpVN}) from {@link VehicleSaleType}.
+     *
+     * @param saleOperationType the catalog constant
+     * @return this builder
+     */
+    public Builder saleOperationType(@Nullable VehicleSaleType saleOperationType) {
+      this.saleOperationTypeCode = saleOperationType == null ? null : saleOperationType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code saleOperationTypeDescription} (E772, {@code dDesTipOpVN}).
      *
      * @param saleOperationTypeDescription the value, or {@code null} to leave it out
@@ -481,6 +515,17 @@ public final class NewVehicle {
      */
     public Builder fuelTypeCode(@Nullable String fuelTypeCode) {
       this.fuelTypeCode = fuelTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code fuelTypeCode} (E779, {@code iTipCom}) from {@link FuelType}.
+     *
+     * @param fuelType the catalog constant
+     * @return this builder
+     */
+    public Builder fuelType(@Nullable FuelType fuelType) {
+      this.fuelTypeCode = fuelType == null ? null : fuelType.code();
       return this;
     }
 

@@ -4,7 +4,13 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.Department;
+import io.github.sifensdk.core.catalog.OperationType;
+import io.github.sifensdk.core.catalog.ReceiverIdDocumentType;
+import io.github.sifensdk.core.catalog.ReceiverNature;
+import io.github.sifensdk.core.catalog.TaxpayerType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -102,6 +108,15 @@ public final class Receiver {
   }
 
   /**
+   * Returns {@link #natureCode()} (D201) as {@link ReceiverNature}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ReceiverNature> nature() {
+    return ReceiverNature.fromCode(natureCode);
+  }
+
+  /**
    * Tipo de operación.
    *
    * <p>SIFEN field {@code D202} ({@code iTiOpe}).
@@ -111,6 +126,15 @@ public final class Receiver {
   @SifenField(id = "D202", xml = "iTiOpe")
   public String operationTypeCode() {
     return operationTypeCode;
+  }
+
+  /**
+   * Returns {@link #operationTypeCode()} (D202) as {@link OperationType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<OperationType> operationType() {
+    return OperationType.fromCode(operationTypeCode);
   }
 
   /**
@@ -154,6 +178,15 @@ public final class Receiver {
   }
 
   /**
+   * Returns {@link #taxpayerTypeCode()} (D205) as {@link TaxpayerType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TaxpayerType> taxpayerType() {
+    return taxpayerTypeCode == null ? Optional.empty() : TaxpayerType.fromCode(taxpayerTypeCode);
+  }
+
+  /**
    * RUC del receptor.
    *
    * <p>SIFEN field {@code D206} ({@code dRucRec}).
@@ -187,6 +220,17 @@ public final class Receiver {
   @SifenField(id = "D208", xml = "iTipIDRec")
   public @Nullable String idDocumentTypeCode() {
     return idDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #idDocumentTypeCode()} (D208) as {@link ReceiverIdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ReceiverIdDocumentType> idDocumentType() {
+    return idDocumentTypeCode == null
+        ? Optional.empty()
+        : ReceiverIdDocumentType.fromCode(idDocumentTypeCode);
   }
 
   /**
@@ -275,6 +319,15 @@ public final class Receiver {
   @SifenField(id = "D219", xml = "cDepRec")
   public @Nullable String departmentCode() {
     return departmentCode;
+  }
+
+  /**
+   * Returns {@link #departmentCode()} (D219) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> department() {
+    return departmentCode == null ? Optional.empty() : Department.fromCode(departmentCode);
   }
 
   /**
@@ -551,6 +604,17 @@ public final class Receiver {
     }
 
     /**
+     * Sets {@code natureCode} (D201, {@code iNatRec}) from {@link ReceiverNature}.
+     *
+     * @param nature the catalog constant
+     * @return this builder
+     */
+    public Builder nature(ReceiverNature nature) {
+      this.natureCode = nature.code();
+      return this;
+    }
+
+    /**
      * Sets {@code operationTypeCode} (D202, {@code iTiOpe}).
      *
      * @param operationTypeCode the value
@@ -558,6 +622,17 @@ public final class Receiver {
      */
     public Builder operationTypeCode(String operationTypeCode) {
       this.operationTypeCode = operationTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code operationTypeCode} (D202, {@code iTiOpe}) from {@link OperationType}.
+     *
+     * @param operationType the catalog constant
+     * @return this builder
+     */
+    public Builder operationType(OperationType operationType) {
+      this.operationTypeCode = operationType.code();
       return this;
     }
 
@@ -595,6 +670,17 @@ public final class Receiver {
     }
 
     /**
+     * Sets {@code taxpayerTypeCode} (D205, {@code iTiContRec}) from {@link TaxpayerType}.
+     *
+     * @param taxpayerType the catalog constant
+     * @return this builder
+     */
+    public Builder taxpayerType(@Nullable TaxpayerType taxpayerType) {
+      this.taxpayerTypeCode = taxpayerType == null ? null : taxpayerType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code ruc} (D206, {@code dRucRec}).
      *
      * @param ruc the value, or {@code null} to leave it out
@@ -624,6 +710,18 @@ public final class Receiver {
      */
     public Builder idDocumentTypeCode(@Nullable String idDocumentTypeCode) {
       this.idDocumentTypeCode = idDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code idDocumentTypeCode} (D208, {@code iTipIDRec}) from {@link
+     * ReceiverIdDocumentType}.
+     *
+     * @param idDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder idDocumentType(@Nullable ReceiverIdDocumentType idDocumentType) {
+      this.idDocumentTypeCode = idDocumentType == null ? null : idDocumentType.code();
       return this;
     }
 
@@ -701,6 +799,17 @@ public final class Receiver {
      */
     public Builder departmentCode(@Nullable String departmentCode) {
       this.departmentCode = departmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code departmentCode} (D219, {@code cDepRec}) from {@link Department}.
+     *
+     * @param department the catalog constant
+     * @return this builder
+     */
+    public Builder department(@Nullable Department department) {
+      this.departmentCode = department == null ? null : department.code();
       return this;
     }
 

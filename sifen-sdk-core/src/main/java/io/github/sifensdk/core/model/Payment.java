@@ -4,8 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.PaymentType;
 import java.math.BigDecimal;
+import java.util.Currency;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -70,6 +73,15 @@ public final class Payment {
   }
 
   /**
+   * Returns {@link #typeCode()} (E606) as {@link PaymentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<PaymentType> type() {
+    return PaymentType.fromCode(typeCode);
+  }
+
+  /**
    * Descripción del tipo de pago.
    *
    * <p>SIFEN field {@code E607} ({@code dDesTiPag}).
@@ -107,6 +119,19 @@ public final class Payment {
   @SifenField(id = "E609", xml = "cMoneTiPag")
   public String currencyCode() {
     return currencyCode;
+  }
+
+  /**
+   * Returns {@link #currencyCode()} (E609) as {@link Currency}.
+   *
+   * @return the currency, or empty if the code is not set or is not an ISO 4217 code
+   */
+  public Optional<Currency> currency() {
+    try {
+      return Optional.of(Currency.getInstance(currencyCode));
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 
   /**
@@ -251,6 +276,17 @@ public final class Payment {
     }
 
     /**
+     * Sets {@code typeCode} (E606, {@code iTiPago}) from {@link PaymentType}.
+     *
+     * @param type the catalog constant
+     * @return this builder
+     */
+    public Builder type(PaymentType type) {
+      this.typeCode = type.code();
+      return this;
+    }
+
+    /**
      * Sets {@code typeDescription} (E607, {@code dDesTiPag}).
      *
      * @param typeDescription the value, or {@code null} to leave it out
@@ -280,6 +316,17 @@ public final class Payment {
      */
     public Builder currencyCode(String currencyCode) {
       this.currencyCode = currencyCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code currencyCode} (E609, {@code cMoneTiPag}) from {@link Currency}.
+     *
+     * @param currency the currency (ISO 4217)
+     * @return this builder
+     */
+    public Builder currency(Currency currency) {
+      this.currencyCode = currency.getCurrencyCode();
       return this;
     }
 

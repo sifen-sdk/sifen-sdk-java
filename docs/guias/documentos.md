@@ -23,11 +23,11 @@ nombre XML están en el Javadoc de cada uno y en cada mensaje de error.
 ```java
 ElectronicDocument document = ElectronicDocument.builder()
     .operation(Operation.builder()
-        .emissionTypeCode("1")                       // B002: 1 normal, 2 contingencia
+        .emissionType(EmissionType.NORMAL)           // B002 (o .emissionTypeCode("1"))
         .securityCode(securityCode)                  // B004, 9 dígitos
         .build())
     .stamp(Stamp.builder()
-        .documentTypeCode("1")                       // C002
+        .documentType(DocumentType.INVOICE)          // C002
         .number("12345678")                          // timbrado
         .establishment("001")
         .dispatchPoint("001")
@@ -37,9 +37,9 @@ ElectronicDocument document = ElectronicDocument.builder()
     .generalData(GeneralData.builder()
         .issueDateTime(LocalDateTime.of(2026, 11, 26, 10, 0))
         .commercialOperation(CommercialOperation.builder()
-            .transactionTypeCode("1")
-            .taxTypeCode("1")
-            .currencyCode("PYG")
+            .transactionType(TransactionType.GOODS_SALE)
+            .taxType(TaxType.VAT)
+            .currency(Currency.getInstance("PYG"))   // o .currencyCode("PYG")
             .build())
         .issuer(issuer)                              // Issuer: RUC, razón social, dirección, actividades
         .receiver(receiver)                          // Receiver: contribuyente o no, del país o del exterior
@@ -55,6 +55,10 @@ ElectronicDocument document = ElectronicDocument.builder()
   de firma, la firma y el QR. Los completa el SDK ([ADR 0011](../adr/0011-lo-que-completa-el-sdk.md)). Si cargás
   una descripción, se verifica que corresponda al código.
 - **Importes:** `BigDecimal`, tal como los calculó tu sistema. El SDK no los redondea ni los corrige.
+- **Códigos de catálogo:** cada campo con catálogo acepta una constante (`emissionType(EmissionType.NORMAL)`, del
+  paquete `io.github.sifensdk.core.catalog`) o el código como texto (`emissionTypeCode("1")`), que sirve para
+  códigos que SIFEN agregue antes de que el SDK los conozca. Ciudad, distrito y país van siempre como texto; la
+  moneda acepta `java.util.Currency` ([ADR 0014](../adr/0014-codigos-de-catalogo-tipados.md)).
 - **Ítems:** cada `Item` lleva su código, descripción, unidad y cantidad; los valores van en `ItemValues`
   (precio, descuentos y anticipos en `ItemDiscountsAndAdvances`) y el IVA en `ItemVat`.
 
@@ -63,14 +67,14 @@ ElectronicDocument document = ElectronicDocument.builder()
 ```java
 DocumentTypeData.builder()
     .invoice(Invoice.builder()
-        .presenceIndicatorCode("1")                  // E011: operación presencial
+        .presenceIndicator(PresenceIndicator.IN_PERSON)  // E011
         .build())
     .operationCondition(OperationCondition.builder()
-        .conditionCode("1")                          // E601: 1 contado, 2 crédito
+        .condition(PaymentCondition.CASH)            // E601: contado o crédito
         .addPayment(Payment.builder()
-            .typeCode("1")                           // efectivo
+            .type(PaymentType.CASH)                  // E606
             .amount(new BigDecimal("131000"))
-            .currencyCode("PYG")
+            .currency(Currency.getInstance("PYG"))
             .build())
         .build())
     .addItem(item)
@@ -90,16 +94,16 @@ van en `SelfInvoice`:
 ```java
 DocumentTypeData.builder()
     .selfInvoice(SelfInvoice.builder()
-        .sellerNatureCode("1")                       // E301: no contribuyente
-        .sellerIdDocumentTypeCode("1")               // E304: cédula paraguaya
+        .sellerNature(SellerNature.NON_TAXPAYER)     // E301
+        .sellerIdDocumentType(IdDocumentType.PARAGUAYAN_ID)  // E304
         .sellerIdDocumentNumber("1234567")
         .sellerName("Vendedor de Ejemplo")
         .sellerAddress("Calle del Vendedor")
         .sellerHouseNumber("0")
-        .sellerDepartmentCode("1")
+        .sellerDepartment(Department.CAPITAL)
         .sellerCityCode("1")
         .transactionAddress("Calle de la Transacción")
-        .transactionDepartmentCode("1")
+        .transactionDepartment(Department.CAPITAL)
         .transactionCityCode("1")
         .build())
     .operationCondition(/* contado */)
@@ -111,7 +115,7 @@ Lo que cambia respecto de la factura, según las reglas de SIFEN:
 
 - El receptor es el propio emisor, la moneda es guaraníes y la operación es al contado.
 - Los ítems no llevan IVA, y los totales no llevan subtotales por tasa ni IVA.
-- Lleva un documento asociado: la constancia electrónica (`AssociatedDocument` con `typeCode("3")`).
+- Lleva un documento asociado: la constancia electrónica (`AssociatedDocument` con `type(AssociatedDocumentType.ELECTRONIC_CERTIFICATE)`).
 
 ## Nota de crédito y nota de débito (C002 = 5 y 6)
 
@@ -119,16 +123,16 @@ Las dos tienen la misma estructura: un motivo y el documento que corrigen.
 
 ```java
 ElectronicDocument creditNote = ElectronicDocument.builder()
-    // operation, stamp con documentTypeCode("5") (o "6"), generalData
+    // operation, stamp con documentType(DocumentType.CREDIT_NOTE) (o DEBIT_NOTE), generalData
     .documentTypeData(DocumentTypeData.builder()
         .creditDebitNote(CreditDebitNote.builder()
-            .reasonCode("2")                         // E401: 2 devolución
+            .reason(CreditDebitNoteReason.RETURN)    // E401
             .build())
         .addItem(item)
         .build())
     .totals(totals)
     .addAssociatedDocument(AssociatedDocument.builder()
-        .typeCode("1")                               // H002: 1 electrónico
+        .type(AssociatedDocumentType.ELECTRONIC)     // H002
         .cdc(cdcDeLaFactura)
         .build())
     .build();
@@ -145,17 +149,17 @@ Lleva el transporte, que en la remisión es obligatorio.
 ```java
 DocumentTypeData.builder()
     .deliveryNote(DeliveryNote.builder()
-        .reasonCode("1")                             // E501: traslado por venta
-        .responsibleCode("1")                        // E503: el emisor
+        .reason(DeliveryNoteReason.SALE)             // E501
+        .responsible(DeliveryNoteIssuer.INVOICE_ISSUER)  // E503
         .estimatedKilometers(15)
         .futureInvoiceDate(LocalDate.of(2026, 11, 30))
         .build())
     .addItem(Item.builder()
         .internalCode("A-001")
         .description("Producto de ejemplo")
-        .unitOfMeasureCode("77")
+        .unitOfMeasure(UnitOfMeasure.UNIT)           // E709: 77
         .quantity(new BigDecimal("10"))
-        .goodsRelevanceCode("1")
+        .goodsRelevance(GoodsRelevance.BREAKAGE_TOLERANCE)
         .breakageOrShrinkageQuantity(BigDecimal.ZERO)
         .breakageOrShrinkageRate(BigDecimal.ZERO)
         .build())
@@ -172,14 +176,14 @@ El grupo de transporte (E900) es obligatorio en la nota de remisión y opcional 
 
 ```java
 Transport transport = Transport.builder()
-    .typeCode("1")                                   // E901: propio
-    .modeCode("1")                                   // E903: terrestre
-    .freightPayerCode("1")                           // E905: emisor
+    .type(TransportType.OWN)                         // E901
+    .mode(TransportMode.LAND)                        // E903
+    .freightPayer(FreightPayer.INVOICE_ISSUER)       // E905
     .estimatedStartDate(LocalDate.of(2026, 11, 26))
     .estimatedEndDate(LocalDate.of(2026, 11, 27))
     .departureLocation(TransportDeparture.builder()
         .address("Calle de Ejemplo").houseNumber("123")
-        .departmentCode("1").districtCode("1").cityCode("1")
+        .department(Department.CAPITAL).districtCode("1").cityCode("1")
         .build())
     .addDeliveryLocation(TransportDelivery.builder()
         .address("Avenida de Ejemplo").houseNumber("456")
@@ -187,13 +191,13 @@ Transport transport = Transport.builder()
         .build())
     .addVehicle(TransportVehicle.builder()
         .type("Camión").brand("Marca")
-        .identificationTypeCode("1")                 // E967: 1 número de identificación, 2 matrícula
+        .identificationType(VehicleIdentificationType.VEHICLE_IDENTIFICATION_NUMBER)  // E967
         .identificationNumber("VIN0000000000001")
         .build())
     .carrier(Carrier.builder()
-        .natureCode("2")
+        .nature(CarrierNature.NON_TAXPAYER)
         .name("Transportista de Ejemplo")
-        .idDocumentTypeCode("1").idDocumentNumber("1234567")
+        .idDocumentType(IdDocumentType.PARAGUAYAN_ID).idDocumentNumber("1234567")
         .driverName("Chofer de Ejemplo").driverIdDocumentNumber("1234567")
         .taxAddress("Calle del Transportista 456")
         .driverAddress("Calle del Chofer 789")

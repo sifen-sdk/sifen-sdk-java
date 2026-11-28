@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.ResponsibleIdDocumentType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,6 +64,15 @@ public final class GenerationResponsible {
   @SifenField(id = "D141", xml = "iTipIDRespDE")
   public String idDocumentTypeCode() {
     return idDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #idDocumentTypeCode()} (D141) as {@link ResponsibleIdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ResponsibleIdDocumentType> idDocumentType() {
+    return ResponsibleIdDocumentType.fromCode(idDocumentTypeCode);
   }
 
   /**
@@ -189,6 +200,18 @@ public final class GenerationResponsible {
      */
     public Builder idDocumentTypeCode(String idDocumentTypeCode) {
       this.idDocumentTypeCode = idDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code idDocumentTypeCode} (D141, {@code iTipIDRespDE}) from {@link
+     * ResponsibleIdDocumentType}.
+     *
+     * @param idDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder idDocumentType(ResponsibleIdDocumentType idDocumentType) {
+      this.idDocumentTypeCode = idDocumentType.code();
       return this;
     }
 

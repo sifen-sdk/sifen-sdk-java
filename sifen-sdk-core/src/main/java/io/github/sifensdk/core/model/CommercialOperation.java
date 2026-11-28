@@ -4,10 +4,16 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.AdvanceCondition;
+import io.github.sifensdk.core.catalog.ExchangeRateCondition;
+import io.github.sifensdk.core.catalog.TaxType;
+import io.github.sifensdk.core.catalog.TransactionType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -78,6 +84,17 @@ public final class CommercialOperation {
   }
 
   /**
+   * Returns {@link #transactionTypeCode()} (D011) as {@link TransactionType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransactionType> transactionType() {
+    return transactionTypeCode == null
+        ? Optional.empty()
+        : TransactionType.fromCode(transactionTypeCode);
+  }
+
+  /**
    * Descripción del tipo de transacción.
    *
    * <p>SIFEN field {@code D012} ({@code dDesTipTra}).
@@ -103,6 +120,15 @@ public final class CommercialOperation {
   @SifenField(id = "D013", xml = "iTImp")
   public String taxTypeCode() {
     return taxTypeCode;
+  }
+
+  /**
+   * Returns {@link #taxTypeCode()} (D013) as {@link TaxType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TaxType> taxType() {
+    return TaxType.fromCode(taxTypeCode);
   }
 
   /**
@@ -134,6 +160,19 @@ public final class CommercialOperation {
   }
 
   /**
+   * Returns {@link #currencyCode()} (D015) as {@link Currency}.
+   *
+   * @return the currency, or empty if the code is not set or is not an ISO 4217 code
+   */
+  public Optional<Currency> currency() {
+    try {
+      return Optional.of(Currency.getInstance(currencyCode));
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    * Descripción de la moneda de la operación.
    *
    * <p>SIFEN field {@code D016} ({@code dDesMoneOpe}).
@@ -162,6 +201,17 @@ public final class CommercialOperation {
   }
 
   /**
+   * Returns {@link #exchangeRateConditionCode()} (D017) as {@link ExchangeRateCondition}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ExchangeRateCondition> exchangeRateCondition() {
+    return exchangeRateConditionCode == null
+        ? Optional.empty()
+        : ExchangeRateCondition.fromCode(exchangeRateConditionCode);
+  }
+
+  /**
    * Tipo de cambio de la operación.
    *
    * <p>SIFEN field {@code D018} ({@code dTiCam}).
@@ -183,6 +233,17 @@ public final class CommercialOperation {
   @SifenField(id = "D019", xml = "iCondAnt")
   public @Nullable String advanceConditionCode() {
     return advanceConditionCode;
+  }
+
+  /**
+   * Returns {@link #advanceConditionCode()} (D019) as {@link AdvanceCondition}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<AdvanceCondition> advanceCondition() {
+    return advanceConditionCode == null
+        ? Optional.empty()
+        : AdvanceCondition.fromCode(advanceConditionCode);
   }
 
   /**
@@ -318,6 +379,17 @@ public final class CommercialOperation {
     }
 
     /**
+     * Sets {@code transactionTypeCode} (D011, {@code iTipTra}) from {@link TransactionType}.
+     *
+     * @param transactionType the catalog constant
+     * @return this builder
+     */
+    public Builder transactionType(@Nullable TransactionType transactionType) {
+      this.transactionTypeCode = transactionType == null ? null : transactionType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code transactionTypeDescription} (D012, {@code dDesTipTra}).
      *
      * @param transactionTypeDescription the value, or {@code null} to leave it out
@@ -336,6 +408,17 @@ public final class CommercialOperation {
      */
     public Builder taxTypeCode(String taxTypeCode) {
       this.taxTypeCode = taxTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code taxTypeCode} (D013, {@code iTImp}) from {@link TaxType}.
+     *
+     * @param taxType the catalog constant
+     * @return this builder
+     */
+    public Builder taxType(TaxType taxType) {
+      this.taxTypeCode = taxType.code();
       return this;
     }
 
@@ -362,6 +445,17 @@ public final class CommercialOperation {
     }
 
     /**
+     * Sets {@code currencyCode} (D015, {@code cMoneOpe}) from {@link Currency}.
+     *
+     * @param currency the currency (ISO 4217)
+     * @return this builder
+     */
+    public Builder currency(Currency currency) {
+      this.currencyCode = currency.getCurrencyCode();
+      return this;
+    }
+
+    /**
      * Sets {@code currencyDescription} (D016, {@code dDesMoneOpe}).
      *
      * @param currencyDescription the value, or {@code null} to leave it out
@@ -384,6 +478,19 @@ public final class CommercialOperation {
     }
 
     /**
+     * Sets {@code exchangeRateConditionCode} (D017, {@code dCondTiCam}) from {@link
+     * ExchangeRateCondition}.
+     *
+     * @param exchangeRateCondition the catalog constant
+     * @return this builder
+     */
+    public Builder exchangeRateCondition(@Nullable ExchangeRateCondition exchangeRateCondition) {
+      this.exchangeRateConditionCode =
+          exchangeRateCondition == null ? null : exchangeRateCondition.code();
+      return this;
+    }
+
+    /**
      * Sets {@code exchangeRate} (D018, {@code dTiCam}).
      *
      * @param exchangeRate the value, or {@code null} to leave it out
@@ -402,6 +509,17 @@ public final class CommercialOperation {
      */
     public Builder advanceConditionCode(@Nullable String advanceConditionCode) {
       this.advanceConditionCode = advanceConditionCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code advanceConditionCode} (D019, {@code iCondAnt}) from {@link AdvanceCondition}.
+     *
+     * @param advanceCondition the catalog constant
+     * @return this builder
+     */
+    public Builder advanceCondition(@Nullable AdvanceCondition advanceCondition) {
+      this.advanceConditionCode = advanceCondition == null ? null : advanceCondition.code();
       return this;
     }
 

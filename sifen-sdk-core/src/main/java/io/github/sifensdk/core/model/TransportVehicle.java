@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.VehicleIdentificationType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -89,6 +91,15 @@ public final class TransportVehicle {
   @SifenField(id = "E967", xml = "dTipIdenVeh")
   public String identificationTypeCode() {
     return identificationTypeCode;
+  }
+
+  /**
+   * Returns {@link #identificationTypeCode()} (E967) as {@link VehicleIdentificationType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<VehicleIdentificationType> identificationType() {
+    return VehicleIdentificationType.fromCode(identificationTypeCode);
   }
 
   /**
@@ -246,6 +257,18 @@ public final class TransportVehicle {
      */
     public Builder identificationTypeCode(String identificationTypeCode) {
       this.identificationTypeCode = identificationTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code identificationTypeCode} (E967, {@code dTipIdenVeh}) from {@link
+     * VehicleIdentificationType}.
+     *
+     * @param identificationType the catalog constant
+     * @return this builder
+     */
+    public Builder identificationType(VehicleIdentificationType identificationType) {
+      this.identificationTypeCode = identificationType.code();
       return this;
     }
 

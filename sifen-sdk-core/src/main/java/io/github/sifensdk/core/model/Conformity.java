@@ -4,8 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.ConformityType;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -69,6 +71,15 @@ public final class Conformity implements EventDetail {
   @SifenField(id = "GCO003", xml = "iTipConf")
   public String typeCode() {
     return typeCode;
+  }
+
+  /**
+   * Returns {@link #typeCode()} (GCO003) as {@link ConformityType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ConformityType> type() {
+    return ConformityType.fromCode(typeCode);
   }
 
   /**
@@ -159,6 +170,17 @@ public final class Conformity implements EventDetail {
      */
     public Builder typeCode(String typeCode) {
       this.typeCode = typeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code typeCode} (GCO003, {@code iTipConf}) from {@link ConformityType}.
+     *
+     * @param type the catalog constant
+     * @return this builder
+     */
+    public Builder type(ConformityType type) {
+      this.typeCode = type.code();
       return this;
     }
 

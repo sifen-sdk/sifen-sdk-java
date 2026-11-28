@@ -18,6 +18,7 @@ import io.github.sifensdk.client.QueriedEvent;
 import io.github.sifensdk.client.ResultMessage;
 import io.github.sifensdk.client.RucQueryResult;
 import io.github.sifensdk.client.Status;
+import io.github.sifensdk.core.catalog.RucStatus;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -317,6 +318,7 @@ class QueriesTest {
     assertThat(q.ruc()).isEqualTo(RUC);
     assertThat(q.name()).isEqualTo("CONTRIBUYENTE DE PRUEBA S.A.");
     assertThat(q.statusCode()).isEqualTo("ACT");
+    assertThat(q.status()).contains(RucStatus.ACTIVE);
     assertThat(q.statusDescription()).isEqualTo("ACTIVO");
     assertThat(q.electronicIssuer()).isTrue();
     assertThat(q.messages()).containsExactly(new ResultMessage("0502", "RUC encontrado"));
@@ -328,6 +330,7 @@ class QueriesTest {
 
     assertThat(q.found()).isTrue();
     assertThat(q.statusCode()).isEqualTo("SUS");
+    assertThat(q.status()).contains(RucStatus.TEMPORARILY_SUSPENDED);
     assertThat(q.electronicIssuer()).isFalse();
   }
 
@@ -348,6 +351,7 @@ class QueriesTest {
     assertThat(q.ruc()).isEqualTo(RUC);
     assertThat(q.name()).isNull();
     assertThat(q.statusCode()).isNull();
+    assertThat(q.status()).isEmpty();
     assertThat(q.statusDescription()).isNull();
     assertThat(q.electronicIssuer()).isNull();
     assertThat(q.messages()).containsExactly(new ResultMessage("0500", "RUC no existe"));

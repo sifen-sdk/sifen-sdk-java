@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.TaxObligation;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -54,6 +56,15 @@ public final class AffectedObligation {
   @SifenField(id = "D031", xml = "cOblAfe")
   public String code() {
     return code;
+  }
+
+  /**
+   * Returns {@link #code()} (D031) as {@link TaxObligation}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TaxObligation> taxObligation() {
+    return TaxObligation.fromCode(code);
   }
 
   /**
@@ -134,6 +145,17 @@ public final class AffectedObligation {
      */
     public Builder code(String code) {
       this.code = code;
+      return this;
+    }
+
+    /**
+     * Sets {@code code} (D031, {@code cOblAfe}) from {@link TaxObligation}.
+     *
+     * @param taxObligation the catalog constant
+     * @return this builder
+     */
+    public Builder taxObligation(TaxObligation taxObligation) {
+      this.code = taxObligation.code();
       return this;
     }
 

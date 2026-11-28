@@ -4,7 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.Department;
+import io.github.sifensdk.core.catalog.IdDocumentType;
+import io.github.sifensdk.core.catalog.SellerNature;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -106,6 +110,15 @@ public final class SelfInvoice {
   }
 
   /**
+   * Returns {@link #sellerNatureCode()} (E301) as {@link SellerNature}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<SellerNature> sellerNature() {
+    return SellerNature.fromCode(sellerNatureCode);
+  }
+
+  /**
    * Descripción de la naturaleza del vendedor.
    *
    * <p>SIFEN field {@code E302} ({@code dDesNatVen}).
@@ -131,6 +144,15 @@ public final class SelfInvoice {
   @SifenField(id = "E304", xml = "iTipIDVen")
   public String sellerIdDocumentTypeCode() {
     return sellerIdDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #sellerIdDocumentTypeCode()} (E304) as {@link IdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<IdDocumentType> sellerIdDocumentType() {
+    return IdDocumentType.fromCode(sellerIdDocumentTypeCode);
   }
 
   /**
@@ -215,6 +237,15 @@ public final class SelfInvoice {
   @SifenField(id = "E310", xml = "cDepVen")
   public String sellerDepartmentCode() {
     return sellerDepartmentCode;
+  }
+
+  /**
+   * Returns {@link #sellerDepartmentCode()} (E310) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> sellerDepartment() {
+    return Department.fromCode(sellerDepartmentCode);
   }
 
   /**
@@ -321,6 +352,15 @@ public final class SelfInvoice {
   @SifenField(id = "E317", xml = "cDepProv")
   public String transactionDepartmentCode() {
     return transactionDepartmentCode;
+  }
+
+  /**
+   * Returns {@link #transactionDepartmentCode()} (E317) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> transactionDepartment() {
+    return Department.fromCode(transactionDepartmentCode);
   }
 
   /**
@@ -543,6 +583,17 @@ public final class SelfInvoice {
     }
 
     /**
+     * Sets {@code sellerNatureCode} (E301, {@code iNatVen}) from {@link SellerNature}.
+     *
+     * @param sellerNature the catalog constant
+     * @return this builder
+     */
+    public Builder sellerNature(SellerNature sellerNature) {
+      this.sellerNatureCode = sellerNature.code();
+      return this;
+    }
+
+    /**
      * Sets {@code sellerNatureDescription} (E302, {@code dDesNatVen}).
      *
      * @param sellerNatureDescription the value, or {@code null} to leave it out
@@ -561,6 +612,17 @@ public final class SelfInvoice {
      */
     public Builder sellerIdDocumentTypeCode(String sellerIdDocumentTypeCode) {
       this.sellerIdDocumentTypeCode = sellerIdDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code sellerIdDocumentTypeCode} (E304, {@code iTipIDVen}) from {@link IdDocumentType}.
+     *
+     * @param sellerIdDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder sellerIdDocumentType(IdDocumentType sellerIdDocumentType) {
+      this.sellerIdDocumentTypeCode = sellerIdDocumentType.code();
       return this;
     }
 
@@ -628,6 +690,17 @@ public final class SelfInvoice {
      */
     public Builder sellerDepartmentCode(String sellerDepartmentCode) {
       this.sellerDepartmentCode = sellerDepartmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code sellerDepartmentCode} (E310, {@code cDepVen}) from {@link Department}.
+     *
+     * @param sellerDepartment the catalog constant
+     * @return this builder
+     */
+    public Builder sellerDepartment(Department sellerDepartment) {
+      this.sellerDepartmentCode = sellerDepartment.code();
       return this;
     }
 
@@ -705,6 +778,17 @@ public final class SelfInvoice {
      */
     public Builder transactionDepartmentCode(String transactionDepartmentCode) {
       this.transactionDepartmentCode = transactionDepartmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code transactionDepartmentCode} (E317, {@code cDepProv}) from {@link Department}.
+     *
+     * @param transactionDepartment the catalog constant
+     * @return this builder
+     */
+    public Builder transactionDepartment(Department transactionDepartment) {
+      this.transactionDepartmentCode = transactionDepartment.code();
       return this;
     }
 

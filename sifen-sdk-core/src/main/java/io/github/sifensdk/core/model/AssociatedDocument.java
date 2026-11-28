@@ -4,8 +4,12 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.AssociatedDocumentType;
+import io.github.sifensdk.core.catalog.CertificateType;
+import io.github.sifensdk.core.catalog.PrintedDocumentType;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -85,6 +89,15 @@ public final class AssociatedDocument {
   @SifenField(id = "H002", xml = "iTipDocAso")
   public String typeCode() {
     return typeCode;
+  }
+
+  /**
+   * Returns {@link #typeCode()} (H002) as {@link AssociatedDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<AssociatedDocumentType> type() {
+    return AssociatedDocumentType.fromCode(typeCode);
   }
 
   /**
@@ -176,6 +189,17 @@ public final class AssociatedDocument {
   }
 
   /**
+   * Returns {@link #printedDocumentTypeCode()} (H009) as {@link PrintedDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<PrintedDocumentType> printedDocumentType() {
+    return printedDocumentTypeCode == null
+        ? Optional.empty()
+        : PrintedDocumentType.fromCode(printedDocumentTypeCode);
+  }
+
+  /**
    * Descripción del tipo de documento impreso.
    *
    * <p>SIFEN field {@code H010} ({@code dDTipoDocAso}).
@@ -237,6 +261,17 @@ public final class AssociatedDocument {
   @SifenField(id = "H014", xml = "iTipCons")
   public @Nullable String certificateTypeCode() {
     return certificateTypeCode;
+  }
+
+  /**
+   * Returns {@link #certificateTypeCode()} (H014) as {@link CertificateType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CertificateType> certificateType() {
+    return certificateTypeCode == null
+        ? Optional.empty()
+        : CertificateType.fromCode(certificateTypeCode);
   }
 
   /**
@@ -420,6 +455,17 @@ public final class AssociatedDocument {
     }
 
     /**
+     * Sets {@code typeCode} (H002, {@code iTipDocAso}) from {@link AssociatedDocumentType}.
+     *
+     * @param type the catalog constant
+     * @return this builder
+     */
+    public Builder type(AssociatedDocumentType type) {
+      this.typeCode = type.code();
+      return this;
+    }
+
+    /**
      * Sets {@code typeDescription} (H003, {@code dDesTipDocAso}).
      *
      * @param typeDescription the value, or {@code null} to leave it out
@@ -497,6 +543,19 @@ public final class AssociatedDocument {
     }
 
     /**
+     * Sets {@code printedDocumentTypeCode} (H009, {@code iTipoDocAso}) from {@link
+     * PrintedDocumentType}.
+     *
+     * @param printedDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder printedDocumentType(@Nullable PrintedDocumentType printedDocumentType) {
+      this.printedDocumentTypeCode =
+          printedDocumentType == null ? null : printedDocumentType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code printedDocumentTypeDescription} (H010, {@code dDTipoDocAso}).
      *
      * @param printedDocumentTypeDescription the value, or {@code null} to leave it out
@@ -548,6 +607,17 @@ public final class AssociatedDocument {
      */
     public Builder certificateTypeCode(@Nullable String certificateTypeCode) {
       this.certificateTypeCode = certificateTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code certificateTypeCode} (H014, {@code iTipCons}) from {@link CertificateType}.
+     *
+     * @param certificateType the catalog constant
+     * @return this builder
+     */
+    public Builder certificateType(@Nullable CertificateType certificateType) {
+      this.certificateTypeCode = certificateType == null ? null : certificateType.code();
       return this;
     }
 

@@ -20,6 +20,7 @@ module io.github.sifensdk.core {
   exports io.github.sifensdk.core.model;
   exports io.github.sifensdk.core.validation;
   exports io.github.sifensdk.core.signing;
+  exports io.github.sifensdk.core.catalog;
   exports io.github.sifensdk.core.cdc;
   exports io.github.sifensdk.core.qr;
   exports io.github.sifensdk.core.internal.keys to
