@@ -4,7 +4,7 @@
 
   <groupId>io.github.sifen-sdk</groupId>
   <artifactId>sifen-sdk-parent</artifactId>
-  <version>1.0.0-beta.1</version>
+  <version>1.0.0-beta.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SIFEN SDK for Java (parent)</name>
@@ -63,9 +63,9 @@
 
     <!-- Release (RELEASING.md): false uploads to the Central Portal without publishing, for a dry run. -->
     <central.autoPublish>false</central.autoPublish>
-    <!-- API compatibility against the last published version (japicmp). Off until 1.0.0-beta.1 is published. -->
+    <!-- API compatibility against the last published version (japicmp). -->
     <api.baseline>1.0.0-beta.1</api.baseline>
-    <japicmp.skip>true</japicmp.skip>
+    <japicmp.skip>false</japicmp.skip>
     <api.breakBuild>true</api.breakBuild>
   </properties>
 

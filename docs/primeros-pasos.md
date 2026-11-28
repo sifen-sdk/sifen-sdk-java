@@ -8,18 +8,6 @@
 
 ## Dependencia
 
-!!! warning "Todavía no está en Maven Central"
-    La primera versión publicada en Maven Central será la `1.0.0-beta.1`. Hasta que aparezca ahí, compilalo e
-    instalalo en tu repositorio local de Maven:
-
-    ```bash
-    git clone --recurse-submodules https://github.com/sifen-sdk/sifen-sdk-java.git
-    cd sifen-sdk-java
-    ./mvnw install -DskipTests
-    ```
-
-    Usá la versión que figura en el `pom.xml` raíz.
-
 Importá el BOM, que alinea las versiones de todos los módulos, y agregá los que uses:
 
 ```xml
