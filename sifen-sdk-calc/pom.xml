@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.github.sifen-sdk</groupId>
     <artifactId>sifen-sdk-parent</artifactId>
-    <version>1.0.0-beta.2-SNAPSHOT</version>
+    <version>1.0.0-beta.2</version>
   </parent>
 
   <artifactId>sifen-sdk-calc</artifactId>

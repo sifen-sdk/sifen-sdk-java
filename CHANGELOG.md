@@ -7,6 +7,10 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2026-11-28
+
+No incompatible changes: everything below is new API next to the existing one (japicmp against 1.0.0-beta.1).
+
 ### Added
 
 - Typed catalog codes ([ADR 0014](docs/adr/0014-codigos-de-catalogo-tipados.md)): 45 enums in

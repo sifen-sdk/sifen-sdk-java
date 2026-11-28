@@ -12,7 +12,7 @@ Importá el BOM, que alinea las versiones de todos los módulos, y agregá los q
 
 ```xml
 <properties>
-  <sifen-sdk.version>1.0.0-beta.1</sifen-sdk.version>
+  <sifen-sdk.version>1.0.0-beta.2</sifen-sdk.version>
 </properties>
 
 <dependencyManagement>
