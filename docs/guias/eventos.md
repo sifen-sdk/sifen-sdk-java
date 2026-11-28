@@ -1,7 +1,7 @@
 # Eventos
 
-Un evento informa a SIFEN algo que pasó con un documento ya aprobado, o con números de timbrado que no se van a
-usar. El SDK arma, valida y firma los 8 eventos que envía un contribuyente: 4 del emisor y 4 del receptor.
+Un evento informa a SIFEN algo que pasó con un documento ya aprobado, o con números de documento que no se van a
+emitir. El SDK arma, valida y firma los 8 eventos que envía un contribuyente: 4 del emisor y 4 del receptor.
 
 Se usan igual que los documentos: `SifenEvents` valida y firma, sin red; `SifenClient` envía.
 
@@ -50,7 +50,8 @@ Cancellation.builder().cdc(cdc).reason("Error en los datos del receptor").build(
 
 ### Inutilización de números
 
-Informa un rango de números del timbrado que no se va a usar.
+Informa un rango de números de documento que no se van a emitir, de un tipo de documento, dentro de un timbrado,
+establecimiento y punto de expedición (en el ejemplo, las facturas 001-001-0000010 a 001-001-0000012).
 
 ```java
 NumberInvalidation.builder()
