@@ -7,7 +7,9 @@ what that means before 1.0).
 
 ## [Unreleased]
 
-Target: 1.0.0-beta.1, the first version published to Maven Central, for production use while 1.0 stabilizes
+## [1.0.0-beta.1] - 2026-11-28
+
+The first version published to Maven Central, for production use while 1.0 stabilizes
 (criteria in [docs/versiones-y-soporte.md](docs/versiones-y-soporte.md#beta)). Earlier 0.x versions were never
 published.
 
