@@ -6,7 +6,7 @@
 SDK comunitario para integrar sistemas Java con **SIFEN**, el Sistema Integrado de Facturación Electrónica
 Nacional de Paraguay. [English](README.en.md)
 
-> **Estado: beta. La `1.0.0-beta.1` está en Maven Central, para usar en producción y estabilizar la 1.0
+> **Estado: beta. La `1.0.0-beta.2` está en Maven Central, para usar en producción y estabilizar la 1.0
 > ([qué significa la beta](docs/versiones-y-soporte.md#beta)).** Valida, firma y envía a SIFEN todos
 > los documentos electrónicos (factura, autofactura, notas de crédito y de débito, nota de remisión, con transporte y
 > grupos sectoriales) y los 8 eventos que envía un contribuyente, con consultas que leen los eventos registrados.
