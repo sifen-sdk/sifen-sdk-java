@@ -111,6 +111,25 @@ Paso a paso:
 un token, un HSM o un servicio de firma remota, solo cambia cómo se crea el `KeyMaterial`
 ([guía](claves-en-token-hsm-y-firma-remota.md)).
 
+## Configuración: la traés vos
+
+La librería **no lee archivos de configuración ni variables de entorno**, y no tiene estado global
+([ADR 0004](adr/0004-sin-estado-global.md)). Todo entra por código, así que los datos pueden salir de tu base de
+datos, de tu archivo de configuración, de un gestor de secretos o de donde tu empresa lo guarde. Un mismo proceso
+puede emitir para varias empresas a la vez, cada una con lo suyo.
+
+| Qué | Cómo se pasa | De dónde suele salir |
+|---|---|---|
+| Datos del emisor, timbrado, receptor, ítems | Builders del modelo (`Issuer`, `Stamp`, …) | Tu base de datos |
+| Certificado | `KeyMaterial`: `KeyMaterials.pkcs12` (archivo, `byte[]` o `InputStream`), `pem`, `keyStore`, `pkcs11`, `remote` u `of(PrivateKey, cadena)` | Archivo, base de datos, gestor de secretos, token, HSM o servicio de firma |
+| CSC (código de seguridad del QR) | `Csc.of(id, secreto)` en cada `sign` | Gestor de secretos o tu configuración |
+| Ambiente | `environment(Environment.TEST o PRODUCTION)`, obligatorio, sin valor por defecto | Tu configuración |
+| Zona horaria, reloj, reglas como advertencia | `SifenDocuments.builder()`: `zone`, `clock`, `warningRules` | Opcional |
+| Red | `SifenClient.builder()`: `connectTimeout`, `requestTimeout`, `proxy`, `trustStore`, `baseUri` | Opcional |
+
+Los archivos `test.env` y `emisor.properties` de [Pruebas contra SIFEN](pruebas-contra-sifen.md) son solo para la
+prueba en vivo de este repositorio; tu sistema no los necesita.
+
 ## Resultados y errores
 
 - **Un rechazo de SIFEN es un resultado**, no una excepción: `Status.REJECTED` con sus códigos y mensajes.

@@ -15,6 +15,11 @@ van al repositorio. Se corre de forma local con tus propias credenciales de test
 
 Guardá el certificado y dos archivos de configuración fuera del repositorio, por ejemplo en `~/.config/sifen-sdk/`.
 
+!!! note "Solo para esta prueba"
+    `test.env` y `emisor.properties` los lee únicamente `LiveSifenTest`, la prueba de este repositorio. La librería
+    no lee archivos ni variables de entorno: en tu sistema, los datos y el certificado los pasás por código, desde
+    donde los guardes ([Configuración](primeros-pasos.md#configuracion-la-traes-vos)).
+
 `~/.config/sifen-sdk/test.env`:
 
 ```bash
