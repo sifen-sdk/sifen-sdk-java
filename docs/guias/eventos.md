@@ -59,7 +59,7 @@ NumberInvalidation.builder()
     .dispatchPoint("001")
     .rangeStartNumber("0000010")
     .rangeEndNumber("0000012")
-    .documentTypeCode("1")                           // C002 de los documentos que no se emitirán
+    .documentType(DocumentType.INVOICE)              // C002 de los documentos que no se emitirán
     .reason("Números salteados por error del sistema")
     .build()
 ```
@@ -76,10 +76,10 @@ receptor, con los mismos campos que el receptor de un documento (`receiverNature
 Nomination.builder()
     .cdc(cdc)
     .reason("Nominación de factura innominada")
-    .receiverNatureCode("1")
-    .operationTypeCode("1")
+    .receiverNature(ReceiverNature.TAXPAYER)
+    .operationType(OperationType.B2B)
     .receiverCountryCode("PRY")
-    .receiverTaxpayerTypeCode("2")
+    .receiverTaxpayerType(TaxpayerType.LEGAL_ENTITY)
     .receiverRuc("44444402")
     .receiverCheckDigit("5")
     .receiverName("Cliente de Ejemplo S.A.")
@@ -88,13 +88,13 @@ Nomination.builder()
 
 ### Actualización de datos del transporte
 
-Informa un cambio durante el traslado: lugar de entrega, chofer, transportista o vehículo (`reasonCode` 1 a 4).
+Informa un cambio durante el traslado: lugar de entrega, chofer, transportista o vehículo (`TransportUpdateReason`).
 Lleva el CDC del documento con transporte y solo los datos del grupo que cambia.
 
 ```java
 TransportUpdate.builder()
     .cdc(cdc)
-    .reasonCode("2")                                 // cambio del chofer
+    .reason(TransportUpdateReason.DRIVER_CHANGE)
     .driverName("Chofer de Ejemplo")
     .driverIdDocumentNumber("1234567")
     .build()
@@ -114,7 +114,7 @@ ReceiptNotification.builder()
     .cdc(cdc)
     .issueDateTime(LocalDateTime.of(2026, 11, 26, 10, 0))
     .receptionDateTime(LocalDateTime.of(2026, 11, 26, 10, 5))
-    .receiverTypeCode("1")                           // 1 contribuyente, 2 no contribuyente
+    .receiverType(EventReceiverType.TAXPAYER)
     .receiverRuc("44444402")
     .receiverCheckDigit("5")
     .receiverName("Cliente de Ejemplo S.A.")
@@ -124,10 +124,10 @@ ReceiptNotification.builder()
 
 ### Conformidad
 
-Total o parcial (`typeCode` 1 o 2). En la parcial se informa la fecha estimada de recepción.
+Total o parcial (`ConformityType.TOTAL` o `PARTIAL`). En la parcial se informa la fecha estimada de recepción.
 
 ```java
-Conformity.builder().cdc(cdc).typeCode("1").build()
+Conformity.builder().cdc(cdc).type(ConformityType.TOTAL).build()
 ```
 
 ### Disconformidad
@@ -146,7 +146,7 @@ NonRecognition.builder()
     .cdc(cdc)
     .issueDateTime(LocalDateTime.of(2026, 11, 26, 10, 0))
     .receptionDateTime(LocalDateTime.of(2026, 11, 26, 10, 5))
-    .receiverTypeCode("1")
+    .receiverType(EventReceiverType.TAXPAYER)
     .receiverRuc("44444402")
     .receiverCheckDigit("5")
     .receiverName("Cliente de Ejemplo S.A.")

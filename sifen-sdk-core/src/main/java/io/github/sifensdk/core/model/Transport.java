@@ -4,10 +4,15 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.FreightPayer;
+import io.github.sifensdk.core.catalog.Incoterm;
+import io.github.sifensdk.core.catalog.TransportMode;
+import io.github.sifensdk.core.catalog.TransportType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -89,6 +94,15 @@ public final class Transport {
   }
 
   /**
+   * Returns {@link #typeCode()} (E901) as {@link TransportType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransportType> type() {
+    return typeCode == null ? Optional.empty() : TransportType.fromCode(typeCode);
+  }
+
+  /**
    * Descripción del tipo de transporte.
    *
    * <p>SIFEN field {@code E902} ({@code dDesTipTrans}).
@@ -114,6 +128,15 @@ public final class Transport {
   @SifenField(id = "E903", xml = "iModTrans")
   public String modeCode() {
     return modeCode;
+  }
+
+  /**
+   * Returns {@link #modeCode()} (E903) as {@link TransportMode}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransportMode> mode() {
+    return TransportMode.fromCode(modeCode);
   }
 
   /**
@@ -145,6 +168,15 @@ public final class Transport {
   }
 
   /**
+   * Returns {@link #freightPayerCode()} (E905) as {@link FreightPayer}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<FreightPayer> freightPayer() {
+    return FreightPayer.fromCode(freightPayerCode);
+  }
+
+  /**
    * Condición de la negociación.
    *
    * <p>SIFEN field {@code E906} ({@code cCondNeg}).
@@ -154,6 +186,17 @@ public final class Transport {
   @SifenField(id = "E906", xml = "cCondNeg")
   public @Nullable String negotiationConditionCode() {
     return negotiationConditionCode;
+  }
+
+  /**
+   * Returns {@link #negotiationConditionCode()} (E906) as {@link Incoterm}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Incoterm> negotiationCondition() {
+    return negotiationConditionCode == null
+        ? Optional.empty()
+        : Incoterm.fromCode(negotiationConditionCode);
   }
 
   /**
@@ -407,6 +450,17 @@ public final class Transport {
     }
 
     /**
+     * Sets {@code typeCode} (E901, {@code iTipTrans}) from {@link TransportType}.
+     *
+     * @param type the catalog constant
+     * @return this builder
+     */
+    public Builder type(@Nullable TransportType type) {
+      this.typeCode = type == null ? null : type.code();
+      return this;
+    }
+
+    /**
      * Sets {@code typeDescription} (E902, {@code dDesTipTrans}).
      *
      * @param typeDescription the value, or {@code null} to leave it out
@@ -425,6 +479,17 @@ public final class Transport {
      */
     public Builder modeCode(String modeCode) {
       this.modeCode = modeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code modeCode} (E903, {@code iModTrans}) from {@link TransportMode}.
+     *
+     * @param mode the catalog constant
+     * @return this builder
+     */
+    public Builder mode(TransportMode mode) {
+      this.modeCode = mode.code();
       return this;
     }
 
@@ -451,6 +516,17 @@ public final class Transport {
     }
 
     /**
+     * Sets {@code freightPayerCode} (E905, {@code iRespFlete}) from {@link FreightPayer}.
+     *
+     * @param freightPayer the catalog constant
+     * @return this builder
+     */
+    public Builder freightPayer(FreightPayer freightPayer) {
+      this.freightPayerCode = freightPayer.code();
+      return this;
+    }
+
+    /**
      * Sets {@code negotiationConditionCode} (E906, {@code cCondNeg}).
      *
      * @param negotiationConditionCode the value, or {@code null} to leave it out
@@ -458,6 +534,18 @@ public final class Transport {
      */
     public Builder negotiationConditionCode(@Nullable String negotiationConditionCode) {
       this.negotiationConditionCode = negotiationConditionCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code negotiationConditionCode} (E906, {@code cCondNeg}) from {@link Incoterm}.
+     *
+     * @param negotiationCondition the catalog constant
+     * @return this builder
+     */
+    public Builder negotiationCondition(@Nullable Incoterm negotiationCondition) {
+      this.negotiationConditionCode =
+          negotiationCondition == null ? null : negotiationCondition.code();
       return this;
     }
 

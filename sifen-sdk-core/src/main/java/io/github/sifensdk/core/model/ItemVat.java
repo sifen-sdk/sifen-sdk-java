@@ -4,8 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.VatTreatment;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -66,6 +68,15 @@ public final class ItemVat {
   @SifenField(id = "E731", xml = "iAfecIVA")
   public String treatmentCode() {
     return treatmentCode;
+  }
+
+  /**
+   * Returns {@link #treatmentCode()} (E731) as {@link VatTreatment}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<VatTreatment> treatment() {
+    return VatTreatment.fromCode(treatmentCode);
   }
 
   /**
@@ -226,6 +237,17 @@ public final class ItemVat {
      */
     public Builder treatmentCode(String treatmentCode) {
       this.treatmentCode = treatmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code treatmentCode} (E731, {@code iAfecIVA}) from {@link VatTreatment}.
+     *
+     * @param treatment the catalog constant
+     * @return this builder
+     */
+    public Builder treatment(VatTreatment treatment) {
+      this.treatmentCode = treatment.code();
       return this;
     }
 

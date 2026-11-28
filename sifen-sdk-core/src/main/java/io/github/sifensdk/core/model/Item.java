@@ -4,8 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.GoodsRelevance;
+import io.github.sifensdk.core.catalog.UnitOfMeasure;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -197,6 +200,15 @@ public final class Item {
   }
 
   /**
+   * Returns {@link #unitOfMeasureCode()} (E709) as {@link UnitOfMeasure}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<UnitOfMeasure> unitOfMeasure() {
+    return UnitOfMeasure.fromCode(unitOfMeasureCode);
+  }
+
+  /**
    * Descripción de la unidad de medida.
    *
    * <p>SIFEN field {@code E710} ({@code dDesUniMed}).
@@ -274,6 +286,17 @@ public final class Item {
   @SifenField(id = "E715", xml = "cRelMerc")
   public @Nullable String goodsRelevanceCode() {
     return goodsRelevanceCode;
+  }
+
+  /**
+   * Returns {@link #goodsRelevanceCode()} (E715) as {@link GoodsRelevance}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<GoodsRelevance> goodsRelevance() {
+    return goodsRelevanceCode == null
+        ? Optional.empty()
+        : GoodsRelevance.fromCode(goodsRelevanceCode);
   }
 
   /**
@@ -614,6 +637,17 @@ public final class Item {
     }
 
     /**
+     * Sets {@code unitOfMeasureCode} (E709, {@code cUniMed}) from {@link UnitOfMeasure}.
+     *
+     * @param unitOfMeasure the catalog constant
+     * @return this builder
+     */
+    public Builder unitOfMeasure(UnitOfMeasure unitOfMeasure) {
+      this.unitOfMeasureCode = unitOfMeasure.code();
+      return this;
+    }
+
+    /**
      * Sets {@code unitOfMeasureDescription} (E710, {@code dDesUniMed}).
      *
      * @param unitOfMeasureDescription the value, or {@code null} to leave it out
@@ -676,6 +710,17 @@ public final class Item {
      */
     public Builder goodsRelevanceCode(@Nullable String goodsRelevanceCode) {
       this.goodsRelevanceCode = goodsRelevanceCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code goodsRelevanceCode} (E715, {@code cRelMerc}) from {@link GoodsRelevance}.
+     *
+     * @param goodsRelevance the catalog constant
+     * @return this builder
+     */
+    public Builder goodsRelevance(@Nullable GoodsRelevance goodsRelevance) {
+      this.goodsRelevanceCode = goodsRelevance == null ? null : goodsRelevance.code();
       return this;
     }
 

@@ -7,6 +7,16 @@ what that means before 1.0).
 
 ## [Unreleased]
 
+### Added
+
+- Typed catalog codes ([ADR 0014](docs/adr/0014-codigos-de-catalogo-tipados.md)): 45 enums in
+  `io.github.sifensdk.core.catalog` (`EmissionType`, `DocumentType`, `VatTreatment`, `Department`,
+  `UnitOfMeasure`, …), generated from `spec`, each with `code()`, `description()` and `fromCode(String)`.
+- Every model field with one of those catalogs gains a typed builder setter and an `Optional` getter next to the
+  `String` ones, which stay unchanged: `emissionType(EmissionType.CONTINGENCY)` or `emissionTypeCode("2")`.
+  Currency fields accept `java.util.Currency`.
+- `RucQueryResult.status()` returns the taxpayer status as `RucStatus`.
+
 ## [1.0.0-beta.1] - 2026-11-28
 
 The first version published to Maven Central, for production use while 1.0 stabilizes

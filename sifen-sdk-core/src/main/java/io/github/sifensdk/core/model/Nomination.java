@@ -4,7 +4,13 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.Department;
+import io.github.sifensdk.core.catalog.NominationIdDocumentType;
+import io.github.sifensdk.core.catalog.OperationType;
+import io.github.sifensdk.core.catalog.ReceiverNature;
+import io.github.sifensdk.core.catalog.TaxpayerType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -132,6 +138,15 @@ public final class Nomination implements EventDetail {
   }
 
   /**
+   * Returns {@link #receiverNatureCode()} (GENFE004) as {@link ReceiverNature}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<ReceiverNature> receiverNature() {
+    return ReceiverNature.fromCode(receiverNatureCode);
+  }
+
+  /**
    * Tipo de operación.
    *
    * <p>SIFEN field {@code GENFE027} ({@code iTiOpe}).
@@ -141,6 +156,15 @@ public final class Nomination implements EventDetail {
   @SifenField(id = "GENFE027", xml = "iTiOpe")
   public String operationTypeCode() {
     return operationTypeCode;
+  }
+
+  /**
+   * Returns {@link #operationTypeCode()} (GENFE027) as {@link OperationType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<OperationType> operationType() {
+    return OperationType.fromCode(operationTypeCode);
   }
 
   /**
@@ -183,6 +207,17 @@ public final class Nomination implements EventDetail {
   }
 
   /**
+   * Returns {@link #receiverTaxpayerTypeCode()} (GENFE007) as {@link TaxpayerType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TaxpayerType> receiverTaxpayerType() {
+    return receiverTaxpayerTypeCode == null
+        ? Optional.empty()
+        : TaxpayerType.fromCode(receiverTaxpayerTypeCode);
+  }
+
+  /**
    * RUC del receptor.
    *
    * <p>SIFEN field {@code GENFE008} ({@code dRucRec}).
@@ -216,6 +251,17 @@ public final class Nomination implements EventDetail {
   @SifenField(id = "GENFE010", xml = "iTipIDRec")
   public @Nullable String receiverIdDocumentTypeCode() {
     return receiverIdDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #receiverIdDocumentTypeCode()} (GENFE010) as {@link NominationIdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<NominationIdDocumentType> receiverIdDocumentType() {
+    return receiverIdDocumentTypeCode == null
+        ? Optional.empty()
+        : NominationIdDocumentType.fromCode(receiverIdDocumentTypeCode);
   }
 
   /**
@@ -303,6 +349,17 @@ public final class Nomination implements EventDetail {
   @SifenField(id = "GENFE017", xml = "cDepRec")
   public @Nullable String receiverDepartmentCode() {
     return receiverDepartmentCode;
+  }
+
+  /**
+   * Returns {@link #receiverDepartmentCode()} (GENFE017) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> receiverDepartment() {
+    return receiverDepartmentCode == null
+        ? Optional.empty()
+        : Department.fromCode(receiverDepartmentCode);
   }
 
   /**
@@ -608,6 +665,17 @@ public final class Nomination implements EventDetail {
     }
 
     /**
+     * Sets {@code receiverNatureCode} (GENFE004, {@code iNatRec}) from {@link ReceiverNature}.
+     *
+     * @param receiverNature the catalog constant
+     * @return this builder
+     */
+    public Builder receiverNature(ReceiverNature receiverNature) {
+      this.receiverNatureCode = receiverNature.code();
+      return this;
+    }
+
+    /**
      * Sets {@code operationTypeCode} (GENFE027, {@code iTiOpe}).
      *
      * @param operationTypeCode the value
@@ -615,6 +683,17 @@ public final class Nomination implements EventDetail {
      */
     public Builder operationTypeCode(String operationTypeCode) {
       this.operationTypeCode = operationTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code operationTypeCode} (GENFE027, {@code iTiOpe}) from {@link OperationType}.
+     *
+     * @param operationType the catalog constant
+     * @return this builder
+     */
+    public Builder operationType(OperationType operationType) {
+      this.operationTypeCode = operationType.code();
       return this;
     }
 
@@ -652,6 +731,19 @@ public final class Nomination implements EventDetail {
     }
 
     /**
+     * Sets {@code receiverTaxpayerTypeCode} (GENFE007, {@code iTiContRec}) from {@link
+     * TaxpayerType}.
+     *
+     * @param receiverTaxpayerType the catalog constant
+     * @return this builder
+     */
+    public Builder receiverTaxpayerType(@Nullable TaxpayerType receiverTaxpayerType) {
+      this.receiverTaxpayerTypeCode =
+          receiverTaxpayerType == null ? null : receiverTaxpayerType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code receiverRuc} (GENFE008, {@code dRucRec}).
      *
      * @param receiverRuc the value, or {@code null} to leave it out
@@ -681,6 +773,20 @@ public final class Nomination implements EventDetail {
      */
     public Builder receiverIdDocumentTypeCode(@Nullable String receiverIdDocumentTypeCode) {
       this.receiverIdDocumentTypeCode = receiverIdDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code receiverIdDocumentTypeCode} (GENFE010, {@code iTipIDRec}) from {@link
+     * NominationIdDocumentType}.
+     *
+     * @param receiverIdDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder receiverIdDocumentType(
+        @Nullable NominationIdDocumentType receiverIdDocumentType) {
+      this.receiverIdDocumentTypeCode =
+          receiverIdDocumentType == null ? null : receiverIdDocumentType.code();
       return this;
     }
 
@@ -759,6 +865,17 @@ public final class Nomination implements EventDetail {
      */
     public Builder receiverDepartmentCode(@Nullable String receiverDepartmentCode) {
       this.receiverDepartmentCode = receiverDepartmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code receiverDepartmentCode} (GENFE017, {@code cDepRec}) from {@link Department}.
+     *
+     * @param receiverDepartment the catalog constant
+     * @return this builder
+     */
+    public Builder receiverDepartment(@Nullable Department receiverDepartment) {
+      this.receiverDepartmentCode = receiverDepartment == null ? null : receiverDepartment.code();
       return this;
     }
 

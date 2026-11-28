@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.Department;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -120,6 +122,15 @@ public final class TransportDelivery {
   @SifenField(id = "E945", xml = "cDepEnt")
   public String departmentCode() {
     return departmentCode;
+  }
+
+  /**
+   * Returns {@link #departmentCode()} (E945) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> department() {
+    return Department.fromCode(departmentCode);
   }
 
   /**
@@ -351,6 +362,17 @@ public final class TransportDelivery {
      */
     public Builder departmentCode(String departmentCode) {
       this.departmentCode = departmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code departmentCode} (E945, {@code cDepEnt}) from {@link Department}.
+     *
+     * @param department the catalog constant
+     * @return this builder
+     */
+    public Builder department(Department department) {
+      this.departmentCode = department.code();
       return this;
     }
 

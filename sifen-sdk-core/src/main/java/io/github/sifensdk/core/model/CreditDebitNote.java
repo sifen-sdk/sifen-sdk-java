@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CreditDebitNoteReason;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -54,6 +56,15 @@ public final class CreditDebitNote {
   @SifenField(id = "E401", xml = "iMotEmi")
   public String reasonCode() {
     return reasonCode;
+  }
+
+  /**
+   * Returns {@link #reasonCode()} (E401) as {@link CreditDebitNoteReason}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CreditDebitNoteReason> reason() {
+    return CreditDebitNoteReason.fromCode(reasonCode);
   }
 
   /**
@@ -135,6 +146,17 @@ public final class CreditDebitNote {
      */
     public Builder reasonCode(String reasonCode) {
       this.reasonCode = reasonCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code reasonCode} (E401, {@code iMotEmi}) from {@link CreditDebitNoteReason}.
+     *
+     * @param reason the catalog constant
+     * @return this builder
+     */
+    public Builder reason(CreditDebitNoteReason reason) {
+      this.reasonCode = reason.code();
       return this;
     }
 

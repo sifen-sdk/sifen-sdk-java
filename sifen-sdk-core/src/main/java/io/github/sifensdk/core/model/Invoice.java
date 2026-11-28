@@ -4,8 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.PresenceIndicator;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -60,6 +62,15 @@ public final class Invoice {
   @SifenField(id = "E011", xml = "iIndPres")
   public String presenceIndicatorCode() {
     return presenceIndicatorCode;
+  }
+
+  /**
+   * Returns {@link #presenceIndicatorCode()} (E011) as {@link PresenceIndicator}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<PresenceIndicator> presenceIndicator() {
+    return PresenceIndicator.fromCode(presenceIndicatorCode);
   }
 
   /**
@@ -169,6 +180,17 @@ public final class Invoice {
      */
     public Builder presenceIndicatorCode(String presenceIndicatorCode) {
       this.presenceIndicatorCode = presenceIndicatorCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code presenceIndicatorCode} (E011, {@code iIndPres}) from {@link PresenceIndicator}.
+     *
+     * @param presenceIndicator the catalog constant
+     * @return this builder
+     */
+    public Builder presenceIndicator(PresenceIndicator presenceIndicator) {
+      this.presenceIndicatorCode = presenceIndicator.code();
       return this;
     }
 

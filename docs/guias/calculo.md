@@ -24,7 +24,7 @@ ItemAmounts a = calc.item(ItemPrice.builder()
 
 Item item = Item.builder()
     .description("Producto")
-    .unitOfMeasureCode("77")
+    .unitOfMeasure(UnitOfMeasure.UNIT)
     .quantity(new BigDecimal("3"))
     .values(a.values())                            // E720: valores, descuentos y total del ítem
     .vat(a.vat())                                  // E730: base gravada, IVA y base exenta

@@ -4,7 +4,15 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CarrierNature;
+import io.github.sifensdk.core.catalog.Department;
+import io.github.sifensdk.core.catalog.IdDocumentType;
+import io.github.sifensdk.core.catalog.TransportMode;
+import io.github.sifensdk.core.catalog.TransportType;
+import io.github.sifensdk.core.catalog.TransportUpdateReason;
+import io.github.sifensdk.core.catalog.VehicleIdentificationType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -123,6 +131,15 @@ public final class TransportUpdate implements EventDetail {
   }
 
   /**
+   * Returns {@link #reasonCode()} (GET003) as {@link TransportUpdateReason}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransportUpdateReason> reason() {
+    return TransportUpdateReason.fromCode(reasonCode);
+  }
+
+  /**
    * Código del departamento del local de la entrega.
    *
    * <p>SIFEN field {@code GET004} ({@code cDepEnt}).
@@ -132,6 +149,17 @@ public final class TransportUpdate implements EventDetail {
   @SifenField(id = "GET004", xml = "cDepEnt")
   public @Nullable String deliveryDepartmentCode() {
     return deliveryDepartmentCode;
+  }
+
+  /**
+   * Returns {@link #deliveryDepartmentCode()} (GET004) as {@link Department}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<Department> deliveryDepartment() {
+    return deliveryDepartmentCode == null
+        ? Optional.empty()
+        : Department.fromCode(deliveryDepartmentCode);
   }
 
   /**
@@ -276,6 +304,15 @@ public final class TransportUpdate implements EventDetail {
   }
 
   /**
+   * Returns {@link #carrierNatureCode()} (GET015) as {@link CarrierNature}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CarrierNature> carrierNature() {
+    return carrierNatureCode == null ? Optional.empty() : CarrierNature.fromCode(carrierNatureCode);
+  }
+
+  /**
    * RUC del transportista.
    *
    * <p>SIFEN field {@code GET016} ({@code dRucTrans}).
@@ -324,6 +361,17 @@ public final class TransportUpdate implements EventDetail {
   }
 
   /**
+   * Returns {@link #carrierIdDocumentTypeCode()} (GET019) as {@link IdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<IdDocumentType> carrierIdDocumentType() {
+    return carrierIdDocumentTypeCode == null
+        ? Optional.empty()
+        : IdDocumentType.fromCode(carrierIdDocumentTypeCode);
+  }
+
+  /**
    * Descripción del tipo de documento de identidad del transportista.
    *
    * <p>SIFEN field {@code GET020} ({@code dDTipIDTrans}).
@@ -363,6 +411,15 @@ public final class TransportUpdate implements EventDetail {
   }
 
   /**
+   * Returns {@link #transportTypeCode()} (GET022) as {@link TransportType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransportType> transportType() {
+    return transportTypeCode == null ? Optional.empty() : TransportType.fromCode(transportTypeCode);
+  }
+
+  /**
    * Descripción del tipo de transporte.
    *
    * <p>SIFEN field {@code GET023} ({@code dDesTipTrans}).
@@ -387,6 +444,15 @@ public final class TransportUpdate implements EventDetail {
   @SifenField(id = "GET024", xml = "iModTrans")
   public @Nullable String transportModeCode() {
     return transportModeCode;
+  }
+
+  /**
+   * Returns {@link #transportModeCode()} (GET024) as {@link TransportMode}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<TransportMode> transportMode() {
+    return transportModeCode == null ? Optional.empty() : TransportMode.fromCode(transportModeCode);
   }
 
   /**
@@ -438,6 +504,17 @@ public final class TransportUpdate implements EventDetail {
   @SifenField(id = "GET028", xml = "dTipIdenVeh")
   public @Nullable String vehicleIdentificationTypeCode() {
     return vehicleIdentificationTypeCode;
+  }
+
+  /**
+   * Returns {@link #vehicleIdentificationTypeCode()} (GET028) as {@link VehicleIdentificationType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<VehicleIdentificationType> vehicleIdentificationType() {
+    return vehicleIdentificationTypeCode == null
+        ? Optional.empty()
+        : VehicleIdentificationType.fromCode(vehicleIdentificationTypeCode);
   }
 
   /**
@@ -652,6 +729,17 @@ public final class TransportUpdate implements EventDetail {
     }
 
     /**
+     * Sets {@code reasonCode} (GET003, {@code dMotEv}) from {@link TransportUpdateReason}.
+     *
+     * @param reason the catalog constant
+     * @return this builder
+     */
+    public Builder reason(TransportUpdateReason reason) {
+      this.reasonCode = reason.code();
+      return this;
+    }
+
+    /**
      * Sets {@code deliveryDepartmentCode} (GET004, {@code cDepEnt}).
      *
      * @param deliveryDepartmentCode the value, or {@code null} to leave it out
@@ -659,6 +747,17 @@ public final class TransportUpdate implements EventDetail {
      */
     public Builder deliveryDepartmentCode(@Nullable String deliveryDepartmentCode) {
       this.deliveryDepartmentCode = deliveryDepartmentCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code deliveryDepartmentCode} (GET004, {@code cDepEnt}) from {@link Department}.
+     *
+     * @param deliveryDepartment the catalog constant
+     * @return this builder
+     */
+    public Builder deliveryDepartment(@Nullable Department deliveryDepartment) {
+      this.deliveryDepartmentCode = deliveryDepartment == null ? null : deliveryDepartment.code();
       return this;
     }
 
@@ -784,6 +883,17 @@ public final class TransportUpdate implements EventDetail {
     }
 
     /**
+     * Sets {@code carrierNatureCode} (GET015, {@code iNatTrans}) from {@link CarrierNature}.
+     *
+     * @param carrierNature the catalog constant
+     * @return this builder
+     */
+    public Builder carrierNature(@Nullable CarrierNature carrierNature) {
+      this.carrierNatureCode = carrierNature == null ? null : carrierNature.code();
+      return this;
+    }
+
+    /**
      * Sets {@code carrierRuc} (GET016, {@code dRucTrans}).
      *
      * @param carrierRuc the value, or {@code null} to leave it out
@@ -828,6 +938,19 @@ public final class TransportUpdate implements EventDetail {
     }
 
     /**
+     * Sets {@code carrierIdDocumentTypeCode} (GET019, {@code iTipIDTrans}) from {@link
+     * IdDocumentType}.
+     *
+     * @param carrierIdDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder carrierIdDocumentType(@Nullable IdDocumentType carrierIdDocumentType) {
+      this.carrierIdDocumentTypeCode =
+          carrierIdDocumentType == null ? null : carrierIdDocumentType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code carrierIdDocumentTypeDescription} (GET020, {@code dDTipIDTrans}).
      *
      * @param carrierIdDocumentTypeDescription the value, or {@code null} to leave it out
@@ -862,6 +985,17 @@ public final class TransportUpdate implements EventDetail {
     }
 
     /**
+     * Sets {@code transportTypeCode} (GET022, {@code iTipTrans}) from {@link TransportType}.
+     *
+     * @param transportType the catalog constant
+     * @return this builder
+     */
+    public Builder transportType(@Nullable TransportType transportType) {
+      this.transportTypeCode = transportType == null ? null : transportType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code transportTypeDescription} (GET023, {@code dDesTipTrans}).
      *
      * @param transportTypeDescription the value, or {@code null} to leave it out
@@ -880,6 +1014,17 @@ public final class TransportUpdate implements EventDetail {
      */
     public Builder transportModeCode(@Nullable String transportModeCode) {
       this.transportModeCode = transportModeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code transportModeCode} (GET024, {@code iModTrans}) from {@link TransportMode}.
+     *
+     * @param transportMode the catalog constant
+     * @return this builder
+     */
+    public Builder transportMode(@Nullable TransportMode transportMode) {
+      this.transportModeCode = transportMode == null ? null : transportMode.code();
       return this;
     }
 
@@ -924,6 +1069,20 @@ public final class TransportUpdate implements EventDetail {
      */
     public Builder vehicleIdentificationTypeCode(@Nullable String vehicleIdentificationTypeCode) {
       this.vehicleIdentificationTypeCode = vehicleIdentificationTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code vehicleIdentificationTypeCode} (GET028, {@code dTipIdenVeh}) from {@link
+     * VehicleIdentificationType}.
+     *
+     * @param vehicleIdentificationType the catalog constant
+     * @return this builder
+     */
+    public Builder vehicleIdentificationType(
+        @Nullable VehicleIdentificationType vehicleIdentificationType) {
+      this.vehicleIdentificationTypeCode =
+          vehicleIdentificationType == null ? null : vehicleIdentificationType.code();
       return this;
     }
 

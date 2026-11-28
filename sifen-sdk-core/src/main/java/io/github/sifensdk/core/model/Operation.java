@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.EmissionType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -61,6 +63,15 @@ public final class Operation {
   @SifenField(id = "B002", xml = "iTipEmi")
   public String emissionTypeCode() {
     return emissionTypeCode;
+  }
+
+  /**
+   * Returns {@link #emissionTypeCode()} (B002) as {@link EmissionType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<EmissionType> emissionType() {
+    return EmissionType.fromCode(emissionTypeCode);
   }
 
   /**
@@ -189,6 +200,17 @@ public final class Operation {
      */
     public Builder emissionTypeCode(String emissionTypeCode) {
       this.emissionTypeCode = emissionTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code emissionTypeCode} (B002, {@code iTipEmi}) from {@link EmissionType}.
+     *
+     * @param emissionType the catalog constant
+     * @return this builder
+     */
+    public Builder emissionType(EmissionType emissionType) {
+      this.emissionTypeCode = emissionType.code();
       return this;
     }
 

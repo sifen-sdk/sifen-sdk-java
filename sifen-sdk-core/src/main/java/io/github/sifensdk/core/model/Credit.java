@@ -4,10 +4,12 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CreditCondition;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -65,6 +67,15 @@ public final class Credit {
   @SifenField(id = "E641", xml = "iCondCred")
   public String conditionCode() {
     return conditionCode;
+  }
+
+  /**
+   * Returns {@link #conditionCode()} (E641) as {@link CreditCondition}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CreditCondition> condition() {
+    return CreditCondition.fromCode(conditionCode);
   }
 
   /**
@@ -209,6 +220,17 @@ public final class Credit {
      */
     public Builder conditionCode(String conditionCode) {
       this.conditionCode = conditionCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code conditionCode} (E641, {@code iCondCred}) from {@link CreditCondition}.
+     *
+     * @param condition the catalog constant
+     * @return this builder
+     */
+    public Builder condition(CreditCondition condition) {
+      this.conditionCode = condition.code();
       return this;
     }
 

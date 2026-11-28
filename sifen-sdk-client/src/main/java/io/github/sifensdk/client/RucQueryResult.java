@@ -4,8 +4,10 @@
  */
 package io.github.sifensdk.client;
 
+import io.github.sifensdk.core.catalog.RucStatus;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -106,6 +108,15 @@ public final class RucQueryResult {
    */
   public @Nullable String statusCode() {
     return statusCode;
+  }
+
+  /**
+   * Returns the taxpayer's status as {@link RucStatus} (active, suspended, blocked, cancelled…).
+   *
+   * @return the status, or empty if SIFEN sent none or this SDK version does not know the code
+   */
+  public Optional<RucStatus> status() {
+    return statusCode == null ? Optional.empty() : RucStatus.fromCode(statusCode);
   }
 
   /**

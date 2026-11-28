@@ -19,5 +19,6 @@ estas son las propias del SDK de Java.
 | [0011](0011-lo-que-completa-el-sdk.md) | Lo que completa el SDK y lo que trae el emisor | Aceptada |
 | [0012](0012-claves-externas-y-proveedor-de-firma.md) | Claves en token, HSM o firma remota, y el proveedor que firma con ellas | Aceptada |
 | [0013](0013-sitio-de-documentacion.md) | Sitio de documentación con MkDocs Material en GitHub Pages | Aceptada |
+| [0014](0014-codigos-de-catalogo-tipados.md) | Códigos de catálogo tipados (`enum` junto al `String`) | Aceptada |
 
 Plantilla: [0000-plantilla.md](0000-plantilla.md).

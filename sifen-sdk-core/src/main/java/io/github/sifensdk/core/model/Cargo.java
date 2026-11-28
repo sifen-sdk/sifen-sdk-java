@@ -4,8 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.CargoCharacteristic;
+import io.github.sifensdk.core.catalog.UnitOfMeasure;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -70,6 +73,15 @@ public final class Cargo {
   }
 
   /**
+   * Returns {@link #volumeUnitCode()} (G051) as {@link UnitOfMeasure}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<UnitOfMeasure> volumeUnit() {
+    return volumeUnitCode == null ? Optional.empty() : UnitOfMeasure.fromCode(volumeUnitCode);
+  }
+
+  /**
    * Descripción de la unidad de medida del total de volumen de la mercadería.
    *
    * <p>SIFEN field {@code G052} ({@code dDesUniMedTotVol}).
@@ -110,6 +122,15 @@ public final class Cargo {
   }
 
   /**
+   * Returns {@link #weightUnitCode()} (G054) as {@link UnitOfMeasure}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<UnitOfMeasure> weightUnit() {
+    return weightUnitCode == null ? Optional.empty() : UnitOfMeasure.fromCode(weightUnitCode);
+  }
+
+  /**
    * Descripción de la unidad de medida del peso total de la mercadería.
    *
    * <p>SIFEN field {@code G055} ({@code dDesUniMedTotPes}).
@@ -147,6 +168,17 @@ public final class Cargo {
   @SifenField(id = "G057", xml = "iCarCarga")
   public @Nullable String characteristicCode() {
     return characteristicCode;
+  }
+
+  /**
+   * Returns {@link #characteristicCode()} (G057) as {@link CargoCharacteristic}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<CargoCharacteristic> characteristic() {
+    return characteristicCode == null
+        ? Optional.empty()
+        : CargoCharacteristic.fromCode(characteristicCode);
   }
 
   /**
@@ -255,6 +287,17 @@ public final class Cargo {
     }
 
     /**
+     * Sets {@code volumeUnitCode} (G051, {@code cUniMedTotVol}) from {@link UnitOfMeasure}.
+     *
+     * @param volumeUnit the catalog constant
+     * @return this builder
+     */
+    public Builder volumeUnit(@Nullable UnitOfMeasure volumeUnit) {
+      this.volumeUnitCode = volumeUnit == null ? null : volumeUnit.code();
+      return this;
+    }
+
+    /**
      * Sets {@code volumeUnitDescription} (G052, {@code dDesUniMedTotVol}).
      *
      * @param volumeUnitDescription the value, or {@code null} to leave it out
@@ -288,6 +331,17 @@ public final class Cargo {
     }
 
     /**
+     * Sets {@code weightUnitCode} (G054, {@code cUniMedTotPes}) from {@link UnitOfMeasure}.
+     *
+     * @param weightUnit the catalog constant
+     * @return this builder
+     */
+    public Builder weightUnit(@Nullable UnitOfMeasure weightUnit) {
+      this.weightUnitCode = weightUnit == null ? null : weightUnit.code();
+      return this;
+    }
+
+    /**
      * Sets {@code weightUnitDescription} (G055, {@code dDesUniMedTotPes}).
      *
      * @param weightUnitDescription the value, or {@code null} to leave it out
@@ -317,6 +371,17 @@ public final class Cargo {
      */
     public Builder characteristicCode(@Nullable String characteristicCode) {
       this.characteristicCode = characteristicCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code characteristicCode} (G057, {@code iCarCarga}) from {@link CargoCharacteristic}.
+     *
+     * @param characteristic the catalog constant
+     * @return this builder
+     */
+    public Builder characteristic(@Nullable CargoCharacteristic characteristic) {
+      this.characteristicCode = characteristic == null ? null : characteristic.code();
       return this;
     }
 

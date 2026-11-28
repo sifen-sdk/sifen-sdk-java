@@ -4,8 +4,10 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.DocumentType;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -68,6 +70,15 @@ public final class Stamp {
   @SifenField(id = "C002", xml = "iTiDE")
   public String documentTypeCode() {
     return documentTypeCode;
+  }
+
+  /**
+   * Returns {@link #documentTypeCode()} (C002) as {@link DocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<DocumentType> documentType() {
+    return DocumentType.fromCode(documentTypeCode);
   }
 
   /**
@@ -244,6 +255,17 @@ public final class Stamp {
      */
     public Builder documentTypeCode(String documentTypeCode) {
       this.documentTypeCode = documentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code documentTypeCode} (C002, {@code iTiDE}) from {@link DocumentType}.
+     *
+     * @param documentType the catalog constant
+     * @return this builder
+     */
+    public Builder documentType(DocumentType documentType) {
+      this.documentTypeCode = documentType.code();
       return this;
     }
 

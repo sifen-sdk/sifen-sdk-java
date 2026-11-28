@@ -4,8 +4,11 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.EventReceiverType;
+import io.github.sifensdk.core.catalog.IdDocumentType;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -112,6 +115,15 @@ public final class NonRecognition implements EventDetail {
   }
 
   /**
+   * Returns {@link #receiverTypeCode()} (GED005) as {@link EventReceiverType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<EventReceiverType> receiverType() {
+    return EventReceiverType.fromCode(receiverTypeCode);
+  }
+
+  /**
    * Nombre o Razón Social del Receptor del DE/DTE.
    *
    * <p>SIFEN field {@code GED006} ({@code dNomRec}).
@@ -157,6 +169,17 @@ public final class NonRecognition implements EventDetail {
   @SifenField(id = "GED009", xml = "dTipIDRec")
   public @Nullable String receiverIdDocumentTypeCode() {
     return receiverIdDocumentTypeCode;
+  }
+
+  /**
+   * Returns {@link #receiverIdDocumentTypeCode()} (GED009) as {@link IdDocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<IdDocumentType> receiverIdDocumentType() {
+    return receiverIdDocumentTypeCode == null
+        ? Optional.empty()
+        : IdDocumentType.fromCode(receiverIdDocumentTypeCode);
   }
 
   /**
@@ -317,6 +340,17 @@ public final class NonRecognition implements EventDetail {
     }
 
     /**
+     * Sets {@code receiverTypeCode} (GED005, {@code iTipRec}) from {@link EventReceiverType}.
+     *
+     * @param receiverType the catalog constant
+     * @return this builder
+     */
+    public Builder receiverType(EventReceiverType receiverType) {
+      this.receiverTypeCode = receiverType.code();
+      return this;
+    }
+
+    /**
      * Sets {@code receiverName} (GED006, {@code dNomRec}).
      *
      * @param receiverName the value
@@ -357,6 +391,19 @@ public final class NonRecognition implements EventDetail {
      */
     public Builder receiverIdDocumentTypeCode(@Nullable String receiverIdDocumentTypeCode) {
       this.receiverIdDocumentTypeCode = receiverIdDocumentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code receiverIdDocumentTypeCode} (GED009, {@code dTipIDRec}) from {@link
+     * IdDocumentType}.
+     *
+     * @param receiverIdDocumentType the catalog constant
+     * @return this builder
+     */
+    public Builder receiverIdDocumentType(@Nullable IdDocumentType receiverIdDocumentType) {
+      this.receiverIdDocumentTypeCode =
+          receiverIdDocumentType == null ? null : receiverIdDocumentType.code();
       return this;
     }
 

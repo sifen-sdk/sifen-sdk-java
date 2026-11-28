@@ -4,7 +4,9 @@
  */
 package io.github.sifensdk.core.model;
 
+import io.github.sifensdk.core.catalog.DocumentType;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -128,6 +130,15 @@ public final class NumberInvalidation implements EventDetail {
   @SifenField(id = "GEI007", xml = "iTiDE")
   public String documentTypeCode() {
     return documentTypeCode;
+  }
+
+  /**
+   * Returns {@link #documentTypeCode()} (GEI007) as {@link DocumentType}.
+   *
+   * @return the constant, or empty if the code is not set or this SDK version does not know it
+   */
+  public Optional<DocumentType> documentType() {
+    return DocumentType.fromCode(documentTypeCode);
   }
 
   /**
@@ -298,6 +309,17 @@ public final class NumberInvalidation implements EventDetail {
      */
     public Builder documentTypeCode(String documentTypeCode) {
       this.documentTypeCode = documentTypeCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code documentTypeCode} (GEI007, {@code iTiDE}) from {@link DocumentType}.
+     *
+     * @param documentType the catalog constant
+     * @return this builder
+     */
+    public Builder documentType(DocumentType documentType) {
+      this.documentTypeCode = documentType.code();
       return this;
     }
 

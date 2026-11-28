@@ -6,7 +6,9 @@ package io.github.sifensdk.core.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Currency;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -60,6 +62,19 @@ public final class Installment {
   @SifenField(id = "E653", xml = "cMoneCuo")
   public String currencyCode() {
     return currencyCode;
+  }
+
+  /**
+   * Returns {@link #currencyCode()} (E653) as {@link Currency}.
+   *
+   * @return the currency, or empty if the code is not set or is not an ISO 4217 code
+   */
+  public Optional<Currency> currency() {
+    try {
+      return Optional.of(Currency.getInstance(currencyCode));
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 
   /**
@@ -170,6 +185,17 @@ public final class Installment {
      */
     public Builder currencyCode(String currencyCode) {
       this.currencyCode = currencyCode;
+      return this;
+    }
+
+    /**
+     * Sets {@code currencyCode} (E653, {@code cMoneCuo}) from {@link Currency}.
+     *
+     * @param currency the currency (ISO 4217)
+     * @return this builder
+     */
+    public Builder currency(Currency currency) {
+      this.currencyCode = currency.getCurrencyCode();
       return this;
     }
 
