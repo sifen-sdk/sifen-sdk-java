@@ -5,7 +5,7 @@
   <!-- Standalone on purpose: a BOM must not leak the build's own dependency management to its users. -->
   <groupId>io.github.sifen-sdk</groupId>
   <artifactId>sifen-sdk-bom</artifactId>
-  <version>1.0.0-beta.2</version>
+  <version>1.0.0-beta.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SIFEN SDK for Java :: BOM</name>
